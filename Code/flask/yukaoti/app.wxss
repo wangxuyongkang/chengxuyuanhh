@@ -1,0 +1,12 @@
+/**app.wxss**/
+.container {
+  width:100%;
+  overflow:hidden;
+  font-size:12px;
+  font-family: "\5FAE\8F6F\96C5\9ED1";
+}
+.content{
+	width:94%;
+	padding:0 3%;
+	overflow:hidden;
+}

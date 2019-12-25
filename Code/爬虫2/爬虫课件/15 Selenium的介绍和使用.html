@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="37.38628387451172"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-27 10:58:33 +0000"/><meta name="latitude" content="39.63022921235004"/><meta name="longitude" content="116.0481306567955"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-10 08:00:11 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>15 Selenium的介绍和使用</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">动态HTML的介绍</h3>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">JavaScript</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">JavaScript 是网络上最常用也是支持者最多的客户端脚本语言。它可以收集 用户的跟踪数据,不需要重载页面直接提交表单，在页面嵌入多媒体文件，甚至运行网页游戏。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">我们可以在网页源代码的&lt;scripy&gt;标签里看到，比如：</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">&lt;script type="text/javascript" 
+src="https://statics.huxiu.
+com/w/mini/static_2015/js/sea.js?v=201601150944"&gt;
+
+&lt;/script&gt;
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">jQuery</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">jQuery 是一个十分常见的库,70% 最流行的网站(约 200 万)和约 30% 的其他网站(约 2 亿)都在使用。一个网站使用 jQuery 的特征,就是源代码里包含了 jQuery 入口,比如:</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">&lt;script type="text/javascript"
+ src="https://statics.huxiu.com/w/mini/static_2015/js/
+ jquery-1.11.1.min.js?v=201512181512"&gt;
+
+&lt;/script&gt;
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">如果你在一个网站上看到了 jQuery，那么采集这个网站数据的时候要格外小心。jQuery 可 以动态地创建 HTML 内容,只有在 JavaScript 代码执行之后才会显示。如果你用传统的方 法采集页面内容,就只能获得 JavaScript 代码执行之前页面上的内容。</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Ajax</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">我们与网站服务器通信的唯一方式，就是发出 HTTP 请求获取新页面。如果提交表单之后，或从服务器获取信息之后，网站的页面不需要重新刷新，那么你访问的网站就在用Ajax 技术。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Ajax 其实并不是一门语言,而是用来完成网络任务(可以认为 它与网络数据采集差不多)的一系列技术。Ajax 全称是 Asynchronous JavaScript and XML(异步 JavaScript 和 XML)，网站不需要使用单独的页面请求就可以和网络服务器进行交互 (收发信息)。</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">DHTML</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Ajax 一样，动态 HTML(Dynamic HTML, DHTML)也是一系列用于解决网络问题的 技术集合。DHTML 是用客户端语言改变页面的 HTML 元素(HTML、CSS，或者二者皆 被改变)。比如页面上的按钮只有当用户移动鼠标之后才出现,背景色可能每次点击都会改变，或者用一个 Ajax 请求触发页面加载一段新内容，网页是否属于DHTML，关键要看有没有用 JavaScript 控制 HTML 和 CSS 元素。</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">那么，如何搞定？</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">那些使用了 Ajax 或 DHTML 技术改变 / 加载内容的页面，可能有一些采集手段。但是用 Python 解决这个问题只有两种途径:</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">直接从 JavaScript 代码里采集内容（费时费力）</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">用 Python 的 第三方库运行 JavaScript，直接采集你在浏览器里看到的页面（ selenium ）</li>
+</ul>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">Selenium</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Selenium是一个Web的自动化测试工具，最初是为网站自动化测试而开发的，类型像我们玩游戏用的按键精灵，可以按指定的命令自动操作，不同是Selenium 可以直接运行在浏览器上，它支持所有主流的浏览器（包括PhantomJS这些无界面的浏览器）。<br/>
+Selenium 可以根据我们的指令，让浏览器自动加载页面，获取需要的数据，甚至页面截屏，或者判断网站上某些动作是否发生。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Selenium 自己不带浏览器，不支持浏览器的功能，它需要与第三方浏览器结合在一起才能使用。但是我们有时候需要让它内嵌在代码中运行，所以我们可以用一个叫 PhantomJS 的工具代替真实的浏览器。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">可以从 PyPI 网站下载 Selenium库https://pypi.python.org/simple/selenium ，<br/>
+也可以用第三方管理器 pip用命令安装：</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip3 install selenium</p>
+</blockquote>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">selenium 官方参考文档</strong>：</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">英文文档<br/>
+http://selenium-python.readthedocs.io/index.html</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">中文文档<br/>
+http://selenium-python-zh.readthedocs.io</li>
+</ul>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">PhantomJS无头浏览器下载地址</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">无界面浏览器引擎,无界面可脚本编程的webkit浏览器引擎（目前chrom也可以支持无界面请求了）<br/>
+下载地址：</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">http://phantomjs.org/download.html<br/>
+API使用说明：</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">http://phantomjs.org/api/command-line.html<br/>
+2.1.1</li>
+</ul>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">火狐驱动下载路径（GeckoDriver）</strong>：</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">https://github.com/mozilla/geckodriver/releases</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">（2.3.8是最新的,下载的驱动版本一定要支持你当前的浏览器版             本）</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">谷歌驱动（chromedriver）下载地址</strong>：</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">http://chromedriver.storage.googleapis.com/index.html</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Selenium 库里有个叫 WebDriver 的 API。WebDriver 有点儿像可以加载网站的浏览器，但是它也可以像 BeautifulSoup 或者其他 Selector 对象一样用来查找页面元素，与页面上的元素进行交互 (发送文本、点击等)，以及执行其他动作来运行网络爬虫。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意：</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">我们使用的有界面浏览器，它虽然方便我们观察，但是在实际运用中是非常消耗性能的<br/>
+我们也可以使用Chrome的无界面浏览器,除了没有浏览器界面以外，其它的相关操作都与有界面浏览器相同</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">主要使用的方法和代码如下</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">导入模块</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium import webdriver
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">浏览器driver使用</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">使用火狐浏览器驱动</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver = webdriver.Firefox(executable_path='驱动路径')
+driver.get('https://www.baidu.com/')
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">使用Phantomjs无头浏览器加载</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver = webdriver.PhantomJS(executable_path='驱动路径')
+driver.get('https://www.baidu.com/')
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">使用谷歌浏览器启动</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver = webdriver.Chrome(executable_path='驱动路径')
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">设置谷歌无头浏览器</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 创建chrome参数对象
+opt = webdriver.ChromeOptions()
+# 把chrome设置成为无界面模式
+opt.set_headless()
+driver = webdriver.Chrome(
+    options=opt, executable_path='驱动路径'
+)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">设置页面加载时间</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.set_page_load_timeout(0.1)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">异常处理</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium.common.exceptions import TimeoutException
+</code></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">#处理异常
+try:
+    driver.get('https://www.baidu.com/')
+    driver.save_screenshot('prcture.png')
+except TimeoutException as err:
+    print(err)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">定位和操作节点</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_xpath():根据xpath定位节点</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_id():根据id定位节点</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_class_name():根据类名定位节点</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_partial_link_text():根据部分文本内容定位节点</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_css_selector():根据css选择器定位节点</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">driver.find_element_by_link_text():根据完整文本定位节点</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.find_element_by_id('kw').send_keys('隔壁老赵')
+driver.find_element_by_id('su').click()
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">获取信息页面源码</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">print(driver.page_source)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">获取当前请求的url地址</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">print(driver.current_url)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Cookies操作</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">获取页面每个Cookies值，用法如下</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">cookies = driver.get_cookies()
+cookie_dict = {i['name']:i['value'] for i in cookies}
+print(cookie_dict)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">添加cookies</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.add_cookie(cookie_dict)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">删除Cookies，用法如下</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">删除一个特定的cookie</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.delete_cookie("CookieName")
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">删除所有cookie</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.delete_all_cookies()
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">页面前进和后退</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">操作页面的前进和后退功能：</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">driver.forward()     #前进
+
+driver.back()        # 后退
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">设置代理</strong></h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">opt = webdriver.ChromeOptions()
+opt.add_argument("--proxy-server=http://118.20.16.82:9999")
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">一定要注意，=两边不能有空格</strong></p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">切换Frame</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">网页中有一种节点叫做iframe,也就是子Frame,我们不能够直接获取到子Frame中的节点，要想获取到需要切换到子frame下</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">login_frame：为子frame的名称
+driver.switch_to_frame('login_frame')
+</code></pre>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">页面等待</strong></h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">现在的大多数的Web应用程序是使用Ajax技术。当一个页面被加载到浏览器时， 该页面内的元素可以在不同的时间点被加载。这使得定位元素变得困难， 如果元素不再页面之中，会抛出 ElementNotVisibleException 异常。 使用 waits, 我们可以解决这个问题。waits提供了一些操作之间的时间间隔- 主要是定位元素或针对该元素的任何其他操作。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Selenium Webdriver 提供两种类型的waits - 隐式和显式。 显式等待会让WebDriver等待满足一定的条件以后再进一步的执行。 而隐式等待让Webdriver等待一定的时间后再才是查找某元素。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Selenium 提供了两种等待方式，一种是隐式等待，一种是显式等待。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">显式等待是指定一个最长的等待时间,直到条件成立时继续执行。如果在设定时间内没加载出来节点,则返回异常信息,如果加载出来了则返回节点</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">隐式等待是等待特定的时间，如果节点没有立即出现，隐士等待将一段时间再进行查找</strong></p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">显式等待</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">显式等待是你在代码中定义等待一定条件发生后再进一步执行你的代码。 最糟糕的案例是使用time.sleep()，它将条件设置为等待一个确切的时间段。 这里有一些方便的方法让你只等待需要的时间。WebDriverWait结合ExpectedCondition 是实现的一种方式。</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium import webdriver
+from selenium.webdriver.common.by import By
+# WebDriverWait 库，负责循环等待
+from selenium.webdriver.support.ui import WebDriverWait
+# expected_conditions 类，负责条件出发
+from selenium.webdriver.support import expected_conditions as EC
+
+driver = webdriver.Chrome()
+driver.get("http://www.xxxxx.com/loading")
+try:
+    ##### 会在这里等待，如果10秒内 的标签出现
+    则返回，如果不出现则报异常
+    element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located(
+            (By.ID, "myDynamicElement")
+            )
+    )
+finally:
+    driver.quit()
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">隐式等待</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">如果某些元素不是立即可用的，隐式等待是告诉WebDriver去等待一定的时间后去查找元素。 默认等待时间是0秒，一旦设置该值，隐式等待是设置该WebDriver的实例的生命周期。</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium import webdriver
+
+driver = webdriver.Chrome()
+driver.implicitly_wait(10) # seconds
+driver.get("http://www.xxxxx.com/loading")
+myDynamicElement = driver.find_element_by_id("myDynamicElement")
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">下面是一些内置的等待条件，你可以直接调用这些条件，而不用自己写某些等待条件了。</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">title_is    标题是某内容  
+title_contains   标题包含某内容
+presence_of_element_located 确保节点在本地加载出来传入元组（By.ID,'password'）
+visibility_of_element_located  节点可见，传入定位元组
+presence_of_all_elements_located　所有节点加载出来
+text_to_be_present_in_element　某个节点的文本包含某文字
+text_to_be_present_in_element_value　某个节点的值包含某文字
+frame_to_be_available_and_switch_to_it　加载并切换
+invisibility_of_element_located　节点不可见
+element_to_be_clickable – 节点可点击.
+staleness_of　判断某个节点是否在文本中
+element_located_to_be_selected　节点可选择，传入定位元组
+alert_is_present　是否出现警告
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://www.cnblogs.com/peng-lan/p/9604672.html</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">异常处理</strong></h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">请求超时异常处理</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium.common.exceptions import TimeoutException
+
+try:
+    brower.get(url)
+except TimeoutException:
+    print('Time out')
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">找不到标签的异常处理</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium.common.exceptions import NoSuchElementException
+
+try:
+    brower.find_element_by_id('').click()
+    print('有标签')
+except NoSuchElementException:
+    print('没有这个标签')    
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">执行JavaScript语句</strong></h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">### js隐藏元素，将获取的图片元素隐藏
+imgs = driver.find_elements_by_xpath("//img")
+for img in imgs:
+    driver.execute_script('$(arguments[0]).fadeOut()',img)
+
+#### 向下滚动到页面底部
+driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
+
+#### 弹出弹窗
+driver.execute_script('alert("This is a alert")')
+
+driver.quit()
+</code></pre>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">鼠标动作链（了解）</strong></h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">有些时候，我们需要再页面上模拟一些鼠标操作，比如双击、右击、拖拽甚至按住不动等，我们可以通过导入 ActionChains 类来做到：</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">#-*- coding:UTF-8 -*-
+
+##### 导入ActionChains类
+
+from selenium.webdriver import ActionChains
+
+from selenium import webdriver
+
+from selenium.webdriver.common.keys import Keys
+
+import time
+
+driver = webdriver.Chrome(executable_path='/Users/ljh/Desktop/chromedriver')
+
+driver.get('http://www.baidu.com')
+
+##### 鼠标移动到ac位置,移动到第四个ａ标签的位置
+
+action = driver.find_element_by_xpath('//div[@]/a[4]')
+
+ActionChains(driver).move_to_element(action).perform()
+
+##### 在action上单击
+
+ActionChains(driver).move_to_element(action).click(action).perform()
+
+##### 在 ac 位置双击
+
+ActionChains(driver).move_to_element(action).double_click(action).perform()
+
+##### 在 ac 位置右击
+
+ActionChains(driver).move_to_element(action).context_click(action).perform()
+
+##### 在 ac 位置左键单击hold住
+
+ActionChains(driver).move_to_element(action).click_and_hold(action).perform()
+
+##### 将 ac1 拖拽到 ac2 位置
+
+time.sleep(5)
+
+ac1 = driver.find_element_by_id("su")
+
+ac2 = driver.find_element_by_class_name('mnav')
+
+ActionChains(driver).drag_and_drop(ac1,ac2).perform()
+
+time.sleep(5)
+
+driver.quit()
+</code></pre>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">Selenium模拟登录案例（云打码）</h3>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">selenium模拟点击（斗鱼）</h3>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium import webdriver
+from lxml import etree
+import time
+
+class Douyu_spider(object):
+
+    def __init__(self):
+        #创建一个浏览器驱动,加载网页
+        self.driver = webdriver.Chrome(
+            executable_path='/home/ljh/桌面/driver/chromedriver'
+        )
+
+    #打开首页的页面地址
+    def start_spider(self):
+        #打开斗鱼的页面
+        self.driver.get('https://www.douyu.com/directory/all')
+        #　获取视频信息数据
+        self.get_video_data()
+
+
+    def get_video_data(self):
+        #隐士等待10秒
+        self.driver.implicitly_wait(10)
+        #将页面滚动到底部（注意这里必须要将页面滚动到底部,不然会获取不到数据）
+        self.driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')
+        time.sleep(3)
+        #找到每一项的视频信息节点
+        video_lis = self.driver.find_elements_by_xpath('//ul[@]/li')
+
+        for li in video_lis:
+            video_dict = {}
+            #获取标题
+            video_dict['title'] = li.find_element_by_xpath('.//h3[@]').text
+            #获取封面图片
+            video_dict['image_cover'] = li.find_element_by_xpath('.//span[@]/img').get_attribute('data-original')
+            #获取作者名称
+            video_dict['author'] = li.find_element_by_xpath('.//span[@]').text
+            #获取热量
+            video_dict['hotnum'] = li.find_element_by_xpath('.//span[@]').text
+            #将数据存储
+            self.save_data_to_db(video_dict)
+
+        # 获取下一页
+        element = self.driver.find_element_by_class_name('shark-pager-next')
+        if element:
+            element.click()
+            self.get_video_data()
+        else:
+            print('没有下一页了')
+            self.driver.quit()
+
+    def save_data_to_db(self,data):
+        print('在这里做数据的持久化')
+
+if __name__ == '__main__':
+
+    spider = Douyu_spider()
+    spider.start_spider()
+    
+</code></pre>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">作业练习</h3>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">selenium模拟登录：模拟登录github或者王者荣耀官方网站
+
+selenium作业：模拟点击豆瓣网电影搜索，获取电影列表信息，将数据存储到mongodb数据库
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%20%E5%8A%A8%E6%80%81HTML%E7%9A%84%E4%BB%8B%E7%BB%8D%0A%0A%23%23%23%23%20**JavaScript**%0A%0AJavaScript%20%E6%98%AF%E7%BD%91%E7%BB%9C%E4%B8%8A%E6%9C%80%E5%B8%B8%E7%94%A8%E4%B9%9F%E6%98%AF%E6%94%AF%E6%8C%81%E8%80%85%E6%9C%80%E5%A4%9A%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80%E3%80%82%E5%AE%83%E5%8F%AF%E4%BB%A5%E6%94%B6%E9%9B%86%20%E7%94%A8%E6%88%B7%E7%9A%84%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%2C%E4%B8%8D%E9%9C%80%E8%A6%81%E9%87%8D%E8%BD%BD%E9%A1%B5%E9%9D%A2%E7%9B%B4%E6%8E%A5%E6%8F%90%E4%BA%A4%E8%A1%A8%E5%8D%95%EF%BC%8C%E5%9C%A8%E9%A1%B5%E9%9D%A2%E5%B5%8C%E5%85%A5%E5%A4%9A%E5%AA%92%E4%BD%93%E6%96%87%E4%BB%B6%EF%BC%8C%E7%94%9A%E8%87%B3%E8%BF%90%E8%A1%8C%E7%BD%91%E9%A1%B5%E6%B8%B8%E6%88%8F%E3%80%82%0A%0A%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%9C%A8%E7%BD%91%E9%A1%B5%E6%BA%90%E4%BB%A3%E7%A0%81%E7%9A%84%5C%3Cscripy%5C%3E%E6%A0%87%E7%AD%BE%E9%87%8C%E7%9C%8B%E5%88%B0%EF%BC%8C%E6%AF%94%E5%A6%82%EF%BC%9A%0A%60%60%60%0A%3Cscript%20type%3D%22text%2Fjavascript%22%20%0Asrc%3D%22https%3A%2F%2Fstatics.huxiu.%0Acom%2Fw%2Fmini%2Fstatic_2015%2Fjs%2Fsea.js%3Fv%3D201601150944%22%3E%0A%0A%3C%2Fscript%3E%0A%60%60%60%0A%23%23%23%23%20**jQuery**%0A%0AjQuery%20%E6%98%AF%E4%B8%80%E4%B8%AA%E5%8D%81%E5%88%86%E5%B8%B8%E8%A7%81%E7%9A%84%E5%BA%93%2C70%25%20%E6%9C%80%E6%B5%81%E8%A1%8C%E7%9A%84%E7%BD%91%E7%AB%99(%E7%BA%A6%20200%20%E4%B8%87)%E5%92%8C%E7%BA%A6%2030%25%20%E7%9A%84%E5%85%B6%E4%BB%96%E7%BD%91%E7%AB%99(%E7%BA%A6%202%20%E4%BA%BF)%E9%83%BD%E5%9C%A8%E4%BD%BF%E7%94%A8%E3%80%82%E4%B8%80%E4%B8%AA%E7%BD%91%E7%AB%99%E4%BD%BF%E7%94%A8%20jQuery%20%E7%9A%84%E7%89%B9%E5%BE%81%2C%E5%B0%B1%E6%98%AF%E6%BA%90%E4%BB%A3%E7%A0%81%E9%87%8C%E5%8C%85%E5%90%AB%E4%BA%86%20jQuery%20%E5%85%A5%E5%8F%A3%2C%E6%AF%94%E5%A6%82%3A%0A%60%60%60%0A%3Cscript%20type%3D%22text%2Fjavascript%22%0A%20src%3D%22https%3A%2F%2Fstatics.huxiu.com%2Fw%2Fmini%2Fstatic_2015%2Fjs%2F%0A%20jquery-1.11.1.min.js%3Fv%3D201512181512%22%3E%0A%0A%3C%2Fscript%3E%0A%60%60%60%0A%E5%A6%82%E6%9E%9C%E4%BD%A0%E5%9C%A8%E4%B8%80%E4%B8%AA%E7%BD%91%E7%AB%99%E4%B8%8A%E7%9C%8B%E5%88%B0%E4%BA%86%20jQuery%EF%BC%8C%E9%82%A3%E4%B9%88%E9%87%87%E9%9B%86%E8%BF%99%E4%B8%AA%E7%BD%91%E7%AB%99%E6%95%B0%E6%8D%AE%E7%9A%84%E6%97%B6%E5%80%99%E8%A6%81%E6%A0%BC%E5%A4%96%E5%B0%8F%E5%BF%83%E3%80%82jQuery%20%E5%8F%AF%20%E4%BB%A5%E5%8A%A8%E6%80%81%E5%9C%B0%E5%88%9B%E5%BB%BA%20HTML%20%E5%86%85%E5%AE%B9%2C%E5%8F%AA%E6%9C%89%E5%9C%A8%20JavaScript%20%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E4%B9%8B%E5%90%8E%E6%89%8D%E4%BC%9A%E6%98%BE%E7%A4%BA%E3%80%82%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%94%A8%E4%BC%A0%E7%BB%9F%E7%9A%84%E6%96%B9%20%E6%B3%95%E9%87%87%E9%9B%86%E9%A1%B5%E9%9D%A2%E5%86%85%E5%AE%B9%2C%E5%B0%B1%E5%8F%AA%E8%83%BD%E8%8E%B7%E5%BE%97%20JavaScript%20%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E4%B9%8B%E5%89%8D%E9%A1%B5%E9%9D%A2%E4%B8%8A%E7%9A%84%E5%86%85%E5%AE%B9%E3%80%82%0A%0A%23%23%23%23%20**Ajax**%0A%0A%E6%88%91%E4%BB%AC%E4%B8%8E%E7%BD%91%E7%AB%99%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%80%9A%E4%BF%A1%E7%9A%84%E5%94%AF%E4%B8%80%E6%96%B9%E5%BC%8F%EF%BC%8C%E5%B0%B1%E6%98%AF%E5%8F%91%E5%87%BA%20HTTP%20%E8%AF%B7%E6%B1%82%E8%8E%B7%E5%8F%96%E6%96%B0%E9%A1%B5%E9%9D%A2%E3%80%82%E5%A6%82%E6%9E%9C%E6%8F%90%E4%BA%A4%E8%A1%A8%E5%8D%95%E4%B9%8B%E5%90%8E%EF%BC%8C%E6%88%96%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%8E%B7%E5%8F%96%E4%BF%A1%E6%81%AF%E4%B9%8B%E5%90%8E%EF%BC%8C%E7%BD%91%E7%AB%99%E7%9A%84%E9%A1%B5%E9%9D%A2%E4%B8%8D%E9%9C%80%E8%A6%81%E9%87%8D%E6%96%B0%E5%88%B7%E6%96%B0%EF%BC%8C%E9%82%A3%E4%B9%88%E4%BD%A0%E8%AE%BF%E9%97%AE%E7%9A%84%E7%BD%91%E7%AB%99%E5%B0%B1%E5%9C%A8%E7%94%A8Ajax%20%E6%8A%80%E6%9C%AF%E3%80%82%0A%0AAjax%20%E5%85%B6%E5%AE%9E%E5%B9%B6%E4%B8%8D%E6%98%AF%E4%B8%80%E9%97%A8%E8%AF%AD%E8%A8%80%2C%E8%80%8C%E6%98%AF%E7%94%A8%E6%9D%A5%E5%AE%8C%E6%88%90%E7%BD%91%E7%BB%9C%E4%BB%BB%E5%8A%A1(%E5%8F%AF%E4%BB%A5%E8%AE%A4%E4%B8%BA%20%E5%AE%83%E4%B8%8E%E7%BD%91%E7%BB%9C%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86%E5%B7%AE%E4%B8%8D%E5%A4%9A)%E7%9A%84%E4%B8%80%E7%B3%BB%E5%88%97%E6%8A%80%E6%9C%AF%E3%80%82Ajax%20%E5%85%A8%E7%A7%B0%E6%98%AF%20Asynchronous%20JavaScript%20and%20XML(%E5%BC%82%E6%AD%A5%20JavaScript%20%E5%92%8C%20XML)%EF%BC%8C%E7%BD%91%E7%AB%99%E4%B8%8D%E9%9C%80%E8%A6%81%E4%BD%BF%E7%94%A8%E5%8D%95%E7%8B%AC%E7%9A%84%E9%A1%B5%E9%9D%A2%E8%AF%B7%E6%B1%82%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%92%8C%E7%BD%91%E7%BB%9C%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92%20(%E6%94%B6%E5%8F%91%E4%BF%A1%E6%81%AF)%E3%80%82%0A%0A%23%23%23%23%20**DHTML**%0A%0AAjax%20%E4%B8%80%E6%A0%B7%EF%BC%8C%E5%8A%A8%E6%80%81%20HTML(Dynamic%20HTML%2C%20DHTML)%E4%B9%9F%E6%98%AF%E4%B8%80%E7%B3%BB%E5%88%97%E7%94%A8%E4%BA%8E%E8%A7%A3%E5%86%B3%E7%BD%91%E7%BB%9C%E9%97%AE%E9%A2%98%E7%9A%84%20%E6%8A%80%E6%9C%AF%E9%9B%86%E5%90%88%E3%80%82DHTML%20%E6%98%AF%E7%94%A8%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%AD%E8%A8%80%E6%94%B9%E5%8F%98%E9%A1%B5%E9%9D%A2%E7%9A%84%20HTML%20%E5%85%83%E7%B4%A0(HTML%E3%80%81CSS%EF%BC%8C%E6%88%96%E8%80%85%E4%BA%8C%E8%80%85%E7%9A%86%20%E8%A2%AB%E6%94%B9%E5%8F%98)%E3%80%82%E6%AF%94%E5%A6%82%E9%A1%B5%E9%9D%A2%E4%B8%8A%E7%9A%84%E6%8C%89%E9%92%AE%E5%8F%AA%E6%9C%89%E5%BD%93%E7%94%A8%E6%88%B7%E7%A7%BB%E5%8A%A8%E9%BC%A0%E6%A0%87%E4%B9%8B%E5%90%8E%E6%89%8D%E5%87%BA%E7%8E%B0%2C%E8%83%8C%E6%99%AF%E8%89%B2%E5%8F%AF%E8%83%BD%E6%AF%8F%E6%AC%A1%E7%82%B9%E5%87%BB%E9%83%BD%E4%BC%9A%E6%94%B9%E5%8F%98%EF%BC%8C%E6%88%96%E8%80%85%E7%94%A8%E4%B8%80%E4%B8%AA%20Ajax%20%E8%AF%B7%E6%B1%82%E8%A7%A6%E5%8F%91%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E4%B8%80%E6%AE%B5%E6%96%B0%E5%86%85%E5%AE%B9%EF%BC%8C%E7%BD%91%E9%A1%B5%E6%98%AF%E5%90%A6%E5%B1%9E%E4%BA%8EDHTML%EF%BC%8C%E5%85%B3%E9%94%AE%E8%A6%81%E7%9C%8B%E6%9C%89%E6%B2%A1%E6%9C%89%E7%94%A8%20JavaScript%20%E6%8E%A7%E5%88%B6%20HTML%20%E5%92%8C%20CSS%20%E5%85%83%E7%B4%A0%E3%80%82%0A%0A%23%23%23%23%20**%E9%82%A3%E4%B9%88%EF%BC%8C%E5%A6%82%E4%BD%95%E6%90%9E%E5%AE%9A%EF%BC%9F**%0A%E9%82%A3%E4%BA%9B%E4%BD%BF%E7%94%A8%E4%BA%86%20Ajax%20%E6%88%96%20DHTML%20%E6%8A%80%E6%9C%AF%E6%94%B9%E5%8F%98%20%2F%20%E5%8A%A0%E8%BD%BD%E5%86%85%E5%AE%B9%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%8C%E5%8F%AF%E8%83%BD%E6%9C%89%E4%B8%80%E4%BA%9B%E9%87%87%E9%9B%86%E6%89%8B%E6%AE%B5%E3%80%82%E4%BD%86%E6%98%AF%E7%94%A8%20Python%20%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%8F%AA%E6%9C%89%E4%B8%A4%E7%A7%8D%E9%80%94%E5%BE%84%3A%0A%0A-%20%E7%9B%B4%E6%8E%A5%E4%BB%8E%20JavaScript%20%E4%BB%A3%E7%A0%81%E9%87%8C%E9%87%87%E9%9B%86%E5%86%85%E5%AE%B9%EF%BC%88%E8%B4%B9%E6%97%B6%E8%B4%B9%E5%8A%9B%EF%BC%89%0A-%20%E7%94%A8%20Python%20%E7%9A%84%20%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93%E8%BF%90%E8%A1%8C%20JavaScript%EF%BC%8C%E7%9B%B4%E6%8E%A5%E9%87%87%E9%9B%86%E4%BD%A0%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E9%87%8C%E7%9C%8B%E5%88%B0%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%88%20selenium%20%EF%BC%89%0A%0A%0A----------------------------------------------%0A%0A%23%23%23%20Selenium%0A%0ASelenium%E6%98%AF%E4%B8%80%E4%B8%AAWeb%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7%EF%BC%8C%E6%9C%80%E5%88%9D%E6%98%AF%E4%B8%BA%E7%BD%91%E7%AB%99%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E8%80%8C%E5%BC%80%E5%8F%91%E7%9A%84%EF%BC%8C%E7%B1%BB%E5%9E%8B%E5%83%8F%E6%88%91%E4%BB%AC%E7%8E%A9%E6%B8%B8%E6%88%8F%E7%94%A8%E7%9A%84%E6%8C%89%E9%94%AE%E7%B2%BE%E7%81%B5%EF%BC%8C%E5%8F%AF%E4%BB%A5%E6%8C%89%E6%8C%87%E5%AE%9A%E7%9A%84%E5%91%BD%E4%BB%A4%E8%87%AA%E5%8A%A8%E6%93%8D%E4%BD%9C%EF%BC%8C%E4%B8%8D%E5%90%8C%E6%98%AFSelenium%20%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E8%BF%90%E8%A1%8C%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%8A%EF%BC%8C%E5%AE%83%E6%94%AF%E6%8C%81%E6%89%80%E6%9C%89%E4%B8%BB%E6%B5%81%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%EF%BC%88%E5%8C%85%E6%8B%ACPhantomJS%E8%BF%99%E4%BA%9B%E6%97%A0%E7%95%8C%E9%9D%A2%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%EF%BC%89%E3%80%82%0ASelenium%20%E5%8F%AF%E4%BB%A5%E6%A0%B9%E6%8D%AE%E6%88%91%E4%BB%AC%E7%9A%84%E6%8C%87%E4%BB%A4%EF%BC%8C%E8%AE%A9%E6%B5%8F%E8%A7%88%E5%99%A8%E8%87%AA%E5%8A%A8%E5%8A%A0%E8%BD%BD%E9%A1%B5%E9%9D%A2%EF%BC%8C%E8%8E%B7%E5%8F%96%E9%9C%80%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%8C%E7%94%9A%E8%87%B3%E9%A1%B5%E9%9D%A2%E6%88%AA%E5%B1%8F%EF%BC%8C%E6%88%96%E8%80%85%E5%88%A4%E6%96%AD%E7%BD%91%E7%AB%99%E4%B8%8A%E6%9F%90%E4%BA%9B%E5%8A%A8%E4%BD%9C%E6%98%AF%E5%90%A6%E5%8F%91%E7%94%9F%E3%80%82%0A%0ASelenium%20%E8%87%AA%E5%B7%B1%E4%B8%8D%E5%B8%A6%E6%B5%8F%E8%A7%88%E5%99%A8%EF%BC%8C%E4%B8%8D%E6%94%AF%E6%8C%81%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9A%84%E5%8A%9F%E8%83%BD%EF%BC%8C%E5%AE%83%E9%9C%80%E8%A6%81%E4%B8%8E%E7%AC%AC%E4%B8%89%E6%96%B9%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BB%93%E5%90%88%E5%9C%A8%E4%B8%80%E8%B5%B7%E6%89%8D%E8%83%BD%E4%BD%BF%E7%94%A8%E3%80%82%E4%BD%86%E6%98%AF%E6%88%91%E4%BB%AC%E6%9C%89%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81%E8%AE%A9%E5%AE%83%E5%86%85%E5%B5%8C%E5%9C%A8%E4%BB%A3%E7%A0%81%E4%B8%AD%E8%BF%90%E8%A1%8C%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%94%A8%E4%B8%80%E4%B8%AA%E5%8F%AB%20PhantomJS%20%E7%9A%84%E5%B7%A5%E5%85%B7%E4%BB%A3%E6%9B%BF%E7%9C%9F%E5%AE%9E%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%E3%80%82%0A%0A%E5%8F%AF%E4%BB%A5%E4%BB%8E%20PyPI%20%E7%BD%91%E7%AB%99%E4%B8%8B%E8%BD%BD%20Selenium%E5%BA%93https%3A%2F%2Fpypi.python.org%2Fsimple%2Fselenium%20%EF%BC%8C%0A%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9%E7%AE%A1%E7%90%86%E5%99%A8%20pip%E7%94%A8%E5%91%BD%E4%BB%A4%E5%AE%89%E8%A3%85%EF%BC%9A%0A%0A%3E%20pip3%20install%20selenium%0A%0A%23%23%23%23%20**selenium%20%E5%AE%98%E6%96%B9%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3**%EF%BC%9A%0A-%20%E8%8B%B1%E6%96%87%E6%96%87%E6%A1%A3%0Ahttp%3A%2F%2Fselenium-python.readthedocs.io%2Findex.html%0A-%20%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3%0Ahttp%3A%2F%2Fselenium-python-zh.readthedocs.io%0A%0A%23%23%23%23%20**PhantomJS%E6%97%A0%E5%A4%B4%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80**%0A%E6%97%A0%E7%95%8C%E9%9D%A2%E6%B5%8F%E8%A7%88%E5%99%A8%E5%BC%95%E6%93%8E%2C%E6%97%A0%E7%95%8C%E9%9D%A2%E5%8F%AF%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B%E7%9A%84webkit%E6%B5%8F%E8%A7%88%E5%99%A8%E5%BC%95%E6%93%8E%EF%BC%88%E7%9B%AE%E5%89%8Dchrom%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%94%AF%E6%8C%81%E6%97%A0%E7%95%8C%E9%9D%A2%E8%AF%B7%E6%B1%82%E4%BA%86%EF%BC%89%0A%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80%EF%BC%9A%0A-%20http%3A%2F%2Fphantomjs.org%2Fdownload.html%0AAPI%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E%EF%BC%9A%0A-%20http%3A%2F%2Fphantomjs.org%2Fapi%2Fcommand-line.html%0A2.1.1%0A%0A%23%23%23%23%20**%E7%81%AB%E7%8B%90%E9%A9%B1%E5%8A%A8%E4%B8%8B%E8%BD%BD%E8%B7%AF%E5%BE%84%EF%BC%88GeckoDriver%EF%BC%89**%EF%BC%9A%0A-%20https%3A%2F%2Fgithub.com%2Fmozilla%2Fgeckodriver%2Freleases%0A%0A%EF%BC%882.3.8%E6%98%AF%E6%9C%80%E6%96%B0%E7%9A%84%2C%E4%B8%8B%E8%BD%BD%E7%9A%84%E9%A9%B1%E5%8A%A8%E7%89%88%E6%9C%AC%E4%B8%80%E5%AE%9A%E8%A6%81%E6%94%AF%E6%8C%81%E4%BD%A0%E5%BD%93%E5%89%8D%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%E7%89%88%20%20%20%20%20%20%20%20%20%20%20%20%20%E6%9C%AC%EF%BC%89%0A%0A%23%23%23%23%20**%E8%B0%B7%E6%AD%8C%E9%A9%B1%E5%8A%A8%EF%BC%88chromedriver%EF%BC%89%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80**%EF%BC%9A%0A-%20http%3A%2F%2Fchromedriver.storage.googleapis.com%2Findex.html%0A%0A%0ASelenium%20%E5%BA%93%E9%87%8C%E6%9C%89%E4%B8%AA%E5%8F%AB%20WebDriver%20%E7%9A%84%20API%E3%80%82WebDriver%20%E6%9C%89%E7%82%B9%E5%84%BF%E5%83%8F%E5%8F%AF%E4%BB%A5%E5%8A%A0%E8%BD%BD%E7%BD%91%E7%AB%99%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%EF%BC%8C%E4%BD%86%E6%98%AF%E5%AE%83%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%83%8F%20BeautifulSoup%20%E6%88%96%E8%80%85%E5%85%B6%E4%BB%96%20Selector%20%E5%AF%B9%E8%B1%A1%E4%B8%80%E6%A0%B7%E7%94%A8%E6%9D%A5%E6%9F%A5%E6%89%BE%E9%A1%B5%E9%9D%A2%E5%85%83%E7%B4%A0%EF%BC%8C%E4%B8%8E%E9%A1%B5%E9%9D%A2%E4%B8%8A%E7%9A%84%E5%85%83%E7%B4%A0%E8%BF%9B%E8%A1%8C%E4%BA%A4%E4%BA%92%20(%E5%8F%91%E9%80%81%E6%96%87%E6%9C%AC%E3%80%81%E7%82%B9%E5%87%BB%E7%AD%89)%EF%BC%8C%E4%BB%A5%E5%8F%8A%E6%89%A7%E8%A1%8C%E5%85%B6%E4%BB%96%E5%8A%A8%E4%BD%9C%E6%9D%A5%E8%BF%90%E8%A1%8C%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E3%80%82%0A%0A%E6%B3%A8%E6%84%8F%EF%BC%9A%0A%0A%E6%88%91%E4%BB%AC%E4%BD%BF%E7%94%A8%E7%9A%84%E6%9C%89%E7%95%8C%E9%9D%A2%E6%B5%8F%E8%A7%88%E5%99%A8%EF%BC%8C%E5%AE%83%E8%99%BD%E7%84%B6%E6%96%B9%E4%BE%BF%E6%88%91%E4%BB%AC%E8%A7%82%E5%AF%9F%EF%BC%8C%E4%BD%86%E6%98%AF%E5%9C%A8%E5%AE%9E%E9%99%85%E8%BF%90%E7%94%A8%E4%B8%AD%E6%98%AF%E9%9D%9E%E5%B8%B8%E6%B6%88%E8%80%97%E6%80%A7%E8%83%BD%E7%9A%84%0A%E6%88%91%E4%BB%AC%E4%B9%9F%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8Chrome%E7%9A%84%E6%97%A0%E7%95%8C%E9%9D%A2%E6%B5%8F%E8%A7%88%E5%99%A8%2C%E9%99%A4%E4%BA%86%E6%B2%A1%E6%9C%89%E6%B5%8F%E8%A7%88%E5%99%A8%E7%95%8C%E9%9D%A2%E4%BB%A5%E5%A4%96%EF%BC%8C%E5%85%B6%E5%AE%83%E7%9A%84%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C%E9%83%BD%E4%B8%8E%E6%9C%89%E7%95%8C%E9%9D%A2%E6%B5%8F%E8%A7%88%E5%99%A8%E7%9B%B8%E5%90%8C%0A%0A%0A%0A%23%23%23%23%20%E4%B8%BB%E8%A6%81%E4%BD%BF%E7%94%A8%E7%9A%84%E6%96%B9%E6%B3%95%E5%92%8C%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B%0A%0A-%20%E5%AF%BC%E5%85%A5%E6%A8%A1%E5%9D%97%0A%60%60%60%0Afrom%20selenium%20import%20webdriver%0A%60%60%60%0A%0A%0A%23%23%23%23%20%E6%B5%8F%E8%A7%88%E5%99%A8driver%E4%BD%BF%E7%94%A8%0A-%20%E4%BD%BF%E7%94%A8%E7%81%AB%E7%8B%90%E6%B5%8F%E8%A7%88%E5%99%A8%E9%A9%B1%E5%8A%A8%0A%60%60%60%0Adriver%20%3D%20webdriver.Firefox(executable_path%3D'%E9%A9%B1%E5%8A%A8%E8%B7%AF%E5%BE%84')%0Adriver.get('https%3A%2F%2Fwww.baidu.com%2F')%0A%60%60%60%0A%0A-%20%E4%BD%BF%E7%94%A8Phantomjs%E6%97%A0%E5%A4%B4%E6%B5%8F%E8%A7%88%E5%99%A8%E5%8A%A0%E8%BD%BD%0A%60%60%60%0Adriver%20%3D%20webdriver.PhantomJS(executable_path%3D'%E9%A9%B1%E5%8A%A8%E8%B7%AF%E5%BE%84')%0Adriver.get('https%3A%2F%2Fwww.baidu.com%2F')%0A%60%60%60%0A%0A-%20%E4%BD%BF%E7%94%A8%E8%B0%B7%E6%AD%8C%E6%B5%8F%E8%A7%88%E5%99%A8%E5%90%AF%E5%8A%A8%0A%0A%60%60%60%0Adriver%20%3D%20webdriver.Chrome(executable_path%3D'%E9%A9%B1%E5%8A%A8%E8%B7%AF%E5%BE%84')%0A%60%60%60%0A-%20%E8%AE%BE%E7%BD%AE%E8%B0%B7%E6%AD%8C%E6%97%A0%E5%A4%B4%E6%B5%8F%E8%A7%88%E5%99%A8%0A%60%60%60%0A%23%20%E5%88%9B%E5%BB%BAchrome%E5%8F%82%E6%95%B0%E5%AF%B9%E8%B1%A1%0Aopt%20%3D%20webdriver.ChromeOptions()%0A%23%20%E6%8A%8Achrome%E8%AE%BE%E7%BD%AE%E6%88%90%E4%B8%BA%E6%97%A0%E7%95%8C%E9%9D%A2%E6%A8%A1%E5%BC%8F%0Aopt.set_headless()%0Adriver%20%3D%20webdriver.Chrome(%0A%20%20%20%20options%3Dopt%2C%20executable_path%3D'%E9%A9%B1%E5%8A%A8%E8%B7%AF%E5%BE%84'%0A)%0A%60%60%60%0A%0A%23%23%23%23%20%E8%AE%BE%E7%BD%AE%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E6%97%B6%E9%97%B4%0A%0A%60%60%60%0Adriver.set_page_load_timeout(0.1)%0A%60%60%60%0A%0A%23%23%23%23%20%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%0A%0A%60%60%60%0Afrom%20selenium.common.exceptions%20import%20TimeoutException%0A%60%60%60%0A%0A%60%60%60%0A%23%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8%0Atry%3A%0A%20%20%20%20driver.get('https%3A%2F%2Fwww.baidu.com%2F')%0A%20%20%20%20driver.save_screenshot('prcture.png')%0Aexcept%20TimeoutException%20as%20err%3A%0A%20%20%20%20print(err)%0A%60%60%60%0A%0A%23%23%23%23%20%E5%AE%9A%E4%BD%8D%E5%92%8C%E6%93%8D%E4%BD%9C%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_xpath()%3A%E6%A0%B9%E6%8D%AExpath%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_id()%3A%E6%A0%B9%E6%8D%AEid%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_class_name()%3A%E6%A0%B9%E6%8D%AE%E7%B1%BB%E5%90%8D%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_partial_link_text()%3A%E6%A0%B9%E6%8D%AE%E9%83%A8%E5%88%86%E6%96%87%E6%9C%AC%E5%86%85%E5%AE%B9%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_css_selector()%3A%E6%A0%B9%E6%8D%AEcss%E9%80%89%E6%8B%A9%E5%99%A8%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A-%20driver.find_element_by_link_text()%3A%E6%A0%B9%E6%8D%AE%E5%AE%8C%E6%95%B4%E6%96%87%E6%9C%AC%E5%AE%9A%E4%BD%8D%E8%8A%82%E7%82%B9%0A%0A%60%60%60%0Adriver.find_element_by_id('kw').send_keys('%E9%9A%94%E5%A3%81%E8%80%81%E8%B5%B5')%0Adriver.find_element_by_id('su').click()%0A%60%60%60%0A%0A%23%23%23%23%20%E8%8E%B7%E5%8F%96%E4%BF%A1%E6%81%AF%E9%A1%B5%E9%9D%A2%E6%BA%90%E7%A0%81%0A%60%60%60%0Aprint(driver.page_source)%0A%60%60%60%0A%23%23%23%23%20%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E8%AF%B7%E6%B1%82%E7%9A%84url%E5%9C%B0%E5%9D%80%0A%60%60%60%0Aprint(driver.current_url)%0A%60%60%60%0A%0A%23%23%23%23%20**Cookies%E6%93%8D%E4%BD%9C**%0A%0A%E8%8E%B7%E5%8F%96%E9%A1%B5%E9%9D%A2%E6%AF%8F%E4%B8%AACookies%E5%80%BC%EF%BC%8C%E7%94%A8%E6%B3%95%E5%A6%82%E4%B8%8B%0A%60%60%60%0Acookies%20%3D%20driver.get_cookies()%0Acookie_dict%20%3D%20%7Bi%5B'name'%5D%3Ai%5B'value'%5D%20for%20i%20in%20cookies%7D%0Aprint(cookie_dict)%0A%60%60%60%0A%0A**%E6%B7%BB%E5%8A%A0cookies**%0A%60%60%60%0Adriver.add_cookie(cookie_dict)%0A%60%60%60%0A%0A**%E5%88%A0%E9%99%A4Cookies%EF%BC%8C%E7%94%A8%E6%B3%95%E5%A6%82%E4%B8%8B**%0A%0A%20%20-%20%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E7%89%B9%E5%AE%9A%E7%9A%84cookie%0A%60%60%60%0Adriver.delete_cookie(%22CookieName%22)%0A%60%60%60%0A-%20%E5%88%A0%E9%99%A4%E6%89%80%E6%9C%89cookie%0A%60%60%60%0Adriver.delete_all_cookies()%0A%60%60%60%0A%0A%23%23%23%23%20**%E9%A1%B5%E9%9D%A2%E5%89%8D%E8%BF%9B%E5%92%8C%E5%90%8E%E9%80%80**%0A%0A%E6%93%8D%E4%BD%9C%E9%A1%B5%E9%9D%A2%E7%9A%84%E5%89%8D%E8%BF%9B%E5%92%8C%E5%90%8E%E9%80%80%E5%8A%9F%E8%83%BD%EF%BC%9A%0A%60%60%60%0Adriver.forward()%20%20%20%20%20%23%E5%89%8D%E8%BF%9B%0A%0Adriver.back()%20%20%20%20%20%20%20%20%23%20%E5%90%8E%E9%80%80%0A%60%60%60%0A%0A%23%23%23%23%20**%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86**%0A%60%60%60%0Aopt%20%3D%20webdriver.ChromeOptions()%0Aopt.add_argument(%22--proxy-server%3Dhttp%3A%2F%2F118.20.16.82%3A9999%22)%0A%60%60%60%0A**%E4%B8%80%E5%AE%9A%E8%A6%81%E6%B3%A8%E6%84%8F%EF%BC%8C%3D%E4%B8%A4%E8%BE%B9%E4%B8%8D%E8%83%BD%E6%9C%89%E7%A9%BA%E6%A0%BC**%0A%0A%0A%23%23%23%23%20**%E5%88%87%E6%8D%A2Frame**%0A%E7%BD%91%E9%A1%B5%E4%B8%AD%E6%9C%89%E4%B8%80%E7%A7%8D%E8%8A%82%E7%82%B9%E5%8F%AB%E5%81%9Aiframe%2C%E4%B9%9F%E5%B0%B1%E6%98%AF%E5%AD%90Frame%2C%E6%88%91%E4%BB%AC%E4%B8%8D%E8%83%BD%E5%A4%9F%E7%9B%B4%E6%8E%A5%E8%8E%B7%E5%8F%96%E5%88%B0%E5%AD%90Frame%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9%EF%BC%8C%E8%A6%81%E6%83%B3%E8%8E%B7%E5%8F%96%E5%88%B0%E9%9C%80%E8%A6%81%E5%88%87%E6%8D%A2%E5%88%B0%E5%AD%90frame%E4%B8%8B%0A%60%60%60%0Alogin_frame%EF%BC%9A%E4%B8%BA%E5%AD%90frame%E7%9A%84%E5%90%8D%E7%A7%B0%0Adriver.switch_to_frame('login_frame')%0A%60%60%60%0A%0A%23%23%23%20**%E9%A1%B5%E9%9D%A2%E7%AD%89%E5%BE%85**%0A%0A%E7%8E%B0%E5%9C%A8%E7%9A%84%E5%A4%A7%E5%A4%9A%E6%95%B0%E7%9A%84Web%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%98%AF%E4%BD%BF%E7%94%A8Ajax%E6%8A%80%E6%9C%AF%E3%80%82%E5%BD%93%E4%B8%80%E4%B8%AA%E9%A1%B5%E9%9D%A2%E8%A2%AB%E5%8A%A0%E8%BD%BD%E5%88%B0%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%B6%EF%BC%8C%20%E8%AF%A5%E9%A1%B5%E9%9D%A2%E5%86%85%E7%9A%84%E5%85%83%E7%B4%A0%E5%8F%AF%E4%BB%A5%E5%9C%A8%E4%B8%8D%E5%90%8C%E7%9A%84%E6%97%B6%E9%97%B4%E7%82%B9%E8%A2%AB%E5%8A%A0%E8%BD%BD%E3%80%82%E8%BF%99%E4%BD%BF%E5%BE%97%E5%AE%9A%E4%BD%8D%E5%85%83%E7%B4%A0%E5%8F%98%E5%BE%97%E5%9B%B0%E9%9A%BE%EF%BC%8C%20%E5%A6%82%E6%9E%9C%E5%85%83%E7%B4%A0%E4%B8%8D%E5%86%8D%E9%A1%B5%E9%9D%A2%E4%B9%8B%E4%B8%AD%EF%BC%8C%E4%BC%9A%E6%8A%9B%E5%87%BA%20ElementNotVisibleException%20%E5%BC%82%E5%B8%B8%E3%80%82%20%E4%BD%BF%E7%94%A8%20waits%2C%20%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E3%80%82waits%E6%8F%90%E4%BE%9B%E4%BA%86%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C%E4%B9%8B%E9%97%B4%E7%9A%84%E6%97%B6%E9%97%B4%E9%97%B4%E9%9A%94-%20%E4%B8%BB%E8%A6%81%E6%98%AF%E5%AE%9A%E4%BD%8D%E5%85%83%E7%B4%A0%E6%88%96%E9%92%88%E5%AF%B9%E8%AF%A5%E5%85%83%E7%B4%A0%E7%9A%84%E4%BB%BB%E4%BD%95%E5%85%B6%E4%BB%96%E6%93%8D%E4%BD%9C%E3%80%82%0A%0ASelenium%20Webdriver%20%E6%8F%90%E4%BE%9B%E4%B8%A4%E7%A7%8D%E7%B1%BB%E5%9E%8B%E7%9A%84waits%20-%20%E9%9A%90%E5%BC%8F%E5%92%8C%E6%98%BE%E5%BC%8F%E3%80%82%20%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85%E4%BC%9A%E8%AE%A9WebDriver%E7%AD%89%E5%BE%85%E6%BB%A1%E8%B6%B3%E4%B8%80%E5%AE%9A%E7%9A%84%E6%9D%A1%E4%BB%B6%E4%BB%A5%E5%90%8E%E5%86%8D%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%9A%84%E6%89%A7%E8%A1%8C%E3%80%82%20%E8%80%8C%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%E8%AE%A9Webdriver%E7%AD%89%E5%BE%85%E4%B8%80%E5%AE%9A%E7%9A%84%E6%97%B6%E9%97%B4%E5%90%8E%E5%86%8D%E6%89%8D%E6%98%AF%E6%9F%A5%E6%89%BE%E6%9F%90%E5%85%83%E7%B4%A0%E3%80%82%0A%0A%0A%0ASelenium%20%E6%8F%90%E4%BE%9B%E4%BA%86%E4%B8%A4%E7%A7%8D%E7%AD%89%E5%BE%85%E6%96%B9%E5%BC%8F%EF%BC%8C%E4%B8%80%E7%A7%8D%E6%98%AF%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%EF%BC%8C%E4%B8%80%E7%A7%8D%E6%98%AF%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85%E3%80%82%0A%0A%0A**%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85%E6%98%AF%E6%8C%87%E5%AE%9A%E4%B8%80%E4%B8%AA%E6%9C%80%E9%95%BF%E7%9A%84%E7%AD%89%E5%BE%85%E6%97%B6%E9%97%B4%2C%E7%9B%B4%E5%88%B0%E6%9D%A1%E4%BB%B6%E6%88%90%E7%AB%8B%E6%97%B6%E7%BB%A7%E7%BB%AD%E6%89%A7%E8%A1%8C%E3%80%82%E5%A6%82%E6%9E%9C%E5%9C%A8%E8%AE%BE%E5%AE%9A%E6%97%B6%E9%97%B4%E5%86%85%E6%B2%A1%E5%8A%A0%E8%BD%BD%E5%87%BA%E6%9D%A5%E8%8A%82%E7%82%B9%2C%E5%88%99%E8%BF%94%E5%9B%9E%E5%BC%82%E5%B8%B8%E4%BF%A1%E6%81%AF%2C%E5%A6%82%E6%9E%9C%E5%8A%A0%E8%BD%BD%E5%87%BA%E6%9D%A5%E4%BA%86%E5%88%99%E8%BF%94%E5%9B%9E%E8%8A%82%E7%82%B9**%0A%0A**%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%E6%98%AF%E7%AD%89%E5%BE%85%E7%89%B9%E5%AE%9A%E7%9A%84%E6%97%B6%E9%97%B4%EF%BC%8C%E5%A6%82%E6%9E%9C%E8%8A%82%E7%82%B9%E6%B2%A1%E6%9C%89%E7%AB%8B%E5%8D%B3%E5%87%BA%E7%8E%B0%EF%BC%8C%E9%9A%90%E5%A3%AB%E7%AD%89%E5%BE%85%E5%B0%86%E4%B8%80%E6%AE%B5%E6%97%B6%E9%97%B4%E5%86%8D%E8%BF%9B%E8%A1%8C%E6%9F%A5%E6%89%BE**%0A%0A%0A%23%23%23%23%20%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85%0A%0A**%E6%98%BE%E5%BC%8F%E7%AD%89%E5%BE%85%E6%98%AF%E4%BD%A0%E5%9C%A8%E4%BB%A3%E7%A0%81%E4%B8%AD%E5%AE%9A%E4%B9%89%E7%AD%89%E5%BE%85%E4%B8%80%E5%AE%9A%E6%9D%A1%E4%BB%B6%E5%8F%91%E7%94%9F%E5%90%8E%E5%86%8D%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%89%A7%E8%A1%8C%E4%BD%A0%E7%9A%84%E4%BB%A3%E7%A0%81%E3%80%82%20%E6%9C%80%E7%B3%9F%E7%B3%95%E7%9A%84%E6%A1%88%E4%BE%8B%E6%98%AF%E4%BD%BF%E7%94%A8time.sleep()%EF%BC%8C%E5%AE%83%E5%B0%86%E6%9D%A1%E4%BB%B6%E8%AE%BE%E7%BD%AE%E4%B8%BA%E7%AD%89%E5%BE%85%E4%B8%80%E4%B8%AA%E7%A1%AE%E5%88%87%E7%9A%84%E6%97%B6%E9%97%B4%E6%AE%B5%E3%80%82%20%E8%BF%99%E9%87%8C%E6%9C%89%E4%B8%80%E4%BA%9B%E6%96%B9%E4%BE%BF%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%A9%E4%BD%A0%E5%8F%AA%E7%AD%89%E5%BE%85%E9%9C%80%E8%A6%81%E7%9A%84%E6%97%B6%E9%97%B4%E3%80%82WebDriverWait%E7%BB%93%E5%90%88ExpectedCondition%20%E6%98%AF%E5%AE%9E%E7%8E%B0%E7%9A%84%E4%B8%80%E7%A7%8D%E6%96%B9%E5%BC%8F%E3%80%82**%0A%0A%60%60%60%0Afrom%20selenium%20import%20webdriver%0Afrom%20selenium.webdriver.common.by%20import%20By%0A%23%20WebDriverWait%20%E5%BA%93%EF%BC%8C%E8%B4%9F%E8%B4%A3%E5%BE%AA%E7%8E%AF%E7%AD%89%E5%BE%85%0Afrom%20selenium.webdriver.support.ui%20import%20WebDriverWait%0A%23%20expected_conditions%20%E7%B1%BB%EF%BC%8C%E8%B4%9F%E8%B4%A3%E6%9D%A1%E4%BB%B6%E5%87%BA%E5%8F%91%0Afrom%20selenium.webdriver.support%20import%20expected_conditions%20as%20EC%0A%0Adriver%20%3D%20webdriver.Chrome()%0Adriver.get(%22http%3A%2F%2Fwww.xxxxx.com%2Floading%22)%0Atry%3A%0A%20%20%20%20%23%23%23%23%23%20%E4%BC%9A%E5%9C%A8%E8%BF%99%E9%87%8C%E7%AD%89%E5%BE%85%EF%BC%8C%E5%A6%82%E6%9E%9C10%E7%A7%92%E5%86%85%20id%3D%22myDynamicElement%22%E7%9A%84%E6%A0%87%E7%AD%BE%E5%87%BA%E7%8E%B0%0A%20%20%20%20%E5%88%99%E8%BF%94%E5%9B%9E%EF%BC%8C%E5%A6%82%E6%9E%9C%E4%B8%8D%E5%87%BA%E7%8E%B0%E5%88%99%E6%8A%A5%E5%BC%82%E5%B8%B8%0A%20%20%20%20element%20%3D%20WebDriverWait(driver%2C%2010).until(%0A%20%20%20%20%20%20%20%20EC.presence_of_element_located(%0A%20%20%20%20%20%20%20%20%20%20%20%20(By.ID%2C%20%22myDynamicElement%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20)%0A%20%20%20%20)%0Afinally%3A%0A%20%20%20%20driver.quit()%0A%60%60%60%0A%0A%0A%23%23%23%23%20%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%0A**%E5%A6%82%E6%9E%9C%E6%9F%90%E4%BA%9B%E5%85%83%E7%B4%A0%E4%B8%8D%E6%98%AF%E7%AB%8B%E5%8D%B3%E5%8F%AF%E7%94%A8%E7%9A%84%EF%BC%8C%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%E6%98%AF%E5%91%8A%E8%AF%89WebDriver%E5%8E%BB%E7%AD%89%E5%BE%85%E4%B8%80%E5%AE%9A%E7%9A%84%E6%97%B6%E9%97%B4%E5%90%8E%E5%8E%BB%E6%9F%A5%E6%89%BE%E5%85%83%E7%B4%A0%E3%80%82%20%E9%BB%98%E8%AE%A4%E7%AD%89%E5%BE%85%E6%97%B6%E9%97%B4%E6%98%AF0%E7%A7%92%EF%BC%8C%E4%B8%80%E6%97%A6%E8%AE%BE%E7%BD%AE%E8%AF%A5%E5%80%BC%EF%BC%8C%E9%9A%90%E5%BC%8F%E7%AD%89%E5%BE%85%E6%98%AF%E8%AE%BE%E7%BD%AE%E8%AF%A5WebDriver%E7%9A%84%E5%AE%9E%E4%BE%8B%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E3%80%82**%0A%0A%0A%60%60%60%0Afrom%20selenium%20import%20webdriver%0A%0Adriver%20%3D%20webdriver.Chrome()%0Adriver.implicitly_wait(10)%20%23%20seconds%0Adriver.get(%22http%3A%2F%2Fwww.xxxxx.com%2Floading%22)%0AmyDynamicElement%20%3D%20driver.find_element_by_id(%22myDynamicElement%22)%0A%60%60%60%0A%0A%E4%B8%8B%E9%9D%A2%E6%98%AF%E4%B8%80%E4%BA%9B%E5%86%85%E7%BD%AE%E7%9A%84%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6%EF%BC%8C%E4%BD%A0%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8%E8%BF%99%E4%BA%9B%E6%9D%A1%E4%BB%B6%EF%BC%8C%E8%80%8C%E4%B8%8D%E7%94%A8%E8%87%AA%E5%B7%B1%E5%86%99%E6%9F%90%E4%BA%9B%E7%AD%89%E5%BE%85%E6%9D%A1%E4%BB%B6%E4%BA%86%E3%80%82%0A%60%60%60%0Atitle_is%20%20%20%20%E6%A0%87%E9%A2%98%E6%98%AF%E6%9F%90%E5%86%85%E5%AE%B9%20%20%0Atitle_contains%20%20%20%E6%A0%87%E9%A2%98%E5%8C%85%E5%90%AB%E6%9F%90%E5%86%85%E5%AE%B9%0Apresence_of_element_located%20%E7%A1%AE%E4%BF%9D%E8%8A%82%E7%82%B9%E5%9C%A8%E6%9C%AC%E5%9C%B0%E5%8A%A0%E8%BD%BD%E5%87%BA%E6%9D%A5%E4%BC%A0%E5%85%A5%E5%85%83%E7%BB%84%EF%BC%88By.ID%2C'password'%EF%BC%89%0Avisibility_of_element_located%20%20%E8%8A%82%E7%82%B9%E5%8F%AF%E8%A7%81%EF%BC%8C%E4%BC%A0%E5%85%A5%E5%AE%9A%E4%BD%8D%E5%85%83%E7%BB%84%0Apresence_of_all_elements_located%E3%80%80%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E5%8A%A0%E8%BD%BD%E5%87%BA%E6%9D%A5%0Atext_to_be_present_in_element%E3%80%80%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9%E7%9A%84%E6%96%87%E6%9C%AC%E5%8C%85%E5%90%AB%E6%9F%90%E6%96%87%E5%AD%97%0Atext_to_be_present_in_element_value%E3%80%80%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9%E7%9A%84%E5%80%BC%E5%8C%85%E5%90%AB%E6%9F%90%E6%96%87%E5%AD%97%0Aframe_to_be_available_and_switch_to_it%E3%80%80%E5%8A%A0%E8%BD%BD%E5%B9%B6%E5%88%87%E6%8D%A2%0Ainvisibility_of_element_located%E3%80%80%E8%8A%82%E7%82%B9%E4%B8%8D%E5%8F%AF%E8%A7%81%0Aelement_to_be_clickable%20%E2%80%93%20%E8%8A%82%E7%82%B9%E5%8F%AF%E7%82%B9%E5%87%BB.%0Astaleness_of%E3%80%80%E5%88%A4%E6%96%AD%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9%E6%98%AF%E5%90%A6%E5%9C%A8%E6%96%87%E6%9C%AC%E4%B8%AD%0Aelement_located_to_be_selected%E3%80%80%E8%8A%82%E7%82%B9%E5%8F%AF%E9%80%89%E6%8B%A9%EF%BC%8C%E4%BC%A0%E5%85%A5%E5%AE%9A%E4%BD%8D%E5%85%83%E7%BB%84%0Aalert_is_present%E3%80%80%E6%98%AF%E5%90%A6%E5%87%BA%E7%8E%B0%E8%AD%A6%E5%91%8A%0A%60%60%60%0A%0Ahttps%3A%2F%2Fwww.cnblogs.com%2Fpeng-lan%2Fp%2F9604672.html%0A%0A%23%23%23%23%20**%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86**%0A%0A-%20%E8%AF%B7%E6%B1%82%E8%B6%85%E6%97%B6%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%0A%0A%60%60%60%0Afrom%20selenium.common.exceptions%20import%20TimeoutException%0A%0Atry%3A%0A%20%20%20%20brower.get(url)%0Aexcept%20TimeoutException%3A%0A%20%20%20%20print('Time%20out')%0A%60%60%60%0A%0A-%20%E6%89%BE%E4%B8%8D%E5%88%B0%E6%A0%87%E7%AD%BE%E7%9A%84%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%0A%0A%60%60%60%0Afrom%20selenium.common.exceptions%20import%20NoSuchElementException%0A%0Atry%3A%0A%20%20%20%20brower.find_element_by_id('').click()%0A%20%20%20%20print('%E6%9C%89%E6%A0%87%E7%AD%BE')%0Aexcept%20NoSuchElementException%3A%0A%20%20%20%20print('%E6%B2%A1%E6%9C%89%E8%BF%99%E4%B8%AA%E6%A0%87%E7%AD%BE')%20%20%20%20%0A%60%60%60%0A%0A%23%23%23%23%20**%E6%89%A7%E8%A1%8CJavaScript%E8%AF%AD%E5%8F%A5**%0A%0A%60%60%60%0A%23%23%23%20js%E9%9A%90%E8%97%8F%E5%85%83%E7%B4%A0%EF%BC%8C%E5%B0%86%E8%8E%B7%E5%8F%96%E7%9A%84%E5%9B%BE%E7%89%87%E5%85%83%E7%B4%A0%E9%9A%90%E8%97%8F%0Aimgs%20%3D%20driver.find_elements_by_xpath(%22%2F%2Fimg%22)%0Afor%20img%20in%20imgs%3A%0A%20%20%20%20driver.execute_script('%24(arguments%5B0%5D).fadeOut()'%2Cimg)%0A%0A%23%23%23%23%20%E5%90%91%E4%B8%8B%E6%BB%9A%E5%8A%A8%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%BA%95%E9%83%A8%0Adriver.execute_script('window.scrollTo(0%2Cdocument.body.scrollHeight)')%0A%0A%23%23%23%23%20%E5%BC%B9%E5%87%BA%E5%BC%B9%E7%AA%97%0Adriver.execute_script('alert(%22This%20is%20a%20alert%22)')%0A%0Adriver.quit()%0A%60%60%60%0A%0A%0A%23%23%23%20**%E9%BC%A0%E6%A0%87%E5%8A%A8%E4%BD%9C%E9%93%BE%EF%BC%88%E4%BA%86%E8%A7%A3%EF%BC%89**%0A%0A%E6%9C%89%E4%BA%9B%E6%97%B6%E5%80%99%EF%BC%8C%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%86%8D%E9%A1%B5%E9%9D%A2%E4%B8%8A%E6%A8%A1%E6%8B%9F%E4%B8%80%E4%BA%9B%E9%BC%A0%E6%A0%87%E6%93%8D%E4%BD%9C%EF%BC%8C%E6%AF%94%E5%A6%82%E5%8F%8C%E5%87%BB%E3%80%81%E5%8F%B3%E5%87%BB%E3%80%81%E6%8B%96%E6%8B%BD%E7%94%9A%E8%87%B3%E6%8C%89%E4%BD%8F%E4%B8%8D%E5%8A%A8%E7%AD%89%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%E5%AF%BC%E5%85%A5%20ActionChains%20%E7%B1%BB%E6%9D%A5%E5%81%9A%E5%88%B0%EF%BC%9A%0A%60%60%60%0A%23-*-%20coding%3AUTF-8%20-*-%0A%0A%23%23%23%23%23%20%E5%AF%BC%E5%85%A5ActionChains%E7%B1%BB%0A%0Afrom%20selenium.webdriver%20import%20ActionChains%0A%0Afrom%20selenium%20import%20webdriver%0A%0Afrom%20selenium.webdriver.common.keys%20import%20Keys%0A%0Aimport%20time%0A%0Adriver%20%3D%20webdriver.Chrome(executable_path%3D'%2FUsers%2Fljh%2FDesktop%2Fchromedriver')%0A%0Adriver.get('http%3A%2F%2Fwww.baidu.com')%0A%0A%23%23%23%23%23%20%E9%BC%A0%E6%A0%87%E7%A7%BB%E5%8A%A8%E5%88%B0ac%E4%BD%8D%E7%BD%AE%2C%E7%A7%BB%E5%8A%A8%E5%88%B0%E7%AC%AC%E5%9B%9B%E4%B8%AA%EF%BD%81%E6%A0%87%E7%AD%BE%E7%9A%84%E4%BD%8D%E7%BD%AE%0A%0Aaction%20%3D%20driver.find_element_by_xpath('%2F%2Fdiv%5B%40id%3D%22u1%22%5D%2Fa%5B4%5D')%0A%0AActionChains(driver).move_to_element(action).perform()%0A%0A%23%23%23%23%23%20%E5%9C%A8action%E4%B8%8A%E5%8D%95%E5%87%BB%0A%0AActionChains(driver).move_to_element(action).click(action).perform()%0A%0A%23%23%23%23%23%20%E5%9C%A8%20ac%20%E4%BD%8D%E7%BD%AE%E5%8F%8C%E5%87%BB%0A%0AActionChains(driver).move_to_element(action).double_click(action).perform()%0A%0A%23%23%23%23%23%20%E5%9C%A8%20ac%20%E4%BD%8D%E7%BD%AE%E5%8F%B3%E5%87%BB%0A%0AActionChains(driver).move_to_element(action).context_click(action).perform()%0A%0A%23%23%23%23%23%20%E5%9C%A8%20ac%20%E4%BD%8D%E7%BD%AE%E5%B7%A6%E9%94%AE%E5%8D%95%E5%87%BBhold%E4%BD%8F%0A%0AActionChains(driver).move_to_element(action).click_and_hold(action).perform()%0A%0A%23%23%23%23%23%20%E5%B0%86%20ac1%20%E6%8B%96%E6%8B%BD%E5%88%B0%20ac2%20%E4%BD%8D%E7%BD%AE%0A%0Atime.sleep(5)%0A%0Aac1%20%3D%20driver.find_element_by_id(%22su%22)%0A%0Aac2%20%3D%20driver.find_element_by_class_name('mnav')%0A%0AActionChains(driver).drag_and_drop(ac1%2Cac2).perform()%0A%0Atime.sleep(5)%0A%0Adriver.quit()%0A%60%60%60%0A%0A%0A------------------------------------------%0A%0A%23%23%23%20Selenium%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%E6%A1%88%E4%BE%8B%EF%BC%88%E4%BA%91%E6%89%93%E7%A0%81%EF%BC%89%0A%0A%0A%0A%0A%0A------------------------------------------%0A%0A%23%23%23%20selenium%E6%A8%A1%E6%8B%9F%E7%82%B9%E5%87%BB%EF%BC%88%E6%96%97%E9%B1%BC%EF%BC%89%0A%0A%60%60%60%0Afrom%20selenium%20import%20webdriver%0Afrom%20lxml%20import%20etree%0Aimport%20time%0A%0Aclass%20Douyu_spider(object)%3A%0A%0A%20%20%20%20def%20__init__(self)%3A%0A%20%20%20%20%20%20%20%20%23%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%B5%8F%E8%A7%88%E5%99%A8%E9%A9%B1%E5%8A%A8%2C%E5%8A%A0%E8%BD%BD%E7%BD%91%E9%A1%B5%0A%20%20%20%20%20%20%20%20self.driver%20%3D%20webdriver.Chrome(%0A%20%20%20%20%20%20%20%20%20%20%20%20executable_path%3D'%2Fhome%2Fljh%2F%E6%A1%8C%E9%9D%A2%2Fdriver%2Fchromedriver'%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%23%E6%89%93%E5%BC%80%E9%A6%96%E9%A1%B5%E7%9A%84%E9%A1%B5%E9%9D%A2%E5%9C%B0%E5%9D%80%0A%20%20%20%20def%20start_spider(self)%3A%0A%20%20%20%20%20%20%20%20%23%E6%89%93%E5%BC%80%E6%96%97%E9%B1%BC%E7%9A%84%E9%A1%B5%E9%9D%A2%0A%20%20%20%20%20%20%20%20self.driver.get('https%3A%2F%2Fwww.douyu.com%2Fdirectory%2Fall')%0A%20%20%20%20%20%20%20%20%23%E3%80%80%E8%8E%B7%E5%8F%96%E8%A7%86%E9%A2%91%E4%BF%A1%E6%81%AF%E6%95%B0%E6%8D%AE%0A%20%20%20%20%20%20%20%20self.get_video_data()%0A%0A%0A%20%20%20%20def%20get_video_data(self)%3A%0A%20%20%20%20%20%20%20%20%23%E9%9A%90%E5%A3%AB%E7%AD%89%E5%BE%8510%E7%A7%92%0A%20%20%20%20%20%20%20%20self.driver.implicitly_wait(10)%0A%20%20%20%20%20%20%20%20%23%E5%B0%86%E9%A1%B5%E9%9D%A2%E6%BB%9A%E5%8A%A8%E5%88%B0%E5%BA%95%E9%83%A8%EF%BC%88%E6%B3%A8%E6%84%8F%E8%BF%99%E9%87%8C%E5%BF%85%E9%A1%BB%E8%A6%81%E5%B0%86%E9%A1%B5%E9%9D%A2%E6%BB%9A%E5%8A%A8%E5%88%B0%E5%BA%95%E9%83%A8%2C%E4%B8%8D%E7%84%B6%E4%BC%9A%E8%8E%B7%E5%8F%96%E4%B8%8D%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%89%0A%20%20%20%20%20%20%20%20self.driver.execute_script('window.scrollTo(0%2Cdocument.body.scrollHeight)')%0A%20%20%20%20%20%20%20%20time.sleep(3)%0A%20%20%20%20%20%20%20%20%23%E6%89%BE%E5%88%B0%E6%AF%8F%E4%B8%80%E9%A1%B9%E7%9A%84%E8%A7%86%E9%A2%91%E4%BF%A1%E6%81%AF%E8%8A%82%E7%82%B9%0A%20%20%20%20%20%20%20%20video_lis%20%3D%20self.driver.find_elements_by_xpath('%2F%2Ful%5B%40id%3D%22live-list-contentbox%22%5D%2Fli')%0A%0A%20%20%20%20%20%20%20%20for%20li%20in%20video_lis%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20video_dict%20%3D%20%7B%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E6%A0%87%E9%A2%98%0A%20%20%20%20%20%20%20%20%20%20%20%20video_dict%5B'title'%5D%20%3D%20li.find_element_by_xpath('.%2F%2Fh3%5B%40class%3D%22ellipsis%22%5D').text%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E5%B0%81%E9%9D%A2%E5%9B%BE%E7%89%87%0A%20%20%20%20%20%20%20%20%20%20%20%20video_dict%5B'image_cover'%5D%20%3D%20li.find_element_by_xpath('.%2F%2Fspan%5B%40class%3D%22imgbox%22%5D%2Fimg').get_attribute('data-original')%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E4%BD%9C%E8%80%85%E5%90%8D%E7%A7%B0%0A%20%20%20%20%20%20%20%20%20%20%20%20video_dict%5B'author'%5D%20%3D%20li.find_element_by_xpath('.%2F%2Fspan%5B%40class%3D%22dy-name%20ellipsis%20fl%22%5D').text%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E7%83%AD%E9%87%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20video_dict%5B'hotnum'%5D%20%3D%20li.find_element_by_xpath('.%2F%2Fspan%5B%40class%3D%22dy-num%20fr%22%5D').text%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E5%B0%86%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%0A%20%20%20%20%20%20%20%20%20%20%20%20self.save_data_to_db(video_dict)%0A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E4%B8%8B%E4%B8%80%E9%A1%B5%0A%20%20%20%20%20%20%20%20element%20%3D%20self.driver.find_element_by_class_name('shark-pager-next')%0A%20%20%20%20%20%20%20%20if%20element%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20element.click()%0A%20%20%20%20%20%20%20%20%20%20%20%20self.get_video_data()%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print('%E6%B2%A1%E6%9C%89%E4%B8%8B%E4%B8%80%E9%A1%B5%E4%BA%86')%0A%20%20%20%20%20%20%20%20%20%20%20%20self.driver.quit()%0A%0A%20%20%20%20def%20save_data_to_db(self%2Cdata)%3A%0A%20%20%20%20%20%20%20%20print('%E5%9C%A8%E8%BF%99%E9%87%8C%E5%81%9A%E6%95%B0%E6%8D%AE%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96')%0A%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%0A%20%20%20%20spider%20%3D%20Douyu_spider()%0A%20%20%20%20spider.start_spider()%0A%20%20%20%20%0A%60%60%60%0A%0A--------------------------------------------%0A%23%23%23%20%E4%BD%9C%E4%B8%9A%E7%BB%83%E4%B9%A0%0A%0A%60%60%60%0Aselenium%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%8B%9F%E7%99%BB%E5%BD%95github%E6%88%96%E8%80%85%E7%8E%8B%E8%80%85%E8%8D%A3%E8%80%80%E5%AE%98%E6%96%B9%E7%BD%91%E7%AB%99%0A%0Aselenium%E4%BD%9C%E4%B8%9A%EF%BC%9A%E6%A8%A1%E6%8B%9F%E7%82%B9%E5%87%BB%E8%B1%86%E7%93%A3%E7%BD%91%E7%94%B5%E5%BD%B1%E6%90%9C%E7%B4%A2%EF%BC%8C%E8%8E%B7%E5%8F%96%E7%94%B5%E5%BD%B1%E5%88%97%E8%A1%A8%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%B0%86%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%88%B0mongodb%E6%95%B0%E6%8D%AE%E5%BA%93%0A%60%60%60%0A%0A</center></body></html>

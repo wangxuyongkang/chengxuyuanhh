@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 15:04:32 +0000"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-29 15:06:30 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>43  3分钟搞定 Flower-Celery 监控工具（监控爬虫运行状态）</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">什么是Flower？</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Flower是基于web的监控和管理<a href="http://www.celeryproject.org/" style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">Celery</a>的工具.</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">官方文档地址：<br/>
+https://flower-docs-cn.readthedocs.io/zh/latest/</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">特性</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">用Celery事件实时监控</li>
+</ul>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">任务进程和历史</li>
+<li style="line-height: 160%; box-sizing: content-box;">能够显示任务的详细信息（arguments, start time, runtime等）</li>
+<li style="line-height: 160%; box-sizing: content-box;">图形化和统计</li>
+</ol>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">远程控制</li>
+</ul>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">查看worker状态和统计</li>
+<li style="line-height: 160%; box-sizing: content-box;">关闭和重启worker实例</li>
+<li style="line-height: 160%; box-sizing: content-box;">控制进程池大小，平滑配置(autoscale settings)</li>
+<li style="line-height: 160%; box-sizing: content-box;">查看和修改一个worker实例消费的队列</li>
+<li style="line-height: 160%; box-sizing: content-box;">查看当前正在运行的tasks</li>
+<li style="line-height: 160%; box-sizing: content-box;">查看计划任务(ETA(估计到达的时间)/倒计时)</li>
+<li style="line-height: 160%; box-sizing: content-box;">应用时间和速率限制</li>
+<li style="line-height: 160%; box-sizing: content-box;">配置浏览器(Configuration viewer)</li>
+<li style="line-height: 160%; box-sizing: content-box;">撤销或终止任务</li>
+</ol>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Broker monitoring（中间人监控）</li>
+</ul>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">查看所有Celery 队列的统计</li>
+<li style="line-height: 160%; box-sizing: content-box;">队列长度图</li>
+</ol>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">flower-celery的安装和使用：</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">安装</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip3 install flower</p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">运行服务</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery flower --broker='broker_url地址' --basic_auth=xxx:xxx</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="43%20%203%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9A%20Flower-Celery%20%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%EF%BC%88%E7%9B%91%E6%8E%A7%E7%88%AC%E8%99%AB%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%EF%BC%89.resources/Snip20190410_19.png" height="541" width="788"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">打开web页面</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">地址:http://localhost:5555</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="43%20%203%E5%88%86%E9%92%9F%E6%90%9E%E5%AE%9A%20Flower-Celery%20%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%EF%BC%88%E7%9B%91%E6%8E%A7%E7%88%AC%E8%99%AB%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%EF%BC%89.resources/Snip20190410_20.png" height="558" width="1053"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">接下来我们就可以在 flower 中监控我们的爬虫了,folwer的基本使用就是这么简单</strong></p>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%23%20%E4%BB%80%E4%B9%88%E6%98%AFFlower%EF%BC%9F%0AFlower%E6%98%AF%E5%9F%BA%E4%BA%8Eweb%E7%9A%84%E7%9B%91%E6%8E%A7%E5%92%8C%E7%AE%A1%E7%90%86%5BCelery%5D(http%3A%2F%2Fwww.celeryproject.org%2F)%E7%9A%84%E5%B7%A5%E5%85%B7.%0A%0A%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E5%9C%B0%E5%9D%80%EF%BC%9A%0Ahttps%3A%2F%2Fflower-docs-cn.readthedocs.io%2Fzh%2Flatest%2F%0A%0A%0A%23%23%23%23%20%E7%89%B9%E6%80%A7%0A-%20%E7%94%A8Celery%E4%BA%8B%E4%BB%B6%E5%AE%9E%E6%97%B6%E7%9B%91%E6%8E%A7%0A%0A1.%20%E4%BB%BB%E5%8A%A1%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%8E%86%E5%8F%B2%0A2.%20%E8%83%BD%E5%A4%9F%E6%98%BE%E7%A4%BA%E4%BB%BB%E5%8A%A1%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF%EF%BC%88arguments%2C%20start%20time%2C%20runtime%E7%AD%89%EF%BC%89%0A3.%20%E5%9B%BE%E5%BD%A2%E5%8C%96%E5%92%8C%E7%BB%9F%E8%AE%A1%0A%0A-%20%E8%BF%9C%E7%A8%8B%E6%8E%A7%E5%88%B6%0A%0A1.%20%E6%9F%A5%E7%9C%8Bworker%E7%8A%B6%E6%80%81%E5%92%8C%E7%BB%9F%E8%AE%A1%0A2.%20%E5%85%B3%E9%97%AD%E5%92%8C%E9%87%8D%E5%90%AFworker%E5%AE%9E%E4%BE%8B%0A3.%20%E6%8E%A7%E5%88%B6%E8%BF%9B%E7%A8%8B%E6%B1%A0%E5%A4%A7%E5%B0%8F%EF%BC%8C%E5%B9%B3%E6%BB%91%E9%85%8D%E7%BD%AE(autoscale%20settings)%0A4.%20%E6%9F%A5%E7%9C%8B%E5%92%8C%E4%BF%AE%E6%94%B9%E4%B8%80%E4%B8%AAworker%E5%AE%9E%E4%BE%8B%E6%B6%88%E8%B4%B9%E7%9A%84%E9%98%9F%E5%88%97%0A5.%20%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E7%9A%84tasks%0A6.%20%E6%9F%A5%E7%9C%8B%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1(ETA(%E4%BC%B0%E8%AE%A1%E5%88%B0%E8%BE%BE%E7%9A%84%E6%97%B6%E9%97%B4)%2F%E5%80%92%E8%AE%A1%E6%97%B6)%0A7.%20%E5%BA%94%E7%94%A8%E6%97%B6%E9%97%B4%E5%92%8C%E9%80%9F%E7%8E%87%E9%99%90%E5%88%B6%0A8.%20%E9%85%8D%E7%BD%AE%E6%B5%8F%E8%A7%88%E5%99%A8(Configuration%20viewer)%0A9.%20%E6%92%A4%E9%94%80%E6%88%96%E7%BB%88%E6%AD%A2%E4%BB%BB%E5%8A%A1%0A%0A-%20Broker%20monitoring%EF%BC%88%E4%B8%AD%E9%97%B4%E4%BA%BA%E7%9B%91%E6%8E%A7%EF%BC%89%0A%0A1.%20%E6%9F%A5%E7%9C%8B%E6%89%80%E6%9C%89Celery%20%E9%98%9F%E5%88%97%E7%9A%84%E7%BB%9F%E8%AE%A1%0A2.%20%E9%98%9F%E5%88%97%E9%95%BF%E5%BA%A6%E5%9B%BE%0A%0A%23%23%23%23%20flower-celery%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8%EF%BC%9A%0A%0A-%20%E5%AE%89%E8%A3%85%0A%0A%3E%20pip3%20install%20flower%20%0A%0A-%20%E8%BF%90%E8%A1%8C%E6%9C%8D%E5%8A%A1%0A%3E%20celery%20flower%20--broker%3D'broker_url%E5%9C%B0%E5%9D%80'%20--basic_auth%3Dxxx%3Axxx%0A%0A!%5B8f5784dc0a472620150b138ee344dde8.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2252)%0A%0A-%20%E6%89%93%E5%BC%80web%E9%A1%B5%E9%9D%A2%0A-%20%E5%9C%B0%E5%9D%80%3Ahttp%3A%2F%2Flocalhost%3A5555%0A%0A!%5B3902a382e5750faaf1dada65367cfb1e.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2253)%0A%0A%0A**%E6%8E%A5%E4%B8%8B%E6%9D%A5%E6%88%91%E4%BB%AC%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%9C%A8%20flower%20%E4%B8%AD%E7%9B%91%E6%8E%A7%E6%88%91%E4%BB%AC%E7%9A%84%E7%88%AC%E8%99%AB%E4%BA%86%2Cfolwer%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E5%B0%B1%E6%98%AF%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95**%0A%0A%0A%0A</center></body></html>

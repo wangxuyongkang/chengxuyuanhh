@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>首页</title>
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/fonts/iconfont.css">
+  <link rel="stylesheet" type="text/css" href="css/head.css">
+  <link rel="stylesheet" type="text/css" href="css/index.css">
+  <link rel="stylesheet" type="text/css" href="css/footer.css">
+  <style type="text/css">
+    .main_nav_link .main_cata{
+      display: none;
+    }
+    .main_nav_link:hover .main_cata{
+      display: block;
+    }
+
+    .first .J_subCata{
+      display: none;
+    }
+    .first:hover .J_subCata{
+      display: block;
+    }
+
+    .hd_cart .list{
+      display: none;
+    }
+    .hd_cart:hover .list{
+      display: block;
+    }
+  </style>
+  <script type="text/javascript">
+    /*
+  allMenuLabel: [ // 各级菜单列表
+        {
+          id: 1,
+          name: 'A1',
+          bg_img: '../../../static/images/head/1449088788518670880.png',
+          sub_cat: [
+            {
+              id: 11,
+              name: 'B11',
+              sub_cat: [
+                {
+                  id: 111,
+                  name: 'C111'
+                },
+                {
+                  id: 112,
+                  name: 'C112'
+                },
+                {
+                  id: 113,
+                  name: 'C113'
+                },
+                {
+                  id: 114,
+                  name: 'C114'
+                }
+              ]
+            },
+            {
+              id: 12,
+              name: 'B12',
+              sub_cat: [
+                {
+                  id: 121,
+                  name: 'C121'
+                },
+                {
+                  id: 122,
+                  name: 'C122'
+                },
+                {
+                  id: 123,
+                  name: 'C123'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: 'A2',
+          bg_img: '../../../static/images/head/1449088788518670880.png',
+          sub_cat: [
+            {
+              id: 21,
+              name: 'B21',
+              sub_cat: [
+                {
+                  id: 211,
+                  name: 'C211'
+                }
+              ]
+            },
+            {
+              id: 22,
+              name: 'B22',
+              sub_cat: [
+                {
+                  id: 221,
+                  name: 'C221'
+                },
+                {
+                  id: 222,
+                  name: 'C222'
+                }
+              ]
+            }
+          ]
+        }
+      ],
+    */
+  </script>
+</head>
+<body>
+<div id="warp-box">
+  <!-- 页头 -->
+  <div id="header" class="new_header">
+    <div class="hd_bar">
+      <div class="bd_bar_bd cle">
+        <ul class="welcome">
+          <!-- <li id="ECS_MEMBERZONE">
+            <a href="userinfo.html">易烊千玺</a>
+            &nbsp;[
+            <a href="#">退出</a>
+            ]
+          </li>
+           -->
+          <li id="ECS_MEMBERZONE">
+            <a href="login.html">请登录</a>
+            <s>|</s>
+            <a href="register.html">免费注册</a>
+          </li>
+        </ul>
+        <ul id="userinfo-bar">
+          <li class="more-menu"> <a>会员中心</a><i class="iconfont arrow">&#xe645;</i>
+            <!-- 加“show”显示会员中心子菜单 -->
+            <!-- <div class="more-bd show"> -->
+            <div class="more-bd">
+              <div class="list">
+                <a href="order.html">我的订单</a>
+                <a href="collection.html">我的收藏</a>
+                <a href="receive.html">修改收货地址</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_main cle">
+      <div class="logo">
+        <a href="index.html" class="lizi_logo">
+            <img src="images/head/logo.jpg" alt="生鲜商城">
+        </a>
+      </div>
+      <div class="search_box">
+        <input class="sea_input" type="text" name="keywords" id="keyword">
+        <button class="sea_submit">搜索</button>
+      </div>
+      <div class="head_search_hot">
+        <span>热搜榜：</span>
+        <a href="list2.html">啤酒</a>
+        <a href="list2.html">蔬菜</a>
+        <a href="list2.html">牛奶</a>
+        <a href="list2.html">水果</a>
+      </div>
+      <div class="intro">
+        <ul>
+          <li class="no1">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>正品保障</h4>
+              <p>100%正品低价</p>
+            </a>
+          </li>
+          <li class="no2">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>30天退换货</h4>
+              <p>购物有保障</p>
+            </a>
+          </li>
+          <li class="no3">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>满99就包邮</h4>
+              <p>闪电发货</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_nav">
+      <div class="hd_nav_bd cle">
+        <div class="main_nav main_nav_hover" id="main_nav">
+          <div class="main_nav_link">
+            <a class="meunAll">全部商品分类
+              <i class="iconfont">&#xe643;</i>
+            </a>
+            <!-- display控制一级类别菜单显示隐藏 -->
+            <div class="main_cata" id="J_mainCata">
+              <ul>
+                <li class="first">
+                  <h3 style="background:url(images/head/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">生鲜食品</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="left: 215px; top: 0px;">
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">精品肉类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">羊肉</a>
+                            <a href="list.html">禽类</a>
+                            <a href="list.html">猪肉</a>
+                            <a href="list.html">牛肉</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">海鲜水产</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">参鲍</a>
+                            <a href="list.html">鱼</a>
+                            <a href="list.html">虾</a>
+                            <a href="list.html">蟹/贝</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">蛋制品</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">松花蛋/咸鸭蛋</a>
+                            <a href="list.html">鸡蛋</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">叶菜类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">生菜</a>
+                            <a href="list.html">菠菜</a>
+                            <a href="list.html">圆椒</a>
+                            <a href="list.html">西兰花</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">根茎类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">茄果类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">菌菇类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">进口生鲜</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449088848823694266.png) 20px center no-repeat;">
+                    <a href="list.html">酒水饮料</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">白酒</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">五粮液</a>
+                            <a href="list.html">泸州老窖</a>
+                            <a href="list.html">茅台</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">葡萄酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">洋酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">啤酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">其他酒品</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">其他品牌</a>
+                            <a href="list.html">黄酒</a>
+                            <a href="list.html">养生酒</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">饮料/水</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">红酒</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">白兰地</a>
+                            <a href="list.html">威士忌</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449088901458193225.png) 20px center no-repeat;">
+                    <a href="list.html">粮油副食</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449088957941770398.png) 20px center no-repeat;">
+                    <a href="list.html">蔬菜水果</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449089137240745101.png) 20px center no-repeat;">
+                    <a href="list.html">休闲食品</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449089235904530709.png) 20px center no-repeat;">
+                    <a href="list.html">奶类食品</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449089297229428349.png) 20px center no-repeat;">
+                    <a href="list.html">天然干货</a>
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/head/1449089358084135937.png) 20px center no-repeat;">
+                    <a href="list.html">精选茗茶</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" style="left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <ul class="sub_nav cle" id="sub_nav">
+            <li>
+                <a href="index.html">首页</a>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >生鲜食品</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >酒水饮料</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >粮油副食</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >蔬菜水果</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >休闲食品</a>
+              </div>
+            </li>
+        </ul>
+        <div class="hd_cart" id="ECS_CARTINFO">
+          <a class="tit" href="cart.html" target="_blank">
+            <b class="iconfont">&#xe600;</b>去购物车结算<span><i class="iconfont">&#xe645;</i></span>
+            <em class="num" id="hd_cartnum" style="visibility: visible;">2</em>
+          </a>
+          <!-- display控制购物车显示隐藏 -->
+          <div class="list">
+            <div class="data">
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/1.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">白兰瓜</a></h4>
+                  <p><span class="red">5</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/2.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">田然牛肉大黄瓜条生鲜牛肉</a></h4>
+                  <p><span class="red">88</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+            </div>
+            <div class="count">共<span class="red" id="hd_cart_count">2</span>件商品哦~
+              <p>
+                总价:<span class="red"><em id="hd_cart_total">93</em></span>
+                <a class="btn" href="cart.html" target="_blank">去结算</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <!-- 页面主体 -->
+  <div>
+    <!-- Banners -->
+    <div class="banner-warp">
+      <div class="swiper-container swiper-container-horizontal">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide swiper-slide-active">
+            <a href="productDetail.html" target="_blank"> <img src="images/banner/banner1.jpg" alt="" /></a>
+          </div>
+        </div>
+        <div class="swiper-pagination swiper-pagination-clickable swiper-pagination-bullets">
+          <span class="swiper-pagination-bullet swiper-pagination-bullet-active"></span>
+          <span class="swiper-pagination-bullet"></span>
+          <span class="swiper-pagination-bullet"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新品 -->
+    <div>
+      <div class="w-max ct bgwh mb30 ovh border-eee">
+        <div class="newopro-l fl">
+          <a href=""><img src="images/new/xinpin.jpg" width="224" height="478"></a>
+        </div>
+        <div class="newopro-r fr">
+          <h2 class="index-tt">
+            <em class="ft18 c000">刚出炉新品</em>
+            <a href="list/more" target="_blank" class="fr c666">更多&gt;&gt;</a>
+          </h2>
+          <ul class="newgoods_fastbuy">
+            <li class="prolist-cent clearfix have_num">
+              <div class="prolist-l fl">
+                <a href="list.html" target="_blank" title="原瓶原装进口洋酒烈酒法国云鹿XO白兰地" class="imgBox">
+                  <img src="images/goods/images/20_P_1448946850602.jpg" style="height: 158px;width: 158px;" class="zom" alt="原瓶原装进口洋酒烈酒法国云鹿XO白兰地">
+                </a>
+              </div>
+              <div class="prolist-r fl">
+                    <h3 class="ft14 c333 bold">
+                    <a href="list.html" title="原瓶原装进口洋酒烈酒法国云鹿XO白兰地" target="_blank">原瓶原装进口洋酒烈酒法国云鹿XO白兰地</a>
+                    </h3>
+                    <p><em class="c333"></em>[推荐理由]原瓶原装进口洋酒烈酒法国云鹿XO白兰地原瓶原装进口洋酒烈酒法国云鹿XO白兰地原瓶原装进口洋酒烈酒法国云鹿XO白兰地原瓶原装进口洋酒烈酒法国云鹿XO白兰地原瓶原装进口洋酒烈酒法国云鹿XO白兰地原瓶原装进口洋酒烈酒法国云鹿XO白兰地</p><div>
+                    <span class="p-price"><em class="fastbuy_price">￥38元</em><del>原价:￥46元</del></span>
+                    <a href="" class="p-buy fr ibg">立即抢购</a>
+                    <span class="p-time fr">销量：12件</span>
+                </div>
+              </div>
+            </li>
+
+            <li class="prolist-cent clearfix have_num">
+              <div class="prolist-l fl">
+                <a href="list.html" target="_blank" title="伊利官方直营全脂营养舒化奶250ml*12盒*2提" class="imgBox">
+                  <img src="images/goods/images/42_P_1448948895193.jpg" style="height: 158px;width: 158px;" class="zom" alt="伊利官方直营全脂营养舒化奶250ml*12盒*2提">
+                </a>
+              </div>
+              <div class="prolist-r fl">
+                    <h3 class="ft14 c333 bold">
+                    <a href="list.html" title="伊利官方直营全脂营养舒化奶250ml*12盒*2提" target="_blank">伊利官方直营全脂营养舒化奶250ml*12盒*2提</a>
+                    </h3>
+                    <p><em class="c333"></em>伊利官方直营全脂营养舒化奶250ml*12盒*2提伊利官方直营全脂营养舒化奶250ml*12盒*2提伊利官方直营全脂营养舒化奶250ml*12盒*2提伊利官方直营全脂营养舒化奶250ml*12盒*2提伊利官方直营全脂营养舒化奶250ml*12盒*2提伊利官方直营全脂营养舒化奶250ml*12盒*2提</p><div>
+                    <span class="p-price"><em class="fastbuy_price">￥36元</em><del>原价:￥43元</del></span>
+                    <a href="#" class="p-buy fr ibg">立即抢购</a>
+                    <span class="p-time fr">销量：86件</span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 按类别展示 -->
+    <div>
+      <!-- *********************类别列表********************* -->
+      <div class="series_list">
+        <div class="series_box cle">
+          <div class="series_info">
+            <div class="series_name name_hufu">
+              <h2>生鲜食品</h2>
+            </div>
+            <ul class="brand">
+              <!-- 品牌商家 -->
+              <li>
+                <a href="list.html" >
+                  <a title="金赏" target="_blank">
+                    <img src="images/brands/sxsp-1.jpg" alt="金赏" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="艾尔" target="_blank">
+                    <img src="images/brands/sxsp-2.jpg" alt="艾尔" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="发育宝" target="_blank">
+                    <img src="images/brands/sxsp-3.jpg" alt="发育宝" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+            </ul>
+            <div class="brand_cata">
+              <!-- 二级分类 -->
+              <a title="label.name" href="list.html">精品肉类</a>
+              <a title="label.name" href="list.html">海鲜水产</a>
+              <a title="label.name" href="list.html">蛋制品</a>
+              <a title="label.name" href="list.html">叶菜类</a>
+              <a title="label.name" href="list.html">根茎类</a>
+              <a title="label.name" href="list.html">茄果类</a>
+            </div>
+
+          </div>
+          <!-- 广告大图 -->
+          <div class="series_pic">
+            <a href="productDetail.html" target="_blank">
+              <img src="images/seriesList/1449010433801562396.jpg" width="340" height="400">
+            </a>
+          </div>
+
+          <div class="pro_list">
+            <ul class="cle">
+              <!-- 类别商品 -->
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/3_P_1448945490837.jpg" style="display: inline;">
+                  </p>
+                  <h3>澳洲进口牛尾巴300g新鲜肥牛肉</h3>
+                  <p class="price">
+                    ￥255元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/9_thumb_G_1448944791708.jpg" style="display: inline;">
+                  </p>
+                  <h3>澳洲进口牛腱500g新鲜肥牛肉</h3>
+                  <p class="price">
+                    ￥255元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/10_thumb_G_1448944572962.jpg" style="display: inline;">
+                  </p>
+                  <h3>内蒙新鲜牛肉1斤清真生鲜牛肉火爆上市</h3>
+                  <p class="price">
+                    ￥88元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/11_thumb_G_1448944388914.jpg" style="display: inline;">
+                  </p>
+                  <h3>澳洲进口120天谷饲牛仔骨4份原装进口</h3>
+                  <p class="price">
+                    ￥26元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/47_thumb_G_1448946213633.jpg" style="display: inline;">
+                  </p>
+                  <h3>蒜蓉粉丝扇贝</h3>
+                  <p class="price">
+                    ￥16元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/48_thumb_G_1448943988607.jpg" style="display: inline;">
+                  </p>
+                  <h3>新疆巴尔鱼生鲜牛排眼肉牛扒</h3>
+                  <p class="price">
+                    ￥88元
+                  </p>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- *********************类别列表********************* -->
+      <div class="series_list">
+        <div class="series_box cle">
+          <div class="series_info">
+            <div class="series_name name_hufu">
+              <h2>酒水饮料</h2>
+            </div>
+            <ul class="brand">
+              <!-- 品牌商家 -->
+              <li>
+                <a href="list.html" >
+                  <a title="金赏" target="_blank">
+                    <img src="images/brands/sxsp-1.jpg" alt="金赏" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="金赏" target="_blank">
+                    <img src="images/brands/sxsp-1.jpg" alt="金赏" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="Verus" target="_blank">
+                    <img src="images/brands/scsg-2.jpg" alt="Verus" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+            </ul>
+            <div class="brand_cata">
+              <!-- 二级分类 -->
+              <a title="label.name" href="list.html">白酒</a>
+              <a title="label.name" href="list.html">葡萄酒</a>
+              <a title="label.name" href="list.html">洋酒</a>
+              <a title="label.name" href="list.html">啤酒</a>
+              <a title="label.name" href="list.html">其他酒品</a>
+              <a title="label.name" href="list.html">饮料/水</a>
+            </div>
+
+          </div>
+          <!-- 广告大图 -->
+          <div class="series_pic">
+            <a href="productDetail.html" target="_blank">
+              <img src="images/seriesList/1449012797850565666.jpg" width="340" height="400">
+            </a>
+          </div>
+
+          <div class="pro_list">
+            <ul class="cle">
+              <!-- 类别商品 -->
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/21_thumb_G_1448946793103.jpg" style="display: inline;">
+                  </p>
+                  <h3>西夫拉姆法国洋酒小酒版小瓶洋酒XO 酒版洋酒小样白兰地350mL_洋酒</h3>
+                  <p class="price">
+                    ￥149元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/22_thumb_G_1448946729918.jpg" style="display: inline;">
+                  </p>
+                  <h3>芝华士英国进口12年苏格兰威士忌700mlX1瓶</h3>
+                  <p class="price">
+                    ￥238元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/45_thumb_G_1448946661697.jpg" style="display: inline;">
+                  </p>
+                  <h3>洋酒B52轰炸机鸡尾酒套餐甘露咖啡甜酒百利甜酒skyy深蓝伏特加</h3>
+                  <p class="price">
+                    ￥340元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/46_thumb_G_1448946598227.jpg" style="display: inline;">
+                  </p>
+                  <h3>占边波本威士忌 肯塔基BOURBON WHISKEY Jim Beam 洋酒烈酒白占边波本威士忌</h3>
+                  <p class="price">
+                    ￥126元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/50_thumb_G_1448946542088.jpg" style="display: inline;">
+                  </p>
+                  <h3>尊尼获加（Johnnie Walker）洋酒 威士忌 黑方黑牌调配型苏格兰威士忌700ml 黑方/黑牌750ml</h3>
+                  <p class="price">
+                    ￥178元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/51_thumb_G_1448946466261.jpg" style="display: inline;">
+                  </p>
+                  <h3>人头马CLUB香槟区优质干邑350ml 洋酒</h3>
+                  <p class="price">
+                    ￥239元
+                  </p>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- *********************类别列表********************* -->
+      <div class="series_list">
+        <div class="series_box cle">
+          <div class="series_info">
+            <div class="series_name name_hufu">
+              <h2>粮油副食</h2>
+            </div>
+            <ul class="brand">
+              <!-- 品牌商家 -->
+              <li>
+                <a href="list.html" >
+                  <a title="Prairie" target="_blank">
+                    <img src="images/brands/lyfs-1.jpg" alt="Prairie" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="Instinct" target="_blank">
+                    <img src="images/brands/lyfs-2.jpg" alt="Instinct" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="发育宝" target="_blank">
+                    <img src="images/brands/sxsp-3.jpg" alt="发育宝" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+            </ul>
+            <div class="brand_cata">
+              <!-- 二级分类 -->
+              <a title="label.name" href="list.html">食用油</a>
+              <a title="label.name" href="list.html">米面杂粮</a>
+              <a title="label.name" href="list.html">厨房调料</a>
+              <a title="label.name" href="list.html">南北干货</a>
+              <a title="label.name" href="list.html">方便速食</a>
+              <a title="label.name" href="list.html">调味品</a>
+            </div>
+
+          </div>
+          <!-- 广告大图 -->
+          <div class="series_pic">
+            <a href="productDetail.html" target="_blank">
+              <img src="images/seriesList/1449011954874068927.jpg" width="340" height="400">
+            </a>
+          </div>
+
+          <div class="pro_list">
+            <ul class="cle">
+              <!-- 类别商品 -->
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/26_thumb_G_1448947825794.jpg" style="display: inline;">
+                  </p>
+                  <h3>金龙鱼大豆油5L/瓶精炼一级大豆油食用油精炼一级金龙鱼油转基因烘焙色拉油炒菜粮油植物油5L 1桶</h3>
+                  <p class="price">
+                    ￥42.8元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/29_thumb_G_1448947631664.jpg" style="display: inline;">
+                  </p>
+                  <h3>融氏纯玉米胚芽油5L桶</h3>
+                  <p class="price">
+                    ￥92元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/25_thumb_G_1448947875633.jpg" style="display: inline;">
+                  </p>
+                  <h3>稻园牌稻米油粮油米糠油绿色植物油</h3>
+                  <p class="price">
+                    ￥82元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/27_thumb_G_1448947771206.jpg" style="display: inline;">
+                  </p>
+                  <h3>维纳斯橄榄菜籽油5L/桶</h3>
+                  <p class="price">
+                    ￥156元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/28_thumb_G_1448947699187.jpg" style="display: inline;">
+                  </p>
+                  <h3>橄榄玉米油5L*2桶</h3>
+                  <p class="price">
+                    ￥126元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/24_thumb_G_1448948023508.jpg" style="display: inline;">
+                  </p>
+                  <h3>山西黑米农家黑米4斤</h3>
+                  <p class="price">
+                    ￥9元
+                  </p>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- *********************类别列表********************* -->
+      <div class="series_list">
+        <div class="series_box cle">
+          <div class="series_info">
+            <div class="series_name name_hufu">
+              <h2>蔬菜水果</h2>
+            </div>
+            <ul class="brand">
+              <!-- 品牌商家 -->
+              <li>
+                <a href="list.html" >
+                  <a title="发育宝" target="_blank">
+                    <img src="images/brands/sxsp-3.jpg" alt="发育宝" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="Verus" target="_blank">
+                    <img src="images/brands/scsg-2.jpg" alt="Verus" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+
+              <li>
+                <a href="list.html" >
+                  <a title="Summit" target="_blank">
+                    <img src="images/brands/scsg-3.jpg" alt="Summit" style="display: inline;">
+                  </a>
+                </a>
+              </li>
+            </ul>
+            <div class="brand_cata">
+              <!-- 二级分类 -->
+              <a title="label.name" href="list.html">有机蔬菜</a>
+              <a title="label.name" href="list.html">精选蔬菜</a>
+              <a title="label.name" href="list.html">进口水果</a>
+              <a title="label.name" href="list.html">国产水果</a>
+            </div>
+
+          </div>
+          <!-- 广告大图 -->
+          <div class="series_pic">
+            <a href="productDetail.html" target="_blank">
+              <img src="images/seriesList/1449010763793377576.jpg" width="340" height="400">
+            </a>
+          </div>
+
+          <div class="pro_list">
+            <ul class="cle">
+              <!-- 类别商品 -->
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/35_thumb_G_1448948333567.jpg" style="display: inline;">
+                  </p>
+                  <h3>新鲜头茬非洲冰草冰菜</h3>
+                  <p class="price">
+                    ￥56元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/36_thumb_G_1448948234706.jpg" style="display: inline;">
+                  </p>
+                  <h3>仿真蔬菜水果蔬菜模型</h3>
+                  <p class="price">
+                    ￥5元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/31_thumb_G_1448948598408.jpg" style="display: inline;">
+                  </p>
+                  <h3>百宝源 安徽红颜草莓 320g*2盒(40-48个果）水果</h3>
+                  <p class="price">
+                    ￥59元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/34_thumb_G_1448948399017.jpg" style="display: inline;">
+                  </p>
+                  <h3>山东青萝卜5斤装</h3>
+                  <p class="price">
+                    ￥29元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/32_thumb_G_1448948525255.jpg" style="display: inline;">
+                  </p>
+                  <h3>赣南脐橙特级果10斤装</h3>
+                  <p class="price">
+                    ￥36元
+                  </p>
+                </a>
+              </li>
+
+              <li>
+                <a href="productDetail.html" target="_blank">
+                  <p class="pic">
+                    <img src="images/seriesList/33_thumb_G_1448948479944.jpg" style="display: inline;">
+                  </p>
+                  <h3>现摘芭乐番石榴台湾珍珠芭乐</h3>
+                  <p class="price">
+                    ￥23元
+                  </p>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <div class="ft-bg">
+      <div class="w-ensure mb20">
+        <div class="w-main">
+          <ul>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr1.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr2.gif">
+            </a></li>
+            <li><a >
+              <img width="300" height="90" src="images/footer/ft-svr3.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr4.gif">
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="ft_main"></div>
+        <div class="ft_txt">
+          <p class="ft_contact"> <span>服务时间：09:00-23:00</span>
+            <span class="ft_phone">客服热线: <em>010-88888888</em></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> 
+</body>
+</html>

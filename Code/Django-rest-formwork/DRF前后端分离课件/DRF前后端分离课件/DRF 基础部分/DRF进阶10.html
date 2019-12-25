@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="37"/><meta name="author" content="李居豪"/><meta name="created" content="2019-04-23 02:23:14 +0000"/><meta name="latitude" content="39.63002617859695"/><meta name="longitude" content="116.0484188923025"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-04-23 02:23:28 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>DRF进阶10</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000; margin-top: 14px;">视图 GenericAPIView</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">编写url</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">url(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">r'^(?P&lt;version&gt;[v1|v2]+)/myview/'</span>, MyView.as_view())
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">编写视图</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.generics <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericAPIView
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(GenericAPIView)</span>:</span>
+    queryset = models.Role.objects.all()
+    serializer_class = PagerSerializer
+    pagination_class = PageNumberPagination
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">get</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 获取数据</span>
+        roles = self.get_queryset()
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 进行分页</span>
+        pager_roles = self.paginate_queryset(roles)
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 序列化</span>
+        ser = self.get_serializer(instance=pager_roles, many=<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">True</span>)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> Response(ser.data)
+</code></pre>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">视图 GenericViewSet</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">视图</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">...
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.viewsets <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericViewSet
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(GenericViewSet)</span>:</span>
+    ...
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">get</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        ...
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">报错</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">TypeError: The `actions` argument must be provided when calling `.as_view()` on a ViewSet. For example `.as_view({<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">'get'</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">'list'</span>})`
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">修改</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223222449.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">修改后又报错</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223193426.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.generics <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericAPIView
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.viewsets <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericViewSet
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(GenericViewSet)</span>:</span>
+    ...
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">list</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        ...
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> Response(ser.data)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意: 视图的不同引发的路由的不同（路由系统已经开始变化了）</p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">视图 ListModelMixin</h1>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.generics <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericAPIView
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.viewsets <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> GenericViewSet
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.mixins <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> ListModelMixin
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(ListModelMixin,GenericViewSet)</span>:</span>
+    queryset = models.Role.objects.all()
+    serializer_class = PagerSerializer
+    pagination_class = PageNumberPagination
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">list</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 获取数据</span>
+        roles = self.get_queryset()
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 进行分页</span>
+        pager_roles = self.paginate_queryset(roles)
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 序列化</span>
+        ser = self.get_serializer(instance=pager_roles, many=<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">True</span>)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> Response(ser.data)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223432.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果我们把自己的list方法去掉,那么使用的就是父类的list方法</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(ListModelMixin,GenericViewSet)</span>:</span>
+    queryset = models.Role.objects.all()
+    serializer_class = PagerSerializer
+    pagination_class = PageNumberPagination
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223625.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">继承的越多,帮我们完成的功能就越多</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223749.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.mixins <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> ListModelMixin,CreateModelMixin
+
+<span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 继承的越多,完成的功能越多</span>
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(ListModelMixin,CreateModelMixin ,GenericViewSet)</span>:</span>
+    queryset = models.Role.objects.all()
+    serializer_class = PagerSerializer
+    pagination_class = PageNumberPagination
+</code></pre>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">视图 ModelViewSet</h1>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(ModelViewSet)</span>:</span>
+    queryset = models.Role.objects.all()
+    serializer_class = PagerSerializer
+    pagination_class = PageNumberPagination
+</code></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    url(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">r'^(?P&lt;version&gt;[v1|v2]+)/myview/(?P&lt;pk&gt;\d+)/'</span>,
+        MyView.as_view({<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"get"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"retrieve"</span>, <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"delete"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"destroy"</span>, <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"put"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"update"</span>, <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"patch"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"partial_update"</span>}))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223224603.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意: 此时,一个URL需要我们写两个路由</p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">总结</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">只想增删改查
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">ModelViewSet</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">只想增
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">CreateModelMixin,GenericViewSet</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">只想增删
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">CreateModelMixin,DestroyModelMixin,GenericViewSet</li>
+</ul>
+</li>
+</ul>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%20%E8%A7%86%E5%9B%BE%20GenericAPIView%0A-%20%E7%BC%96%E5%86%99url%0A%60%60%60python%0Aurl(r'%5E(%3FP%3Cversion%3E%5Bv1%7Cv2%5D%2B)%2Fmyview%2F'%2C%20MyView.as_view())%0A%60%60%60%0A-%20%E7%BC%96%E5%86%99%E8%A7%86%E5%9B%BE%0A%60%60%60python%0Afrom%20rest_framework.generics%20import%20GenericAPIView%0A%0A%0Aclass%20MyView(GenericAPIView)%3A%0A%20%20%20%20queryset%20%3D%20models.Role.objects.all()%0A%20%20%20%20serializer_class%20%3D%20PagerSerializer%0A%20%20%20%20pagination_class%20%3D%20PageNumberPagination%0A%0A%20%20%20%20def%20get(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%0A%20%20%20%20%20%20%20%20roles%20%3D%20self.get_queryset()%0A%20%20%20%20%20%20%20%20%23%20%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5%0A%20%20%20%20%20%20%20%20pager_roles%20%3D%20self.paginate_queryset(roles)%0A%20%20%20%20%20%20%20%20%23%20%E5%BA%8F%E5%88%97%E5%8C%96%0A%20%20%20%20%20%20%20%20ser%20%3D%20self.get_serializer(instance%3Dpager_roles%2C%20many%3DTrue)%0A%20%20%20%20%20%20%20%20return%20Response(ser.data)%0A%60%60%60%0A%0A%23%20%E8%A7%86%E5%9B%BE%20GenericViewSet%0A%0A-%20%E8%A7%86%E5%9B%BE%0A%0A%60%60%60python%0A...%0Afrom%20rest_framework.viewsets%20import%20GenericViewSet%0A%0A%0Aclass%20MyView(GenericViewSet)%3A%0A%20%20%20%20...%0A%0A%20%20%20%20def%20get(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20...%0A%60%60%60%0A-%20%E6%8A%A5%E9%94%99%0A%0A%60%60%60python%0ATypeError%3A%20The%20%60actions%60%20argument%20must%20be%20provided%20when%20calling%20%60.as_view()%60%20on%20a%20ViewSet.%20For%20example%20%60.as_view(%7B'get'%3A%20'list'%7D)%60%0A%60%60%60%0A%0A-%20%E4%BF%AE%E6%94%B9%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223222449%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223222449.png)%0A%0A-%20%E4%BF%AE%E6%94%B9%E5%90%8E%E5%8F%88%E6%8A%A5%E9%94%99%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223193426%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223193426.png)%0A%0A%60%60%60python%0Afrom%20rest_framework.generics%20import%20GenericAPIView%0Afrom%20rest_framework.viewsets%20import%20GenericViewSet%0A%0A%0Aclass%20MyView(GenericViewSet)%3A%0A%20%20%20%20...%0A%0A%20%20%20%20def%20list(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20...%0A%20%20%20%20%20%20%20%20return%20Response(ser.data)%0A%60%60%60%0A%0A%E6%B3%A8%E6%84%8F%3A%20%E8%A7%86%E5%9B%BE%E7%9A%84%E4%B8%8D%E5%90%8C%E5%BC%95%E5%8F%91%E7%9A%84%E8%B7%AF%E7%94%B1%E7%9A%84%E4%B8%8D%E5%90%8C%EF%BC%88%E8%B7%AF%E7%94%B1%E7%B3%BB%E7%BB%9F%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E5%8F%98%E5%8C%96%E4%BA%86%EF%BC%89%0A%0A%23%20%E8%A7%86%E5%9B%BE%20ListModelMixin%0A%60%60%60python%0Afrom%20rest_framework.generics%20import%20GenericAPIView%0Afrom%20rest_framework.viewsets%20import%20GenericViewSet%0Afrom%20rest_framework.mixins%20import%20ListModelMixin%0A%0A%0Aclass%20MyView(ListModelMixin%2CGenericViewSet)%3A%0A%20%20%20%20queryset%20%3D%20models.Role.objects.all()%0A%20%20%20%20serializer_class%20%3D%20PagerSerializer%0A%20%20%20%20pagination_class%20%3D%20PageNumberPagination%0A%0A%20%20%20%20def%20list(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%0A%20%20%20%20%20%20%20%20roles%20%3D%20self.get_queryset()%0A%20%20%20%20%20%20%20%20%23%20%E8%BF%9B%E8%A1%8C%E5%88%86%E9%A1%B5%0A%20%20%20%20%20%20%20%20pager_roles%20%3D%20self.paginate_queryset(roles)%0A%20%20%20%20%20%20%20%20%23%20%E5%BA%8F%E5%88%97%E5%8C%96%0A%20%20%20%20%20%20%20%20ser%20%3D%20self.get_serializer(instance%3Dpager_roles%2C%20many%3DTrue)%0A%20%20%20%20%20%20%20%20return%20Response(ser.data)%0A%60%60%60%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223432%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223223432.png)%0A%0A-%20%E5%A6%82%E6%9E%9C%E6%88%91%E4%BB%AC%E6%8A%8A%E8%87%AA%E5%B7%B1%E7%9A%84list%E6%96%B9%E6%B3%95%E5%8E%BB%E6%8E%89%2C%E9%82%A3%E4%B9%88%E4%BD%BF%E7%94%A8%E7%9A%84%E5%B0%B1%E6%98%AF%E7%88%B6%E7%B1%BB%E7%9A%84list%E6%96%B9%E6%B3%95%0A%0A%60%60%60python%0Aclass%20MyView(ListModelMixin%2CGenericViewSet)%3A%0A%20%20%20%20queryset%20%3D%20models.Role.objects.all()%0A%20%20%20%20serializer_class%20%3D%20PagerSerializer%0A%20%20%20%20pagination_class%20%3D%20PageNumberPagination%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223625%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223223625.png)%0A%0A-%20%E7%BB%A7%E6%89%BF%E7%9A%84%E8%B6%8A%E5%A4%9A%2C%E5%B8%AE%E6%88%91%E4%BB%AC%E5%AE%8C%E6%88%90%E7%9A%84%E5%8A%9F%E8%83%BD%E5%B0%B1%E8%B6%8A%E5%A4%9A%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223223749%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223223749.png)%0A%0A%60%60%60python%0Afrom%20rest_framework.mixins%20import%20ListModelMixin%2CCreateModelMixin%0A%0A%23%20%E7%BB%A7%E6%89%BF%E7%9A%84%E8%B6%8A%E5%A4%9A%2C%E5%AE%8C%E6%88%90%E7%9A%84%E5%8A%9F%E8%83%BD%E8%B6%8A%E5%A4%9A%0Aclass%20MyView(ListModelMixin%2CCreateModelMixin%20%2CGenericViewSet)%3A%0A%20%20%20%20queryset%20%3D%20models.Role.objects.all()%0A%20%20%20%20serializer_class%20%3D%20PagerSerializer%0A%20%20%20%20pagination_class%20%3D%20PageNumberPagination%0A%60%60%60%0A%0A%23%20%E8%A7%86%E5%9B%BE%20ModelViewSet%0A%60%60%60python%0Aclass%20MyView(ModelViewSet)%3A%0A%20%20%20%20queryset%20%3D%20models.Role.objects.all()%0A%20%20%20%20serializer_class%20%3D%20PagerSerializer%0A%20%20%20%20pagination_class%20%3D%20PageNumberPagination%0A%60%60%60%0A%60%60%60python%0A%20%20%20%20url(r'%5E(%3FP%3Cversion%3E%5Bv1%7Cv2%5D%2B)%2Fmyview%2F(%3FP%3Cpk%3E%5Cd%2B)%2F'%2C%0A%20%20%20%20%20%20%20%20MyView.as_view(%7B%22get%22%3A%20%22retrieve%22%2C%20%22delete%22%3A%20%22destroy%22%2C%20%22put%22%3A%20%22update%22%2C%20%22patch%22%3A%20%22partial_update%22%7D))%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190223224603%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190223224603.png)%0A%0A%E6%B3%A8%E6%84%8F%3A%20%E6%AD%A4%E6%97%B6%2C%E4%B8%80%E4%B8%AAURL%E9%9C%80%E8%A6%81%E6%88%91%E4%BB%AC%E5%86%99%E4%B8%A4%E4%B8%AA%E8%B7%AF%E7%94%B1%0A%0A%23%20%E6%80%BB%E7%BB%93%20%0A-%20%E5%8F%AA%E6%83%B3%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%0A%20%20%20%20-%20ModelViewSet%0A-%20%E5%8F%AA%E6%83%B3%E5%A2%9E%0A%20%20%20%20-%20CreateModelMixin%2CGenericViewSet%0A-%20%E5%8F%AA%E6%83%B3%E5%A2%9E%E5%88%A0%20%20%0A%20%20%20%20-%20CreateModelMixin%2CDestroyModelMixin%2CGenericViewSet%0A%0A%0A</center></body></html>

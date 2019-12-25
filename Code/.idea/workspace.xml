@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e02472b8-a822-47c4-8ac2-2f0036431e1f" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/Desktop$openr.coverage" NAME="openr Coverage Results" MODIFIED="1550800512219" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$xpath.coverage" NAME="xpath的使用 Coverage Results" MODIFIED="1550888948177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习/06代码" />
+    <SUITE FILE_PATH="coverage/Desktop$github.coverage" NAME="github Coverage Results" MODIFIED="1551179007139" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+    <SUITE FILE_PATH="coverage/Desktop$qixiaodian.coverage" NAME="qixiaodian Coverage Results" MODIFIED="1550751355144" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$lianjia.coverage" NAME="lianjia Coverage Results" MODIFIED="1551063066128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/周考" />
+    <SUITE FILE_PATH="coverage/Desktop$douban_movie.coverage" NAME="douban_movie Coverage Results" MODIFIED="1551256368108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/爬虫/10 (1)" />
+    <SUITE FILE_PATH="coverage/Desktop$xpath__1_.coverage" NAME="xpath的使用 (1) Coverage Results" MODIFIED="1550923840592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../Documents/Tencent Files/2238366634/FileRecv/06day" />
+    <SUITE FILE_PATH="coverage/Desktop$boos.coverage" NAME="boos Coverage Results" MODIFIED="1566799551218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$selenium.coverage" NAME="selenium Coverage Results" MODIFIED="1551164182209" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+    <SUITE FILE_PATH="coverage/Desktop$requests_post.coverage" NAME="requests_post Coverage Results" MODIFIED="1550820978526" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+    <SUITE FILE_PATH="coverage/Desktop$pyquery_used.coverage" NAME="pyquery_used Coverage Results" MODIFIED="1550997408540" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$maoyan.coverage" NAME="maoyan Coverage Results" MODIFIED="1549002297489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/作业/作业" />
+    <SUITE FILE_PATH="coverage/Desktop$xueqiu.coverage" NAME="xueqiu Coverage Results" MODIFIED="1550798871183" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$sele.coverage" NAME="sele Coverage Results" MODIFIED="1551164233035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+    <SUITE FILE_PATH="coverage/Desktop$requests_used.coverage" NAME="requests_used Coverage Results" MODIFIED="1550817424734" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+    <SUITE FILE_PATH="coverage/Code$boos.coverage" NAME="boos Coverage Results" MODIFIED="1577080750599" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Desktop$.coverage" NAME="豆瓣 Coverage Results" MODIFIED="1551256772348" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/练习" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/boos.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="616">
+              <caret line="105" column="42" lean-forward="true" selection-start-line="105" selection-start-column="42" selection-end-line="105" selection-end-column="42" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Stub" />
+        <option value="HTML File" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>远洋</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>brower</replace>
+    </replaceStrings>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/maoyan_work_home.py" />
+        <option value="$PROJECT_DIR$/04day上午/maoyan_homework.py" />
+        <option value="$PROJECT_DIR$/qixiaodian.py" />
+        <option value="$PROJECT_DIR$/xueqiu.py" />
+        <option value="$PROJECT_DIR$/openr.py" />
+        <option value="$PROJECT_DIR$/自定义opener之Cookie.py" />
+        <option value="$PROJECT_DIR$/什么是代理.py" />
+        <option value="$PROJECT_DIR$/练习/requests_used.py" />
+        <option value="$PROJECT_DIR$/练习/requests_post.py" />
+        <option value="$PROJECT_DIR$/练习/什么是代理.py" />
+        <option value="$PROJECT_DIR$/练习/05代码/05代码/05上午/自定义opener.py" />
+        <option value="$PROJECT_DIR$/练习/06代码/xpath的使用.pyi" />
+        <option value="$PROJECT_DIR$/练习/06代码/xpath的使用.py" />
+        <option value="$PROJECT_DIR$/../Documents/Tencent Files/2238366634/FileRecv/06上午/xpath的使用.py" />
+        <option value="$PROJECT_DIR$/练习/06代码/bs4.py" />
+        <option value="$PROJECT_DIR$/06day/bs4_used.py" />
+        <option value="$PROJECT_DIR$/练习/章节获取.py" />
+        <option value="$PROJECT_DIR$/../Documents/Tencent Files/2238366634/FileRecv/xpath的使用.py" />
+        <option value="$PROJECT_DIR$/../Documents/Tencent Files/2238366634/FileRecv/06day/xpath的使用.py" />
+        <option value="$PROJECT_DIR$/练习/06代码/汽车之家.py" />
+        <option value="$PROJECT_DIR$/pyquery_used.py" />
+        <option value="$PROJECT_DIR$/07day/多任务爬虫之线程.py" />
+        <option value="$PROJECT_DIR$/06day/xpath的使用.py" />
+        <option value="$PROJECT_DIR$/周考/lianjia.py" />
+        <option value="$PROJECT_DIR$/练习/线程.py" />
+        <option value="$PROJECT_DIR$/练习/线程池.py" />
+        <option value="$PROJECT_DIR$/练习/进程.py" />
+        <option value="$PROJECT_DIR$/练习/迭代器.py" />
+        <option value="$PROJECT_DIR$/练习/selenium.py" />
+        <option value="$PROJECT_DIR$/练习/sele.py" />
+        <option value="$PROJECT_DIR$/练习/模拟登陆.html" />
+        <option value="$PROJECT_DIR$/练习/模拟登陆.py" />
+        <option value="$PROJECT_DIR$/练习/github.py" />
+        <option value="$PROJECT_DIR$/09/douyu_模拟点击.py" />
+        <option value="$PROJECT_DIR$/练习/10day/Tesseract图像识别.py" />
+        <option value="$PROJECT_DIR$/练习/10day/mongodb.py" />
+        <option value="$PROJECT_DIR$/练习/10day/python和mongodb交换.py" />
+        <option value="$PROJECT_DIR$/爬虫/10 (1)/douban_movie.py" />
+        <option value="$PROJECT_DIR$/练习/豆瓣.py" />
+        <option value="$PROJECT_DIR$/练习/小结/蘑菇街.py" />
+        <option value="$PROJECT_DIR$/爬虫/10 (1)/mongodb复习.py" />
+        <option value="$PROJECT_DIR$/爬虫/11/scrapy使用.py" />
+        <option value="$PROJECT_DIR$/机试第一题.py" />
+        <option value="$PROJECT_DIR$/徐永康1808机试/第一题.py" />
+        <option value="$PROJECT_DIR$/徐永康1808机试/第二题.py" />
+        <option value="$PROJECT_DIR$/31相亲项目/31相亲.py" />
+        <option value="$PROJECT_DIR$/31相亲项目/templates/login.html" />
+        <option value="$PROJECT_DIR$/31相亲项目/templates/register.html" />
+        <option value="$PROJECT_DIR$/01-----微信自动回复.py" />
+        <option value="$PROJECT_DIR$/common.py" />
+        <option value="$PROJECT_DIR$/boos.py" />
+      </list>
+    </option>
+  </component>
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-65" />
+    <option name="y" value="150" />
+    <option name="width" value="1934" />
+    <option name="height" value="1100" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.boos">
+    <configuration name="模拟登陆" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/模拟登陆.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="豆瓣" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/豆瓣.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="豆瓣" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/豆瓣.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="章节获取" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/章节获取.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="boos" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/boos.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="douban_movie" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/爬虫/10 (1)" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/爬虫/10 (1)/douban_movie.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="github" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/github.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="sele" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Desktop" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/练习" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/练习/sele.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.boos" />
+        <item itemvalue="Python.douban_movie" />
+        <item itemvalue="Python.模拟登陆" />
+        <item itemvalue="Python.github" />
+        <item itemvalue="Python.sele" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e02472b8-a822-47c4-8ac2-2f0036431e1f" name="Default Changelist" comment="" />
+      <created>1545126390781</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1545126390781</updated>
+      <workItem from="1549002061864" duration="7000" />
+      <workItem from="1549002100018" duration="423000" />
+      <workItem from="1550714159340" duration="43430000" />
+      <workItem from="1550882965659" duration="28890000" />
+      <workItem from="1550996911376" duration="6190000" />
+      <workItem from="1551055117595" duration="39049000" />
+      <workItem from="1551227821376" duration="3807000" />
+      <workItem from="1551238796209" duration="12793000" />
+      <workItem from="1551312271141" duration="9888000" />
+      <workItem from="1555479531728" duration="2892000" />
+      <workItem from="1559472274334" duration="848000" />
+      <workItem from="1559473147500" duration="27000" />
+      <workItem from="1560393760721" duration="1182000" />
+      <workItem from="1560406031099" duration="13000" />
+      <workItem from="1561458964575" duration="32000" />
+      <workItem from="1561605158419" duration="222000" />
+      <workItem from="1561605400123" duration="2511000" />
+      <workItem from="1566432634577" duration="620000" />
+      <workItem from="1566799495938" duration="2988000" />
+      <workItem from="1577080661563" duration="533000" />
+      <workItem from="1577099903845" duration="1282000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="157627000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15298508" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.032502707" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.31744313" />
+      <window_info anchor="bottom" id="Python Console" order="12" weight="0.32827735" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" />
+      <window_info anchor="right" id="Database" order="4" />
+      <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20309168" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.39653304" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3391116" />
+      <window_info anchor="bottom" id="Python Console" order="12" weight="0.3290735" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" />
+      <window_info anchor="right" id="Database" order="4" />
+      <window_info anchor="right" id="Coverage" order="5" side_tool="true" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/练习/06代码/xpath的使用.py" />
+    <entry file="file://$PROJECT_DIR$/练习/05代码/05代码/05上午/使用本地文件中存储的cookie.py" />
+    <entry file="file://$PROJECT_DIR$/练习/自定义opener之Cookie.py" />
+    <entry file="file://$PROJECT_DIR$/练习/06代码/汽车之家.py" />
+    <entry file="file://$PROJECT_DIR$/04day上午/maoyan_homework.py" />
+    <entry file="file://$PROJECT_DIR$/练习/线程池.py" />
+    <entry file="file://$PROJECT_DIR$/练习/线程.py" />
+    <entry file="file://$PROJECT_DIR$/周考/lianjia.py" />
+    <entry file="file://$PROJECT_DIR$/07day/线程复习.py" />
+    <entry file="file://$PROJECT_DIR$/07day/线程池爬虫.py" />
+    <entry file="file://$PROJECT_DIR$/07day上午/线程复习.py" />
+    <entry file="file://$PROJECT_DIR$/练习/模拟登陆.html" />
+    <entry file="file://$PROJECT_DIR$/练习/sele.py" />
+    <entry file="file://$PROJECT_DIR$/协程.py" />
+    <entry file="file://$PROJECT_DIR$/练习/迭代器.py" />
+    <entry file="file://$PROJECT_DIR$/08/08上午/线程的复习.py" />
+    <entry file="file://$PROJECT_DIR$/../Envs/h4_django2/Lib/site-packages/selenium/webdriver/remote/webdriver.py" />
+    <entry file="file://$PROJECT_DIR$/09/模拟登录(iframe).py" />
+    <entry file="file://$PROJECT_DIR$/练习/10day/Tesseract图像识别.py" />
+    <entry file="file://$PROJECT_DIR$/09/douyu_模拟点击.py" />
+    <entry file="file://$PROJECT_DIR$/../Envs/h4_django2/Lib/site-packages/pymongo/mongo_client.py" />
+    <entry file="file://$PROJECT_DIR$/练习/10day/python和mongodb交换.py" />
+    <entry file="file://$PROJECT_DIR$/练习/模拟登陆.py" />
+    <entry file="file://$PROJECT_DIR$/../Envs/h4_django2/Lib/site-packages/pymongo/collection.py" />
+    <entry file="file://$PROJECT_DIR$/练习/github.py" />
+    <entry file="file://$PROJECT_DIR$/练习/豆瓣.py" />
+    <entry file="file://$PROJECT_DIR$/练习/小结/蘑菇街.py" />
+    <entry file="file://E:/11day/scrapy_used.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/练习/10day/mongodb.py" />
+    <entry file="file://$PROJECT_DIR$/爬虫/04day上午/maoyan_homework.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1290">
+          <caret line="147" column="19" lean-forward="true" selection-start-line="147" selection-start-column="19" selection-end-line="147" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Envs/h4_django2/Lib/site-packages/numpy/__init__.py" />
+    <entry file="file://$PROJECT_DIR$/机试第一题.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/PaxHeader/第一题.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/PaxHeader/第三题.py" />
+    <entry file="file://$PROJECT_DIR$/../AppData/Local/Temp/HZ$D.458.4105/HZ$D.458.4106/温思思_1808机试/第二题.py" />
+    <entry file="file://$PROJECT_DIR$/爬虫/11/scrapy使用.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/第五题.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/第四题.py" />
+    <entry file="file://$PROJECT_DIR$/31相亲项目/templates/index.html" />
+    <entry file="file://$PROJECT_DIR$/31相亲项目/templates/login.html" />
+    <entry file="file://$PROJECT_DIR$/31相亲项目/templates/register.html" />
+    <entry file="file://$PROJECT_DIR$/31相亲项目/31相亲.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/第一题.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/第三题.py" />
+    <entry file="file://$PROJECT_DIR$/徐永康1808机试/第二题.py" />
+    <entry file="file://$PROJECT_DIR$/01-----微信自动回复.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="3" column="81" selection-start-line="3" selection-start-column="81" selection-end-line="3" selection-end-column="81" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/爬虫/10 (1)/斗鱼模拟登录.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/爬虫/10 (1)/douban_movie.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1110">
+          <caret line="39" column="101" selection-start-line="39" selection-start-column="101" selection-end-line="39" selection-end-column="101" />
+          <folding>
+            <element signature="e#1#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/爬虫/10 (1)/mongodb复习.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="900">
+          <caret line="30" column="19" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/boos.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="616">
+          <caret line="105" column="42" lean-forward="true" selection-start-line="105" selection-start-column="42" selection-end-line="105" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="author" content="李居豪"/><meta name="created" content="2019-04-28 07:00:18 +0000"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-11 15:35:06 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>乐农客011</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">订单管理接口</h3>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step1: 修改OrderInfo model中的order_sn字段设置null=True,blank=True可以允许为空,</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">注意原因：</strong> 因为我们写view的时候会使用mixins.CreateModelMixin那么在创建数据的时候会对字段进行验证，而提交数据的时候并没有订单号，订单号需要后台生成，所以我们需要将order_sn字段设置null=True,blank=True可以允许为空</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"> #订单号由后台生成
+    order_sn = models.CharField(max_length=30,unique=True,null=True,blank=True,verbose_name=u'订单号')
+ #支付宝交易号
+    trade_no = models.CharField(max_length=100,unique=True,null=True,blank=True,verbose_name='交易号')
+   
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">在OrderInfo model中为什么直接将用户地址数据取出保存，而不是直接关联一个外键？</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">因为我们在下订单的时候，使用的是当前的用户地址，一旦后面用户对地址进行修改，那么订单信息中的用户地址也会发生变化，而我们当时下订单的地址就不会再显示了，恰恰我们需要看到的是当时下订单的地址，所以我们在生成订单时直接将用户地址信息取出进行保存</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step2: 在serialziers.py文件中添加订单列表的序列化</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from .models import OrderInfo,OrderGoods
+import time, random
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    #隐藏用户信息
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    #订单状态用户不可修改提交，支付之后才可以修改
+    pay_status = serializers.CharField(
+        read_only=True
+    )
+    trade_no = serializers.CharField(
+        read_only=True
+    )
+    order_sn = serializers.CharField(
+        read_only=True
+    )
+    add_time = serializers.DateTimeField(
+        read_only=True,
+        format="%Y-%m-%d %H:%M"
+    )
+    pay_time = serializers.DateTimeField(
+        read_only=True,
+        format="%Y-%m-%d %H:%M"
+    )
+
+    def generate_order_sn(self):
+
+        random_ins = random.Random()
+        # order_sn的生成规则:当前时间+userid+随机数
+        order_sn = "{time_str}{userid}{ranstr}".format(
+            time_str=time.strftime("%Y%m%d%H%M%S"),
+            userid=self.context['request'].user.id,
+            ranstr=random_ins.randint(10, 99)
+        )
+
+        return order_sn
+
+    def validate(self, attrs):
+        attrs['order_sn'] = self.generate_order_sn()
+        return attrs
+    class Meta:
+        model = OrderInfo
+        fields = "__all__"
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190428_11.png" height="770" width="911"/></p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step3: 完成订单管理后台逻辑</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from .models import OrderInfo,OrderGoods
+from .serializers import OrderSerializer,OrderDetailSerializer
+class OrderViewset(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet):
+    """
+    订单管理
+    list:
+        获取个人订单
+    delete
+        删除订单
+    create:
+         创建订单
+    """
+
+    # 权限设置
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
+    # 认证设置
+    authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
+
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return OrderInfo.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        order = serializer.save()
+        shop_carts = ShoppingCart.objects.filter(user=self.request.user)
+        for shop_cart  in shop_carts:
+            #获取购物车中的所有商品信息保存在订单商品中
+            order_goods = OrderGoods()
+            order_goods.goods = shop_cart.goods
+            order_goods.goods_num = shop_cart.nums
+            order_goods.order = order
+            order_goods.save()
+
+            shop_cart.delete()
+
+        return order
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step4: 调试订单管理接口</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190428_12.png" height="755" width="959"/></p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step5: 添加订单详情接 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">只需要在订单管理接口中做一定的修改</strong></h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">第一步，修改OrderGoods model中的order字段</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">order = models.ForeignKey(OrderInfo,verbose_name="订单信息",related_name="goods")
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">第二步，添加序列化的类</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from .models import OrderInfo,OrderGoods
+
+class OrderGoodsSerialzier(serializers.ModelSerializer):
+    #订单商品的序列化类
+    goods = GoodsSerializer(many=False)
+    class Meta:
+        model = OrderGoods
+        fields = "__all__"
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    """
+    获取订单详情的序列化类
+    """
+    #通过订单商品中的order外键，关联出订单商品列表数据
+    goods = OrderGoodsSerialzier(many=True)
+    class Meta:
+        model = OrderInfo
+        fields = "__all__"
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">第三步：完成订单详情的后台逻辑</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class OrderViewset(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet):
+    """
+    订单管理
+    list:
+        获取个人订单
+    delete
+        删除订单
+    create:
+         创建订单
+    retrieve
+        订单详情
+    """
+    .....
+    
+        def get_serializer_class(self):
+        #如果是详情则返回订单详情的Serializer序列化类
+        if self.action == "retrieve":
+            return OrderDetailSerializer
+        return OrderSerializer
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">第四步：订单详情接口测试</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190428_17.png" height="734" width="1079"/></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">首页下部商品分类显示功能开发</h3>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step1:分析页面补全model</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190429_2.png" height="460" width="1293"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"
+/></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class IndexAd(models.Model):
+    """
+    首页商品类别广告
+    """
+    category = models.ForeignKey(GoodCategory,verbose_name="商品类目",related_name="category")
+    goods = models.ForeignKey(Goods,related_name='goods')
+
+    class Meta:
+        verbose_name = '首页商品类别广告'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.goods.name
+
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step2:序例化</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from .models import GoodCategory,GoodsCategoryBrand,IndexAd
+from django.db.models import Q
+
+class Brandserializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GoodsCategoryBrand
+        fields = "__all__"
+
+</code></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class IndexCategorySerializer(serializers.ModelSerializer):
+
+    brands = Brandserializer(many=True)
+    goods = serializers.SerializerMethodField()
+    sub_cat = CategorySerializer2(many=True)
+    ad_goods = serializers.SerializerMethodField()
+
+    def get_ad_goods(self,obj):
+        # 获取广告商品
+        goods_json = {}
+        ad_goods = IndexAd.objects.filter(category_id=obj.id)
+
+        if ad_goods:
+            goods_ins = ad_goods[0].goods
+            goods_json = GoodsSerializer(goods_ins,many=False,context={'request':self.context['request']}).data
+        return goods_json
+
+    def get_goods(self,obj):
+        # 获取商品列表
+        all_goods = Goods.objects.filter(Q(category_id=obj.id) | Q(category__parent_category_id=obj.id) | Q(
+        category__parent_category__parent_category_id=obj.id))
+        goods_serializer = GoodsSerializer(all_goods,many=True,context={'request':self.context['request']})
+        return goods_serializer.data
+
+    class Meta:
+        model = GoodCategory
+        fields = "__all__"
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">step3:添加后台逻辑</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class IndexCategoryViewset(mixins.ListModelMixin,viewsets.GenericViewSet):
+    """
+    首页商品分类数据
+    """
+    queryset = GoodCategory.objects.filter(is_tab=True,name__in=['奶类食品',])
+    serializer_class = IndexCategorySerializer
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">配置url</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">router.register(r'indexgoods',IndexCategoryViewset,base_name='indexgoods')
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">测试接口indexgoods:</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">需要先在admin后台管理中添加数据</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190429_3.png" height="379" width="849"/></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">小作业完善分类商品的价格区间部分逻辑和接口</h3>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">分析价格区间，自己设计model</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">添加后台管理模块</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">实现序例化</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">实现后台接口，返回价格区间列表数据</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">和前端连调，展示数据</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190429_4.png" height="375" width="1200"/></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">小作业完善首页热搜词部分逻辑和接口</h3>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">分析价格区间，自己设计model</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">添加后台管理模块</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">实现序例化</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">实现后台接口，返回价格区间列表数据</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">和前端连调，展示数据</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="%E4%B9%90%E5%86%9C%E5%AE%A2011.resources/Snip20190429_7.png" height="257" width="845"/></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">小作业，细节处理，如何实现商品点击详情后点击量加1的操作，提示从RetrieveModelMixin类中的retrieve方法入手</h3>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">小作业，细节处理，如何实现商品收藏后收藏数加1的操作，取消收藏则减1，提示前者从CreateModelMixin的perform_create方法入手，后者从DestroyModelMixin的perform_destroy方法入手</h3>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%20%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%E6%8E%A5%E5%8F%A3%0A%0A%23%23%23%23%20step1%3A%20%E4%BF%AE%E6%94%B9OrderInfo%20model%E4%B8%AD%E7%9A%84order_sn%E5%AD%97%E6%AE%B5%E8%AE%BE%E7%BD%AEnull%3DTrue%2Cblank%3DTrue%E5%8F%AF%E4%BB%A5%E5%85%81%E8%AE%B8%E4%B8%BA%E7%A9%BA%2C%0A%0A**%E6%B3%A8%E6%84%8F%E5%8E%9F%E5%9B%A0%EF%BC%9A**%20%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%AC%E5%86%99view%E7%9A%84%E6%97%B6%E5%80%99%E4%BC%9A%E4%BD%BF%E7%94%A8mixins.CreateModelMixin%E9%82%A3%E4%B9%88%E5%9C%A8%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E7%9A%84%E6%97%B6%E5%80%99%E4%BC%9A%E5%AF%B9%E5%AD%97%E6%AE%B5%E8%BF%9B%E8%A1%8C%E9%AA%8C%E8%AF%81%EF%BC%8C%E8%80%8C%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E6%97%B6%E5%80%99%E5%B9%B6%E6%B2%A1%E6%9C%89%E8%AE%A2%E5%8D%95%E5%8F%B7%EF%BC%8C%E8%AE%A2%E5%8D%95%E5%8F%B7%E9%9C%80%E8%A6%81%E5%90%8E%E5%8F%B0%E7%94%9F%E6%88%90%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%B0%86order_sn%E5%AD%97%E6%AE%B5%E8%AE%BE%E7%BD%AEnull%3DTrue%2Cblank%3DTrue%E5%8F%AF%E4%BB%A5%E5%85%81%E8%AE%B8%E4%B8%BA%E7%A9%BA%0A%60%60%60%0A%20%23%E8%AE%A2%E5%8D%95%E5%8F%B7%E7%94%B1%E5%90%8E%E5%8F%B0%E7%94%9F%E6%88%90%0A%20%20%20%20order_sn%20%3D%20models.CharField(max_length%3D30%2Cunique%3DTrue%2Cnull%3DTrue%2Cblank%3DTrue%2Cverbose_name%3Du'%E8%AE%A2%E5%8D%95%E5%8F%B7')%0A%20%23%E6%94%AF%E4%BB%98%E5%AE%9D%E4%BA%A4%E6%98%93%E5%8F%B7%0A%20%20%20%20trade_no%20%3D%20models.CharField(max_length%3D100%2Cunique%3DTrue%2Cnull%3DTrue%2Cblank%3DTrue%2Cverbose_name%3D'%E4%BA%A4%E6%98%93%E5%8F%B7')%0A%20%20%20%0A%60%60%60%0A%0A**%E5%9C%A8OrderInfo%20model%E4%B8%AD%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9B%B4%E6%8E%A5%E5%B0%86%E7%94%A8%E6%88%B7%E5%9C%B0%E5%9D%80%E6%95%B0%E6%8D%AE%E5%8F%96%E5%87%BA%E4%BF%9D%E5%AD%98%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%B4%E6%8E%A5%E5%85%B3%E8%81%94%E4%B8%80%E4%B8%AA%E5%A4%96%E9%94%AE%EF%BC%9F**%0A%0A%E5%9B%A0%E4%B8%BA%E6%88%91%E4%BB%AC%E5%9C%A8%E4%B8%8B%E8%AE%A2%E5%8D%95%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E4%BD%BF%E7%94%A8%E7%9A%84%E6%98%AF%E5%BD%93%E5%89%8D%E7%9A%84%E7%94%A8%E6%88%B7%E5%9C%B0%E5%9D%80%EF%BC%8C%E4%B8%80%E6%97%A6%E5%90%8E%E9%9D%A2%E7%94%A8%E6%88%B7%E5%AF%B9%E5%9C%B0%E5%9D%80%E8%BF%9B%E8%A1%8C%E4%BF%AE%E6%94%B9%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AE%A2%E5%8D%95%E4%BF%A1%E6%81%AF%E4%B8%AD%E7%9A%84%E7%94%A8%E6%88%B7%E5%9C%B0%E5%9D%80%E4%B9%9F%E4%BC%9A%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E8%80%8C%E6%88%91%E4%BB%AC%E5%BD%93%E6%97%B6%E4%B8%8B%E8%AE%A2%E5%8D%95%E7%9A%84%E5%9C%B0%E5%9D%80%E5%B0%B1%E4%B8%8D%E4%BC%9A%E5%86%8D%E6%98%BE%E7%A4%BA%E4%BA%86%EF%BC%8C%E6%81%B0%E6%81%B0%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E7%9C%8B%E5%88%B0%E7%9A%84%E6%98%AF%E5%BD%93%E6%97%B6%E4%B8%8B%E8%AE%A2%E5%8D%95%E7%9A%84%E5%9C%B0%E5%9D%80%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E5%9C%A8%E7%94%9F%E6%88%90%E8%AE%A2%E5%8D%95%E6%97%B6%E7%9B%B4%E6%8E%A5%E5%B0%86%E7%94%A8%E6%88%B7%E5%9C%B0%E5%9D%80%E4%BF%A1%E6%81%AF%E5%8F%96%E5%87%BA%E8%BF%9B%E8%A1%8C%E4%BF%9D%E5%AD%98%0A%0A%23%23%23%23%20step2%3A%20%E5%9C%A8serialziers.py%E6%96%87%E4%BB%B6%E4%B8%AD%E6%B7%BB%E5%8A%A0%E8%AE%A2%E5%8D%95%E5%88%97%E8%A1%A8%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%0A%60%60%60%0Afrom%20.models%20import%20OrderInfo%2COrderGoods%0Aimport%20time%2C%20random%0A%0Aclass%20OrderSerializer(serializers.ModelSerializer)%3A%0A%0A%20%20%20%20%23%E9%9A%90%E8%97%8F%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%0A%20%20%20%20user%20%3D%20serializers.HiddenField(%0A%20%20%20%20%20%20%20%20default%3Dserializers.CurrentUserDefault()%0A%20%20%20%20)%0A%20%20%20%20%23%E8%AE%A2%E5%8D%95%E7%8A%B6%E6%80%81%E7%94%A8%E6%88%B7%E4%B8%8D%E5%8F%AF%E4%BF%AE%E6%94%B9%E6%8F%90%E4%BA%A4%EF%BC%8C%E6%94%AF%E4%BB%98%E4%B9%8B%E5%90%8E%E6%89%8D%E5%8F%AF%E4%BB%A5%E4%BF%AE%E6%94%B9%0A%20%20%20%20pay_status%20%3D%20serializers.CharField(%0A%20%20%20%20%20%20%20%20read_only%3DTrue%0A%20%20%20%20)%0A%20%20%20%20trade_no%20%3D%20serializers.CharField(%0A%20%20%20%20%20%20%20%20read_only%3DTrue%0A%20%20%20%20)%0A%20%20%20%20order_sn%20%3D%20serializers.CharField(%0A%20%20%20%20%20%20%20%20read_only%3DTrue%0A%20%20%20%20)%0A%20%20%20%20add_time%20%3D%20serializers.DateTimeField(%0A%20%20%20%20%20%20%20%20read_only%3DTrue%2C%0A%20%20%20%20%20%20%20%20format%3D%22%25Y-%25m-%25d%20%25H%3A%25M%22%0A%20%20%20%20)%0A%20%20%20%20pay_time%20%3D%20serializers.DateTimeField(%0A%20%20%20%20%20%20%20%20read_only%3DTrue%2C%0A%20%20%20%20%20%20%20%20format%3D%22%25Y-%25m-%25d%20%25H%3A%25M%22%0A%20%20%20%20)%0A%0A%20%20%20%20def%20generate_order_sn(self)%3A%0A%0A%20%20%20%20%20%20%20%20random_ins%20%3D%20random.Random()%0A%20%20%20%20%20%20%20%20%23%20order_sn%E7%9A%84%E7%94%9F%E6%88%90%E8%A7%84%E5%88%99%3A%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4%2Buserid%2B%E9%9A%8F%E6%9C%BA%E6%95%B0%0A%20%20%20%20%20%20%20%20order_sn%20%3D%20%22%7Btime_str%7D%7Buserid%7D%7Branstr%7D%22.format(%0A%20%20%20%20%20%20%20%20%20%20%20%20time_str%3Dtime.strftime(%22%25Y%25m%25d%25H%25M%25S%22)%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20userid%3Dself.context%5B'request'%5D.user.id%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20ranstr%3Drandom_ins.randint(10%2C%2099)%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%20%20%20%20return%20order_sn%0A%0A%20%20%20%20def%20validate(self%2C%20attrs)%3A%0A%20%20%20%20%20%20%20%20attrs%5B'order_sn'%5D%20%3D%20self.generate_order_sn()%0A%20%20%20%20%20%20%20%20return%20attrs%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20model%20%3D%20OrderInfo%0A%20%20%20%20%20%20%20%20fields%20%3D%20%22__all__%22%0A%60%60%60%0A%0A!%5B7665d12fb23c309b1c389dc49ebc388b.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2312)%0A%0A%0A%23%23%23%23%20step3%3A%20%E5%AE%8C%E6%88%90%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0%E9%80%BB%E8%BE%91%0A%60%60%60%0Afrom%20.models%20import%20OrderInfo%2COrderGoods%0Afrom%20.serializers%20import%20OrderSerializer%2COrderDetailSerializer%0Aclass%20OrderViewset(%0A%20%20%20%20mixins.ListModelMixin%2C%0A%20%20%20%20mixins.CreateModelMixin%2C%0A%20%20%20%20mixins.DestroyModelMixin%2C%0A%20%20%20%20viewsets.GenericViewSet)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%0A%20%20%20%20list%3A%0A%20%20%20%20%20%20%20%20%E8%8E%B7%E5%8F%96%E4%B8%AA%E4%BA%BA%E8%AE%A2%E5%8D%95%0A%20%20%20%20delete%0A%20%20%20%20%20%20%20%20%E5%88%A0%E9%99%A4%E8%AE%A2%E5%8D%95%0A%20%20%20%20create%3A%0A%20%20%20%20%20%20%20%20%20%E5%88%9B%E5%BB%BA%E8%AE%A2%E5%8D%95%0A%20%20%20%20%22%22%22%0A%0A%20%20%20%20%23%20%E6%9D%83%E9%99%90%E8%AE%BE%E7%BD%AE%0A%20%20%20%20permission_classes%20%3D%20(IsAuthenticated%2C%20IsOwnerOrReadOnly)%0A%20%20%20%20%23%20%E8%AE%A4%E8%AF%81%E8%AE%BE%E7%BD%AE%0A%20%20%20%20authentication_classes%20%3D%20(JSONWebTokenAuthentication%2C%20SessionAuthentication)%0A%0A%20%20%20%20serializer_class%20%3D%20OrderSerializer%0A%0A%20%20%20%20def%20get_queryset(self)%3A%0A%20%20%20%20%20%20%20%20return%20OrderInfo.objects.filter(user%3Dself.request.user)%0A%0A%20%20%20%20def%20perform_create(self%2C%20serializer)%3A%0A%20%20%20%20%20%20%20%20order%20%3D%20serializer.save()%0A%20%20%20%20%20%20%20%20shop_carts%20%3D%20ShoppingCart.objects.filter(user%3Dself.request.user)%0A%20%20%20%20%20%20%20%20for%20shop_cart%20%20in%20shop_carts%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E8%B4%AD%E7%89%A9%E8%BD%A6%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF%E4%BF%9D%E5%AD%98%E5%9C%A8%E8%AE%A2%E5%8D%95%E5%95%86%E5%93%81%E4%B8%AD%0A%20%20%20%20%20%20%20%20%20%20%20%20order_goods%20%3D%20OrderGoods()%0A%20%20%20%20%20%20%20%20%20%20%20%20order_goods.goods%20%3D%20shop_cart.goods%0A%20%20%20%20%20%20%20%20%20%20%20%20order_goods.goods_num%20%3D%20shop_cart.nums%0A%20%20%20%20%20%20%20%20%20%20%20%20order_goods.order%20%3D%20order%0A%20%20%20%20%20%20%20%20%20%20%20%20order_goods.save()%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20shop_cart.delete()%0A%0A%20%20%20%20%20%20%20%20return%20order%0A%60%60%60%0A%0A%23%23%23%23%20step4%3A%20%E8%B0%83%E8%AF%95%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%E6%8E%A5%E5%8F%A3%0A%0A!%5Be30317dc256900e96b44a24ee8fd6daf.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2311)%0A%0A%23%23%23%23%20step5%3A%20%E6%B7%BB%E5%8A%A0%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%E6%8E%A5%20**%E5%8F%AA%E9%9C%80%E8%A6%81%E5%9C%A8%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%E6%8E%A5%E5%8F%A3%E4%B8%AD%E5%81%9A%E4%B8%80%E5%AE%9A%E7%9A%84%E4%BF%AE%E6%94%B9**%0A%0A*%20%20%20%20%20%20%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%8C%E4%BF%AE%E6%94%B9OrderGoods%20model%E4%B8%AD%E7%9A%84order%E5%AD%97%E6%AE%B5%0A%0A%20%20%20%20%0A%20%20%20%20%0A%60%60%60%0Aorder%20%3D%20models.ForeignKey(OrderInfo%2Cverbose_name%3D%22%E8%AE%A2%E5%8D%95%E4%BF%A1%E6%81%AF%22%2Crelated_name%3D%22goods%22)%0A%60%60%60%0A%0A*%20%20%20%20%20%20%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E7%B1%BB%0A%0A%20%20%20%20%0A%20%20%20%20%0A%60%60%60%0Afrom%20.models%20import%20OrderInfo%2COrderGoods%0A%0Aclass%20OrderGoodsSerialzier(serializers.ModelSerializer)%3A%0A%20%20%20%20%23%E8%AE%A2%E5%8D%95%E5%95%86%E5%93%81%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E7%B1%BB%0A%20%20%20%20goods%20%3D%20GoodsSerializer(many%3DFalse)%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20model%20%3D%20OrderGoods%0A%20%20%20%20%20%20%20%20fields%20%3D%20%22__all__%22%0A%0Aclass%20OrderDetailSerializer(serializers.ModelSerializer)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E8%8E%B7%E5%8F%96%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E7%B1%BB%0A%20%20%20%20%22%22%22%0A%20%20%20%20%23%E9%80%9A%E8%BF%87%E8%AE%A2%E5%8D%95%E5%95%86%E5%93%81%E4%B8%AD%E7%9A%84order%E5%A4%96%E9%94%AE%EF%BC%8C%E5%85%B3%E8%81%94%E5%87%BA%E8%AE%A2%E5%8D%95%E5%95%86%E5%93%81%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE%0A%20%20%20%20goods%20%3D%20OrderGoodsSerialzier(many%3DTrue)%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20model%20%3D%20OrderInfo%0A%20%20%20%20%20%20%20%20fields%20%3D%20%22__all__%22%0A%60%60%60%0A%0A%0A%20%0A%0A*%20%20%20%20%20%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%AE%8C%E6%88%90%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%E7%9A%84%E5%90%8E%E5%8F%B0%E9%80%BB%E8%BE%91%0A%0A%60%60%60%0Aclass%20OrderViewset(%0A%20%20%20%20mixins.ListModelMixin%2C%0A%20%20%20%20mixins.CreateModelMixin%2C%0A%20%20%20%20mixins.RetrieveModelMixin%2C%0A%20%20%20%20mixins.DestroyModelMixin%2C%0A%20%20%20%20viewsets.GenericViewSet)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E8%AE%A2%E5%8D%95%E7%AE%A1%E7%90%86%0A%20%20%20%20list%3A%0A%20%20%20%20%20%20%20%20%E8%8E%B7%E5%8F%96%E4%B8%AA%E4%BA%BA%E8%AE%A2%E5%8D%95%0A%20%20%20%20delete%0A%20%20%20%20%20%20%20%20%E5%88%A0%E9%99%A4%E8%AE%A2%E5%8D%95%0A%20%20%20%20create%3A%0A%20%20%20%20%20%20%20%20%20%E5%88%9B%E5%BB%BA%E8%AE%A2%E5%8D%95%0A%20%20%20%20retrieve%0A%20%20%20%20%20%20%20%20%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%0A%20%20%20%20%22%22%22%0A%20%20%20%20.....%0A%20%20%20%20%0A%20%20%20%20%20%20%20%20def%20get_serializer_class(self)%3A%0A%20%20%20%20%20%20%20%20%23%E5%A6%82%E6%9E%9C%E6%98%AF%E8%AF%A6%E6%83%85%E5%88%99%E8%BF%94%E5%9B%9E%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%E7%9A%84Serializer%E5%BA%8F%E5%88%97%E5%8C%96%E7%B1%BB%0A%20%20%20%20%20%20%20%20if%20self.action%20%3D%3D%20%22retrieve%22%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20OrderDetailSerializer%0A%20%20%20%20%20%20%20%20return%20OrderSerializer%0A%60%60%60%0A%0A*%20%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E8%AE%A2%E5%8D%95%E8%AF%A6%E6%83%85%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%0A%0A!%5B439ddaac2a93aa9b9b1af523d2d124e9.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2313)%0A%0A%0A%23%23%23%20%E9%A6%96%E9%A1%B5%E4%B8%8B%E9%83%A8%E5%95%86%E5%93%81%E5%88%86%E7%B1%BB%E6%98%BE%E7%A4%BA%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91%0A%0A%23%23%23%23%20step1%3A%E5%88%86%E6%9E%90%E9%A1%B5%E9%9D%A2%E8%A1%A5%E5%85%A8model%0A%0A!%5B614bde4f3024d4e54b0c1adc677e7f36.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2314)%0A%0A%60%60%60%0Aclass%20GoodsCategoryBrand(models.Model)%3A%0A%20%20%22%22%22%0A%20%20%E5%93%81%E7%89%8C%E5%90%8D%0A%20%20%22%22%22%0A%20%20category%20%3D%20models.ForeignKey(GoodsCategory%2C%20related_name%3D'brands'%2C%20null%3DTrue%2C%20blank%3DTrue%2C%20verbose_name%3D%22%E5%95%86%E5%93%81%E7%B1%BB%E7%9B%AE%22)%0A%20%20name%20%3D%20models.CharField(default%3D%22%22%2C%20max_length%3D32%2C%20verbose_name%3D%22%E5%93%81%E7%89%8C%E5%90%8D%22%2C%20help_text%3D%22%E5%93%81%E7%89%8C%E5%90%8D%22)%0A%20%20desc%20%3D%20models.TextField(default%3D%22%22%2C%20verbose_name%3D%22%E5%93%81%E7%89%8C%E6%8F%8F%E8%BF%B0%22%2C%20help_text%3D%22%E5%93%81%E7%89%8C%E6%8F%8F%E8%BF%B0%22)%0A%20%20image%20%3D%20models.ImageField(max_length%3D200%2C%20upload_to%3D%22brands%2F%22)%0A%20%20add_time%20%3D%20models.DateTimeField(default%3Ddatetime.now%2C%20verbose_name%3D%22%E6%B7%BB%E5%8A%A0%E6%97%B6%E9%97%B4%22)%0A%20%20class%20Meta%3A%0A%20%20%20%20verbose_name%20%3D%20%22%E5%93%81%E7%89%8C%22%0A%20%20%20%20verbose_name_plural%20%3D%20verbose_name%0A%20%20%20%20db_table%20%3D%20%22goods_goodsbrand%22%0A%20%20def%20__str__(self)%3A%0A%20%20%20%20return%20self.name%0A%0A%60%60%60%0A%0A%60%60%60%0Aclass%20IndexAd(models.Model)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E9%A6%96%E9%A1%B5%E5%95%86%E5%93%81%E7%B1%BB%E5%88%AB%E5%B9%BF%E5%91%8A%0A%20%20%20%20%22%22%22%0A%20%20%20%20category%20%3D%20models.ForeignKey(GoodCategory%2Cverbose_name%3D%22%E5%95%86%E5%93%81%E7%B1%BB%E7%9B%AE%22%2Crelated_name%3D%22category%22)%0A%20%20%20%20goods%20%3D%20models.ForeignKey(Goods%2Crelated_name%3D'goods')%0A%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20verbose_name%20%3D%20'%E9%A6%96%E9%A1%B5%E5%95%86%E5%93%81%E7%B1%BB%E5%88%AB%E5%B9%BF%E5%91%8A'%0A%20%20%20%20%20%20%20%20verbose_name_plural%20%3D%20verbose_name%0A%0A%20%20%20%20def%20__str__(self)%3A%0A%20%20%20%20%20%20%20%20return%20self.goods.name%0A%0A%60%60%60%0A%0A%23%23%23%23%20step2%3A%E5%BA%8F%E4%BE%8B%E5%8C%96%0A%60%60%60%0Afrom%20.models%20import%20GoodCategory%2CGoodsCategoryBrand%2CIndexAd%0Afrom%20django.db.models%20import%20Q%0A%0Aclass%20Brandserializer(serializers.ModelSerializer)%3A%0A%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20model%20%3D%20GoodsCategoryBrand%0A%20%20%20%20%20%20%20%20fields%20%3D%20%22__all__%22%0A%0A%60%60%60%0A%0A%60%60%60%0Aclass%20IndexCategorySerializer(serializers.ModelSerializer)%3A%0A%0A%20%20%20%20brands%20%3D%20Brandserializer(many%3DTrue)%0A%20%20%20%20goods%20%3D%20serializers.SerializerMethodField()%0A%20%20%20%20sub_cat%20%3D%20CategorySerializer2(many%3DTrue)%0A%20%20%20%20ad_goods%20%3D%20serializers.SerializerMethodField()%0A%0A%20%20%20%20def%20get_ad_goods(self%2Cobj)%3A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E5%B9%BF%E5%91%8A%E5%95%86%E5%93%81%0A%20%20%20%20%20%20%20%20goods_json%20%3D%20%7B%7D%0A%20%20%20%20%20%20%20%20ad_goods%20%3D%20IndexAd.objects.filter(category_id%3Dobj.id)%0A%0A%20%20%20%20%20%20%20%20if%20ad_goods%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20goods_ins%20%3D%20ad_goods%5B0%5D.goods%0A%20%20%20%20%20%20%20%20%20%20%20%20goods_json%20%3D%20GoodsSerializer(goods_ins%2Cmany%3DFalse%2Ccontext%3D%7B'request'%3Aself.context%5B'request'%5D%7D).data%0A%20%20%20%20%20%20%20%20return%20goods_json%0A%0A%20%20%20%20def%20get_goods(self%2Cobj)%3A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E5%95%86%E5%93%81%E5%88%97%E8%A1%A8%0A%20%20%20%20%20%20%20%20all_goods%20%3D%20Goods.objects.filter(Q(category_id%3Dobj.id)%20%7C%20Q(category__parent_category_id%3Dobj.id)%20%7C%20Q(%0A%20%20%20%20%20%20%20%20category__parent_category__parent_category_id%3Dobj.id))%0A%20%20%20%20%20%20%20%20goods_serializer%20%3D%20GoodsSerializer(all_goods%2Cmany%3DTrue%2Ccontext%3D%7B'request'%3Aself.context%5B'request'%5D%7D)%0A%20%20%20%20%20%20%20%20return%20goods_serializer.data%0A%0A%20%20%20%20class%20Meta%3A%0A%20%20%20%20%20%20%20%20model%20%3D%20GoodCategory%0A%20%20%20%20%20%20%20%20fields%20%3D%20%22__all__%22%0A%60%60%60%0A%0A%23%23%23%23%20step3%3A%E6%B7%BB%E5%8A%A0%E5%90%8E%E5%8F%B0%E9%80%BB%E8%BE%91%0A%60%60%60%0Aclass%20IndexCategoryViewset(mixins.ListModelMixin%2Cviewsets.GenericViewSet)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E9%A6%96%E9%A1%B5%E5%95%86%E5%93%81%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE%0A%20%20%20%20%22%22%22%0A%20%20%20%20queryset%20%3D%20GoodCategory.objects.filter(is_tab%3DTrue%2Cname__in%3D%5B'%E5%A5%B6%E7%B1%BB%E9%A3%9F%E5%93%81'%2C%5D)%0A%20%20%20%20serializer_class%20%3D%20IndexCategorySerializer%0A%60%60%60%0A%0A%23%23%23%23%20%E9%85%8D%E7%BD%AEurl%0A%60%60%60%0Arouter.register(r'indexgoods'%2CIndexCategoryViewset%2Cbase_name%3D'indexgoods')%0A%60%60%60%0A%0A%23%23%23%23%20%E6%B5%8B%E8%AF%95%E6%8E%A5%E5%8F%A3indexgoods%3A%0A%0A*%20%E9%9C%80%E8%A6%81%E5%85%88%E5%9C%A8admin%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E4%B8%AD%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE%0A%0A!%5B38c1cec90e7973531b17d8d2f2550ec0.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2315)%0A%0A%0A%23%23%23%20%E5%B0%8F%E4%BD%9C%E4%B8%9A%E5%AE%8C%E5%96%84%E5%88%86%E7%B1%BB%E5%95%86%E5%93%81%E7%9A%84%E4%BB%B7%E6%A0%BC%E5%8C%BA%E9%97%B4%E9%83%A8%E5%88%86%E9%80%BB%E8%BE%91%E5%92%8C%E6%8E%A5%E5%8F%A3%0A%0A*%20%E5%88%86%E6%9E%90%E4%BB%B7%E6%A0%BC%E5%8C%BA%E9%97%B4%EF%BC%8C%E8%87%AA%E5%B7%B1%E8%AE%BE%E8%AE%A1model%0A*%20%E6%B7%BB%E5%8A%A0%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%0A*%20%E5%AE%9E%E7%8E%B0%E5%BA%8F%E4%BE%8B%E5%8C%96%0A*%20%E5%AE%9E%E7%8E%B0%E5%90%8E%E5%8F%B0%E6%8E%A5%E5%8F%A3%EF%BC%8C%E8%BF%94%E5%9B%9E%E4%BB%B7%E6%A0%BC%E5%8C%BA%E9%97%B4%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE%0A*%20%E5%92%8C%E5%89%8D%E7%AB%AF%E8%BF%9E%E8%B0%83%EF%BC%8C%E5%B1%95%E7%A4%BA%E6%95%B0%E6%8D%AE%0A%0A!%5Bd0d1906bc80783a3dc79d6d122d6ffd6.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2316)%0A%0A%0A%23%23%23%20%E5%B0%8F%E4%BD%9C%E4%B8%9A%E5%AE%8C%E5%96%84%E9%A6%96%E9%A1%B5%E7%83%AD%E6%90%9C%E8%AF%8D%E9%83%A8%E5%88%86%E9%80%BB%E8%BE%91%E5%92%8C%E6%8E%A5%E5%8F%A3%0A%0A*%20%E5%88%86%E6%9E%90%E4%BB%B7%E6%A0%BC%E5%8C%BA%E9%97%B4%EF%BC%8C%E8%87%AA%E5%B7%B1%E8%AE%BE%E8%AE%A1model%0A*%20%E6%B7%BB%E5%8A%A0%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%0A*%20%E5%AE%9E%E7%8E%B0%E5%BA%8F%E4%BE%8B%E5%8C%96%0A*%20%E5%AE%9E%E7%8E%B0%E5%90%8E%E5%8F%B0%E6%8E%A5%E5%8F%A3%EF%BC%8C%E8%BF%94%E5%9B%9E%E4%BB%B7%E6%A0%BC%E5%8C%BA%E9%97%B4%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE%0A*%20%E5%92%8C%E5%89%8D%E7%AB%AF%E8%BF%9E%E8%B0%83%EF%BC%8C%E5%B1%95%E7%A4%BA%E6%95%B0%E6%8D%AE%0A%0A!%5Bf4d0efec9b4f91e91f7a5b3b54cc14da.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2318)%0A%0A%0A%23%23%23%20%E5%B0%8F%E4%BD%9C%E4%B8%9A%EF%BC%8C%E7%BB%86%E8%8A%82%E5%A4%84%E7%90%86%EF%BC%8C%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%95%86%E5%93%81%E7%82%B9%E5%87%BB%E8%AF%A6%E6%83%85%E5%90%8E%E7%82%B9%E5%87%BB%E9%87%8F%E5%8A%A01%E7%9A%84%E6%93%8D%E4%BD%9C%EF%BC%8C%E6%8F%90%E7%A4%BA%E4%BB%8ERetrieveModelMixin%E7%B1%BB%E4%B8%AD%E7%9A%84retrieve%E6%96%B9%E6%B3%95%E5%85%A5%E6%89%8B%0A%0A%0A%0A%23%23%23%20%E5%B0%8F%E4%BD%9C%E4%B8%9A%EF%BC%8C%E7%BB%86%E8%8A%82%E5%A4%84%E7%90%86%EF%BC%8C%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%95%86%E5%93%81%E6%94%B6%E8%97%8F%E5%90%8E%E6%94%B6%E8%97%8F%E6%95%B0%E5%8A%A01%E7%9A%84%E6%93%8D%E4%BD%9C%EF%BC%8C%E5%8F%96%E6%B6%88%E6%94%B6%E8%97%8F%E5%88%99%E5%87%8F1%EF%BC%8C%E6%8F%90%E7%A4%BA%E5%89%8D%E8%80%85%E4%BB%8ECreateModelMixin%E7%9A%84perform_create%E6%96%B9%E6%B3%95%E5%85%A5%E6%89%8B%EF%BC%8C%E5%90%8E%E8%80%85%E4%BB%8EDestroyModelMixin%E7%9A%84perform_destroy%E6%96%B9%E6%B3%95%E5%85%A5%E6%89%8B%0A%0A%0A%0A%0A%20%20%20%20%0A%0A%0A%0A%0A%0A%0A</center></body></html>

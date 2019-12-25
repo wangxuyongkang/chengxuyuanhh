@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="36"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 15:04:20 +0000"/><meta name="latitude" content="39.63163057495814"/><meta name="longitude" content="116.0505669140146"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-29 15:06:19 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>42  celery 分布式爬虫实现</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">首先创建一个文件夹存放项目（celeryWanFang）</h4>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step1：创建 worker.py 文件添加如下代码 实例化Celery对象</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from celery import Celery
+
+#方式一：
+#消息中间件（使用的redis）
+#broker = 'redis://localhost:6379/1'
+#结果存储（使用的redis）
+#backend = 'redis://localhost:6379/2'
+#实例化Celery对象
+# app = Celery(
+#     'tasks',
+#     # broker='',
+#     # backend='',
+# )
+
+#方式二：
+app = Celery(
+    'celerywanwang'
+)
+#加载celery的配置文件
+app.config_from_object('celeryconfig')
+
+if __name__ == '__main__':
+
+    app.start()
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step2: 创建celeryconf.py配置文件添加Celery的配置信息</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from kombu import Exchange,Queue
+
+from datetime import timedelta
+#这一次创建 app，并没有直接指定 broker(消息中间件来接收和发送任务消息) 和 backend(存储结果)。而是在配置文件中。
+
+#backend(存储结果)
+CELERY_RESULT_BACKEND = 'redis://118.24.255.219:6380/5'
+#CELERY_RESULT_BACKEND = 'db+mysql://root:ljh1314@localhost/wanwang'
+
+#消息中间件
+BROKER_URL = 'redis://118.24.255.219:6380/6'
+
+#设置时区
+CELERY_TIMEZONE='Asia/Shanghai'
+CELERY_ENABLE_UTC=True
+
+#设置接受的数据类型
+CELERY_ACCEPT_CONTENT=['json']
+
+#设置任务序列化的方式
+CELERY_TASK_SERIALIZER='json'
+
+# 设置结果序列化的方式
+CELERY_RESULT_SERIALIZER='json'
+
+# 添加任务模块
+CELERY_IMPORTS = [
+    'tasks',
+]
+
+#这个要视具体的业务场景来看，如果对结果不关心，或者任务的执行本身会对数据产生影响，通过对数据的判断可以知道执行的结果那就不需要返回celery任务的退出状态，可以设置
+#CELERY_IGNORE_RESULT = True
+
+#限制所有任务每秒钟的请求频率
+CELERY_ANNOTATIONS = {'*':{'rate_limit':'1/s'}}
+
+#设置消息队列(不通的方法执行的任务的消息会放在不通的任务队列中)
+#crawl_pageurl_and_detailurl
+#crawl_detail_with_url
+#parse_detail_data
+# CELERY_QUEUES = (
+#     Queue('default',Exchange('default'),routing_key='default'),
+#     Queue('for_crawl_page',Exchange('for_crawl_page'),routing_key='for_crawl_page'),
+#     Queue('for_crawl_detail',Exchange('for_crawl_detail'),routing_key='for_crawl_detail')
+# )
+# 
+# #配置消息路由
+# CELERY_ROUTES = {
+#     'tasks.crawl_pageurl_and_detailurl':{'queue':'for_crawl_page','routing_key':'for_crawl_page'},
+#     'tasks.crawl_detail_with_url':{'queue':'for_crawl_detail','routing_key':'for_crawl_detail'},
+# }
+
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step3:创建一个downloader.py文件，定制发送请求的方法</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import requests
+# 下载器封装简单封装部分
+def send_request(url,callback=None,headers={'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'},method='GET',params=None,data=None):
+    if method=="GET" or params:
+        response = requests.get(url,headers=headers,params=params)
+        if response.status_code == 200:
+            return response
+        else:
+            print(url,'请求失败')
+            return None
+    elif method == "POST" or data:
+        print('这是一个post请求，待完善')
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step4: 创建tasks.py文件，在这里编写爬虫的主题代码</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">导入相关模块</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import re
+from workers import app
+from downloader import send_request
+from urllib import parse
+from lxml import etree
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">extract_first用来做判断,这里类似scrapy中 extract_first的作用</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def extract_first(data,default=‘’):
+    
+    if len(data) &gt; 0
+        return data[0]
+    else:
+        return default
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">crawl_pageurl_and_detailurl实现一个入口方法，根据万方论文每个分类下分页的url地址发起请求</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">@app.task(ignore_result=True)
+# trail=True 并行调用任务
+# http://docs.jinkan.org/docs/celery/reference/celery.app.task.html
+def crawl_pageurl_and_detailurl(url):
+    response = send_request(url)
+    if response:
+        parse_page_data(response)
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_page_data解析每个分类的分页列表数据，并提取论文详情url地址，和下一页分页地址继续发起请求</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">@app.task(ignore_result=True)
+def parse_page_data(response):
+    """
+    从旧网站中获取获取每一个分类的（政治、法律）关键字的搜索结果列表页中，提取论文详情的URL地址
+    :param response:
+    :return:
+    """
+    print('分页请求成功：' + response.url)
+
+    # 论文标题列表
+    # 使用正则获取当前分类关键字和当前的页码数
+    pattern = re.compile('.*?q=(.*?)\+.*?WF_(.*?)&amp;.*?p=(\d+)', re.S)
+    result = re.findall(pattern, response.url)[0]
+    print(result)
+    keyword = parse.unquote(result[0])
+    tag = result[1]
+    currentPage = result[2]
+    etree_html = etree.HTML(response.text)
+    # record-item-list
+    itemList = etree_html.xpath('//div[@]/div[@]')
+    print(tag + keyword + '第' + str(currentPage) + '页，' + '获取到了' + str(len(itemList)) + '条数据。')
+    if len(itemList) &gt; 0:
+        for item in itemList:
+            itemTitle = ''.join(item.xpath('.//a[@]//text()')).replace(' ', '')
+            itemUrl = item.xpath('.//a[@]/@href')[0]
+            itemId = itemUrl.split('/')[-1:][0]
+            if tag == 'HY':
+                # 会议的详情
+                # http://www.wanfangdata.com.cn/details/detail.do?_type=conference&amp;id=7730508
+                # print(itemTitle, itemUrl, '会议的详情',itemId)
+                newItemUrl = 'http://www.wanfangdata.com.cn/details/detail.do?_type=conference&amp;id=' + itemId
+                info = {
+                    'searchKeyWord': keyword,
+                    'searchType': 'conference',
+                    'title': itemTitle
+                }
+
+            elif tag == "XW":
+                # 学位的详情
+                # http://www.wanfangdata.com.cn/details/detail.do?_type=degree&amp;id=D01551993
+                # print(itemTitle, itemUrl, '学位的详情',itemId)
+                newItemUrl = 'http://www.wanfangdata.com.cn/details/detail.do?_type=degree&amp;id=' + itemId
+                info = {
+                    'searchKeyWord': keyword,
+                    'searchType': 'degree',
+                    'title': itemTitle
+                }
+
+            elif tag == "QK":
+                # 期刊的详情
+                # http://www.wanfangdata.com.cn/details/detail.do?_type=perio&amp;id=bjgydxxb-shkx201902004
+                # print(itemTitle, itemUrl, '期刊的详情', itemId)
+                newItemUrl = 'http://www.wanfangdata.com.cn/details/detail.do?_type=perio&amp;id=' + itemId
+                info = {
+                    'searchKeyWord': keyword,
+                    'searchType': 'perio',
+                    'title': itemTitle
+                }
+            app.send_task('tasks.crawl_detail_with_url', args=(newItemUrl,), kwargs=info)
+
+    # 获取下一页
+    nextUrls = etree_html.xpath('//p[@]//a[@]/@href')
+
+    if len(nextUrls):
+        for nextUrl in nextUrls:
+            nextUrl = parse.urljoin(response.url,nextUrl)
+            print(nextUrl)
+            app.send_task('tasks.crawl_pageurl_and_detailurl',args=(nextUrl,))
+
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">crawl_detail_with_url:根据论文详情的url地址发起请求，并获取解析结果</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">@app.task()
+def crawl_detail_with_url(url, **kwargs):
+    print('论文详情url地址:' + url)
+
+    response = send_request(url)
+    print('论文详情请求成功' + response.url)
+    if response and url == response.url:
+        title = kwargs['title']
+        print('详情请求状态码', title, kwargs, response.status_code)
+        # app.send_task('tasks.parse_detail_data',args=(response.text,kwargs))
+        item = parse_detail_data(response.text, kwargs)
+        return item
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_detail_data方法解析个分类对于的论文详情的数据，并返回结果</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def parse_detail_data(text, info):
+    if info['searchType'] == 'degree':
+        item = parse_degree(text, info)
+        return item
+    elif info['searchType'] == 'perio':
+        item = parse_perio(text, info)
+        return item
+    elif info['searchType'] == 'conference':
+        item = parse_conference(text, info)
+        return item
+    elif info['searchType'] == 'tech':
+        item = parse_tech(text, info)
+        return item
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_degree解析degree学位详情字段并返回</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def parse_degree(text, info):
+    item = {}
+    etree_html = etree.HTML(text)
+    # item['url'] = response.url
+    # title(中文标题)
+    item['title'] = ''.join(etree_html.xpath('//div[@]/text()')).replace('\r\n', '').replace('\t', '').replace('目录','').replace(' ', '')
+
+    # content(摘要)
+    item['content'] = ''.join(etree_html.xpath('//div[@]/textarea/text()')).replace('\u3000','').replace('\t','').replace(' ', '').replace('\n', '')
+    
+    lis = etree_html.xpath('//ul[@]//li')
+    print(len(lis))
+    for li in lis:
+        # 在这里提取其他字段
+        pass
+        
+    item['searchKey'] = info['searchKeyWord']
+    item['searchType'] = info['searchType']
+
+    return item
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_perio解析期刊详情字段并返回</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def parse_perio(text, info):
+    item = {}
+    # item['url'] = response.url
+    etree_html = etree.HTML(text)
+    # title(中文标题)
+    item['title'] = etree_html.xpath('//div[@]/text()')[0].replace('\r\n', '').replace(
+        ' ', '').replace('\t', '')
+    # englishTitle(英文标题)
+    item['englishTitle'] = extract_first(etree_html.xpath('//div[@]/text()')) .replace('\t', '')
+    # content(摘要)
+    item['content'] = ''.join(etree_html.xpath('//div[@]/textarea/text()')).replace('\u3000',').replace('\t','').replace(' ', '').replace('\n', '')
+
+    lis = etree_html.xpath('//ul[@]//li')
+    print(len(lis))
+    for li in lis:
+        # 在这里提取其他字段
+        pass
+        
+    item['searchKey'] = info['searchKeyWord']
+    item['searchType'] = info['searchType']
+    return item
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_conference解析会议详情字段并返回</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def parse_conference(text, info):
+    item = {}
+    etree_html = etree.HTML(text)
+    # item['url'] = response.url
+    # title(中文标题)
+    item['title'] = ''.join(etree_html.xpath('//div[@]/text()')).replace('\r\n', '').replace('\t', '').replace('目录', '').replace(' ', '')
+    # content(摘要)
+    item['content'] = ''.join(etree_html.xpath('//div[@]/textarea/text()')).replace('\u3000','').replace('\t','').replace(' ', '').replace('\n', '')
+
+    lis = etree_html.xpath('//ul[@]//li')
+    print(len(lis))
+    for li in lis:
+        # 在这里提取其他字段
+        pass
+        
+    item['searchKey'] = info['searchKeyWord']
+    item['searchType'] = info['searchType']
+    return item
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">parse_tech解析技术论文详情字段并返回</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def parse_tech(response, info):
+    item = {}
+    etree_html = etree.HTML(response.text)
+    item['url'] = response.url
+    # title(中文标题)
+    item['title'] = etree_html.xpath('//div[@]/text()')[0].replace('\r\n', '').replace(' ', '').replace('\t', '')
+    # englishTitle(英文标题)
+    item['englishTitle'] = extract_first(etree_html.xpath('//div[@]/text()')).replace('\t', '')
+    # content(摘要)
+    item['content'] = ''.join(etree_html.xpath('//div[@]/textarea/text()')).replace('\u3000','').replace('\t','').replace(' ', '').replace('\n', '')
+
+    lis = etree_html.xpath('//ul[@]//li')
+    print(len(lis))
+    for li in lis:
+        # 在这里提取其他字段
+        pass
+        
+    item['searchKey'] = info['searchKeyWord']
+    item['searchType'] = info['searchType']
+    return item
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">关于如何运行以上代码</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">在终端进入项目文件执行如下命令</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery -A worker tasks (-c 2 指定执行任务的进程数量，不指定指定为4个进程执行任务) -l INFO</p>
+</blockquote>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step5 完成上述代码后我们需要创建一个任务文件（starturls.py），将任务消息发送，然后celery会去执行这些任务，代码如下：</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from workers import app
+#设置起始url任务（可以看作是scrapy-redis中的lpush）
+from urllib.parse import quote
+import tasks
+def set_start_url():
+    #设置起始url的地址
+    start_urls = []
+    # 分类，根据分类和年限时间段添加url地址
+    # QK：期刊 XW：学位 HY：会议
+    categorys = ['QK','XW','HY',]
+    # 关键字
+    searchWords = ['法律']
+    for page in range(1, 2):
+        # page 表示页码（例如：range(10, 100)：表示设置各分类的起始任务为10～100页，这里只需要给出一部分分页地址，在具体的代码中，会自动获取其他分页）
+        # 注意：因为之前爬虫运行过了，redis数据库中保存着去重的指纹信息，设置的起始url可能之前爬取过了，所以起始url和截止url间区范围可以适当大一些
+        for category in categorys:
+            for searchWord in searchWords:
+                #由这几个部分组成完整的url地址
+                url = 'http://s.wanfangdata.com.cn/Paper.aspx?q=%s+DBID%sWF_%s&amp;f=top&amp;p=%s' % (quote(searchWord),'%3a',category,str(page))
+                print(url)
+                start_urls.append(url)
+    return start_urls
+
+
+def manage_crawl_task(urls):
+    for url in urls:
+       # app.send_task('tasks.crawl_pageurl_and_detailurl', args=(url,))
+        tasks.crawl_pageurl_and_detailurl.apply_async(args=(url,),countdown=5)
+
+if __name__ == '__main__':
+
+    manage_crawl_task(set_start_url())
+    
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">关于url请求任务的如何实现去重，请听下回分解（见课件1.3）</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">关于去重模块的相关类实现可以参照如下代码：</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">type1（Md5 加密方式生成指纹）：定义一个dupfilter.py类，添加如下代码</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">导入如下模块</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import redis
+import hashlib
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">创建一个类，在__init__方法中初始化如下参数</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class DupeFilter(object):
+
+    def __init__(self):
+
+        self.server = redis.StrictRedis(
+            host='118.24.255.219',
+            port=6380,
+            db=6
+        )
+        self.key = 'dupeFilter:requests'
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">request_seen方法根据url生成指纹信息，并且和redis数据库中保存的指纹信息比对，返回 True 表示url已存在该请求任务，False则不存在该请求任务</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    def request_seen(self, url):
+        """Returns True if request was already seen.
+        Parameters
+        ----------
+        request : scrapy.http.Request
+        Returns
+        -------
+        bool
+        """
+        fp = self.request_fingerprint(url)
+        # This returns the number of values added, zero if already exists.
+        added = self.server.sadd(self.key, fp)
+        return added == 0
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">request_fingerprint方式根据md5加密生成指纹信息并返回</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    def request_fingerprint(self, url):
+        """Returns a fingerprint for a given request.
+        Parameters
+        ----------
+        request : scrapy.http.Request
+        Returns
+        -------
+        str
+        """
+        #根据url生成指纹
+        print('未加密之前:',url)
+        md5_obj = hashlib.md5()
+        # 进行MD5加密前必须 encode(编码)，python里默认是unicode编码，必须转换成utf-8
+        # 否则报错：TypeError: Unicode-objects must be encoded before hashing
+        md5_obj.update(url.encode(encoding='utf-8'))
+        md5_url = md5_obj.hexdigest()
+        print('MD5加密后:',md5_url)
+        return md5_url
+</code></pre>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">如何使用该类进行去重判定，使用可参照如下代码：</h6>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">url = 'http://www.wanfangdata.com.cn/details/detaype=conference&amp;id=7363410'
+    dupeFilter = DupeFilter()
+    result = dupeFilter.request_seen(url)
+    print(result)
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">type2（布隆过滤器实现）：定义一个dupfilter.py类，添加如下代码</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">定义一个bldupfilter.py类，添加如下代码</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">导入如下模块</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 设置散列函数的个数
+BLOOMFILTER_HASH_NUMBER = 6
+# 布隆过滤器设置bit参数，默认30，占用128M空间，去重量在1亿左右
+此参数决定了位数组的位数，如果BLOOMFILTER_BIT为30，则位数组
+位2的30次方，这将暂用Redis 128MB的存储空间，url去重数量在1亿左右，
+如果爬取的量在10亿，20亿或则更高，则需要将此参数调高
+BLOOMFILTER_BIT = 30
+
+class HashMap(object):
+    def __init__(self, m, seed):
+        self.m = m
+        self.seed = seed
+    
+    def hash(self, value):
+        """
+        Hash Algorithm
+        :param value: Value
+        :return: Hash Value
+        """
+        ret = 0
+        for i in range(len(value)):
+            ret += self.seed * ret + ord(value[i])
+        return (self.m - 1) &amp; ret
+
+
+class BloomFilter(object):
+    def __init__(self, server, key, bit=BLOOMFILTER_BIT, hash_number=BLOOMFILTER_HASH_NUMBER):
+        """
+        Initialize BloomFilter
+        :param server: Redis Server
+        :param key: BloomFilter Key
+        :param bit: m = 2 ^ bit
+        :param hash_number: the number of hash function
+        """
+        # default to 1 &lt;&lt; 30 = 10,7374,1824 = 2^30 = 128MB, max filter 2^30/hash_number = 1,7895,6970 fingerprints
+        self.m = 1 &lt;&lt; bit
+        self.seeds = range(hash_number)
+        self.server = server
+        self.key = key
+        self.maps = [HashMap(self.m, seed) for seed in self.seeds]
+    
+    def exists(self, value):
+        """
+        if value exists
+        :param value:
+        :return:
+        """
+        if not value:
+            return False
+        exist = True
+        for map in self.maps:
+            offset = map.hash(value)
+            exist = exist &amp; self.server.getbit(self.key, offset)
+        return exist == 1
+    
+    def insert(self, value):
+        """
+        add value to bloom
+        :param value:
+        :return:
+        """
+        for f in self.maps:
+            offset = f.hash(value)
+            self.server.setbit(self.key, offset, 1)
+</code></pre>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">如何使用该类进行去重判定，使用可参照如下代码：</h6>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    client = redis.StrictRedis(host='118.24.255.219',port=6380)
+    bl = BloomFilter(client,'bl:url')
+    url = 'http://www.wanfangdata.com.cn/details/detaype=conference&amp;id=7363410'
+    bl.insert(url)
+    url1 = 'http://www.wanfangdata.com.cn/details/detaype=conference&amp;id=73634101'
+    result = bl.exists(url1)
+    print(result)
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%23%20%E9%A6%96%E5%85%88%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9%E5%AD%98%E6%94%BE%E9%A1%B9%E7%9B%AE%EF%BC%88celeryWanFang%EF%BC%89%0A%0A%23%23%23%23%23%20%20step1%EF%BC%9A%E5%88%9B%E5%BB%BA%20worker.py%20%E6%96%87%E4%BB%B6%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%20%E5%AE%9E%E4%BE%8B%E5%8C%96Celery%E5%AF%B9%E8%B1%A1%0A%0A%60%60%60%0Afrom%20celery%20import%20Celery%0A%0A%23%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%0A%23%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E4%BD%BF%E7%94%A8%E7%9A%84redis%EF%BC%89%0A%23broker%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F1'%0A%23%E7%BB%93%E6%9E%9C%E5%AD%98%E5%82%A8%EF%BC%88%E4%BD%BF%E7%94%A8%E7%9A%84redis%EF%BC%89%0A%23backend%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F2'%0A%23%E5%AE%9E%E4%BE%8B%E5%8C%96Celery%E5%AF%B9%E8%B1%A1%0A%23%20app%20%3D%20Celery(%0A%23%20%20%20%20%20'tasks'%2C%0A%23%20%20%20%20%20%23%20broker%3D''%2C%0A%23%20%20%20%20%20%23%20backend%3D''%2C%0A%23%20)%0A%0A%23%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%0Aapp%20%3D%20Celery(%0A%20%20%20%20'celerywanwang'%0A)%0A%23%E5%8A%A0%E8%BD%BDcelery%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%0Aapp.config_from_object('celeryconfig')%0A%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%0A%20%20%20%20app.start()%0A%60%60%60%0A%0A%23%23%23%23%23%20step2%3A%20%E5%88%9B%E5%BB%BAceleryconf.py%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%B7%BB%E5%8A%A0Celery%E7%9A%84%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%0A%0A%60%60%60%0Afrom%20kombu%20import%20Exchange%2CQueue%0A%0Afrom%20datetime%20import%20timedelta%0A%23%E8%BF%99%E4%B8%80%E6%AC%A1%E5%88%9B%E5%BB%BA%20app%EF%BC%8C%E5%B9%B6%E6%B2%A1%E6%9C%89%E7%9B%B4%E6%8E%A5%E6%8C%87%E5%AE%9A%20broker(%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%9D%A5%E6%8E%A5%E6%94%B6%E5%92%8C%E5%8F%91%E9%80%81%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF)%20%E5%92%8C%20backend(%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%9C)%E3%80%82%E8%80%8C%E6%98%AF%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E3%80%82%0A%0A%23backend(%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%9C)%0ACELERY_RESULT_BACKEND%20%3D%20'redis%3A%2F%2F118.24.255.219%3A6380%2F5'%0A%23CELERY_RESULT_BACKEND%20%3D%20'db%2Bmysql%3A%2F%2Froot%3Aljh1314%40localhost%2Fwanwang'%0A%0A%23%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%0ABROKER_URL%20%3D%20'redis%3A%2F%2F118.24.255.219%3A6380%2F6'%0A%0A%23%E8%AE%BE%E7%BD%AE%E6%97%B6%E5%8C%BA%0ACELERY_TIMEZONE%3D'Asia%2FShanghai'%0ACELERY_ENABLE_UTC%3DTrue%0A%0A%23%E8%AE%BE%E7%BD%AE%E6%8E%A5%E5%8F%97%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%0ACELERY_ACCEPT_CONTENT%3D%5B'json'%5D%0A%0A%23%E8%AE%BE%E7%BD%AE%E4%BB%BB%E5%8A%A1%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F%0ACELERY_TASK_SERIALIZER%3D'json'%0A%0A%23%20%E8%AE%BE%E7%BD%AE%E7%BB%93%E6%9E%9C%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F%0ACELERY_RESULT_SERIALIZER%3D'json'%0A%0A%23%20%E6%B7%BB%E5%8A%A0%E4%BB%BB%E5%8A%A1%E6%A8%A1%E5%9D%97%0ACELERY_IMPORTS%20%3D%20%5B%0A%20%20%20%20'tasks'%2C%0A%5D%0A%0A%23%E8%BF%99%E4%B8%AA%E8%A6%81%E8%A7%86%E5%85%B7%E4%BD%93%E7%9A%84%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E6%9D%A5%E7%9C%8B%EF%BC%8C%E5%A6%82%E6%9E%9C%E5%AF%B9%E7%BB%93%E6%9E%9C%E4%B8%8D%E5%85%B3%E5%BF%83%EF%BC%8C%E6%88%96%E8%80%85%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%89%A7%E8%A1%8C%E6%9C%AC%E8%BA%AB%E4%BC%9A%E5%AF%B9%E6%95%B0%E6%8D%AE%E4%BA%A7%E7%94%9F%E5%BD%B1%E5%93%8D%EF%BC%8C%E9%80%9A%E8%BF%87%E5%AF%B9%E6%95%B0%E6%8D%AE%E7%9A%84%E5%88%A4%E6%96%AD%E5%8F%AF%E4%BB%A5%E7%9F%A5%E9%81%93%E6%89%A7%E8%A1%8C%E7%9A%84%E7%BB%93%E6%9E%9C%E9%82%A3%E5%B0%B1%E4%B8%8D%E9%9C%80%E8%A6%81%E8%BF%94%E5%9B%9Ecelery%E4%BB%BB%E5%8A%A1%E7%9A%84%E9%80%80%E5%87%BA%E7%8A%B6%E6%80%81%EF%BC%8C%E5%8F%AF%E4%BB%A5%E8%AE%BE%E7%BD%AE%0A%23CELERY_IGNORE_RESULT%20%3D%20True%0A%0A%23%E9%99%90%E5%88%B6%E6%89%80%E6%9C%89%E4%BB%BB%E5%8A%A1%E6%AF%8F%E7%A7%92%E9%92%9F%E7%9A%84%E8%AF%B7%E6%B1%82%E9%A2%91%E7%8E%87%0ACELERY_ANNOTATIONS%20%3D%20%7B'*'%3A%7B'rate_limit'%3A'1%2Fs'%7D%7D%0A%0A%23%E8%AE%BE%E7%BD%AE%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97(%E4%B8%8D%E9%80%9A%E7%9A%84%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%9A%E6%94%BE%E5%9C%A8%E4%B8%8D%E9%80%9A%E7%9A%84%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%E4%B8%AD)%0A%23crawl_pageurl_and_detailurl%0A%23crawl_detail_with_url%0A%23parse_detail_data%0A%23%20CELERY_QUEUES%20%3D%20(%0A%23%20%20%20%20%20Queue('default'%2CExchange('default')%2Crouting_key%3D'default')%2C%0A%23%20%20%20%20%20Queue('for_crawl_page'%2CExchange('for_crawl_page')%2Crouting_key%3D'for_crawl_page')%2C%0A%23%20%20%20%20%20Queue('for_crawl_detail'%2CExchange('for_crawl_detail')%2Crouting_key%3D'for_crawl_detail')%0A%23%20)%0A%23%20%0A%23%20%23%E9%85%8D%E7%BD%AE%E6%B6%88%E6%81%AF%E8%B7%AF%E7%94%B1%0A%23%20CELERY_ROUTES%20%3D%20%7B%0A%23%20%20%20%20%20'tasks.crawl_pageurl_and_detailurl'%3A%7B'queue'%3A'for_crawl_page'%2C'routing_key'%3A'for_crawl_page'%7D%2C%0A%23%20%20%20%20%20'tasks.crawl_detail_with_url'%3A%7B'queue'%3A'for_crawl_detail'%2C'routing_key'%3A'for_crawl_detail'%7D%2C%0A%23%20%7D%0A%0A%60%60%60%0A%0A%23%23%23%23%23%20step3%3A%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAdownloader.py%E6%96%87%E4%BB%B6%EF%BC%8C%E5%AE%9A%E5%88%B6%E5%8F%91%E9%80%81%E8%AF%B7%E6%B1%82%E7%9A%84%E6%96%B9%E6%B3%95%0A%0A%60%60%60%0Aimport%20requests%0A%23%20%E4%B8%8B%E8%BD%BD%E5%99%A8%E5%B0%81%E8%A3%85%E7%AE%80%E5%8D%95%E5%B0%81%E8%A3%85%E9%83%A8%E5%88%86%0Adef%20send_request(url%2Ccallback%3DNone%2Cheaders%3D%7B'User-Agent'%3A'Mozilla%2F5.0%20(Macintosh%3B%20Intel%20Mac%20OS%20X%2010_13_6)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F73.0.3683.86%20Safari%2F537.36'%7D%2Cmethod%3D'GET'%2Cparams%3DNone%2Cdata%3DNone)%3A%0A%20%20%20%20if%20method%3D%3D%22GET%22%20or%20params%3A%0A%20%20%20%20%20%20%20%20response%20%3D%20requests.get(url%2Cheaders%3Dheaders%2Cparams%3Dparams)%0A%20%20%20%20%20%20%20%20if%20response.status_code%20%3D%3D%20200%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20response%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print(url%2C'%E8%AF%B7%E6%B1%82%E5%A4%B1%E8%B4%A5')%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20None%0A%20%20%20%20elif%20method%20%3D%3D%20%22POST%22%20or%20data%3A%0A%20%20%20%20%20%20%20%20print('%E8%BF%99%E6%98%AF%E4%B8%80%E4%B8%AApost%E8%AF%B7%E6%B1%82%EF%BC%8C%E5%BE%85%E5%AE%8C%E5%96%84')%0A%60%60%60%0A%0A%23%23%23%23%23%20step4%3A%20%E5%88%9B%E5%BB%BAtasks.py%E6%96%87%E4%BB%B6%EF%BC%8C%E5%9C%A8%E8%BF%99%E9%87%8C%E7%BC%96%E5%86%99%E7%88%AC%E8%99%AB%E7%9A%84%E4%B8%BB%E9%A2%98%E4%BB%A3%E7%A0%81%0A%0A-%20%E5%AF%BC%E5%85%A5%E7%9B%B8%E5%85%B3%E6%A8%A1%E5%9D%97%0A%0A%60%60%60%0Aimport%20re%0Afrom%20workers%20import%20app%0Afrom%20downloader%20import%20send_request%0Afrom%20urllib%20import%20parse%0Afrom%20lxml%20import%20etree%0A%60%60%60%0A%0A%0A-%20extract_first%E7%94%A8%E6%9D%A5%E5%81%9A%E5%88%A4%E6%96%AD%2C%E8%BF%99%E9%87%8C%E7%B1%BB%E4%BC%BCscrapy%E4%B8%AD%20extract_first%E7%9A%84%E4%BD%9C%E7%94%A8%0A%0A%60%60%60%0Adef%20extract_first(data%2Cdefault%3D%E2%80%98%E2%80%99)%3A%0A%20%20%20%20%0A%20%20%20%20if%20len(data)%20%3E%200%0A%20%20%20%20%20%20%20%20return%20data%5B0%5D%0A%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20return%20default%0A%60%60%60%0A%0A-%20**crawl_pageurl_and_detailurl%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%85%A5%E5%8F%A3%E6%96%B9%E6%B3%95%EF%BC%8C%E6%A0%B9%E6%8D%AE%E4%B8%87%E6%96%B9%E8%AE%BA%E6%96%87%E6%AF%8F%E4%B8%AA%E5%88%86%E7%B1%BB%E4%B8%8B%E5%88%86%E9%A1%B5%E7%9A%84url%E5%9C%B0%E5%9D%80%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82**%0A%0A%60%60%60%0A%40app.task(ignore_result%3DTrue)%0A%23%20trail%3DTrue%20%E5%B9%B6%E8%A1%8C%E8%B0%83%E7%94%A8%E4%BB%BB%E5%8A%A1%0A%23%20http%3A%2F%2Fdocs.jinkan.org%2Fdocs%2Fcelery%2Freference%2Fcelery.app.task.html%0Adef%20crawl_pageurl_and_detailurl(url)%3A%0A%20%20%20%20response%20%3D%20send_request(url)%0A%20%20%20%20if%20response%3A%0A%20%20%20%20%20%20%20%20parse_page_data(response)%0A%60%60%60%0A%0A-%20**parse_page_data%E8%A7%A3%E6%9E%90%E6%AF%8F%E4%B8%AA%E5%88%86%E7%B1%BB%E7%9A%84%E5%88%86%E9%A1%B5%E5%88%97%E8%A1%A8%E6%95%B0%E6%8D%AE%EF%BC%8C%E5%B9%B6%E6%8F%90%E5%8F%96%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85url%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%92%8C%E4%B8%8B%E4%B8%80%E9%A1%B5%E5%88%86%E9%A1%B5%E5%9C%B0%E5%9D%80%E7%BB%A7%E7%BB%AD%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82**%0A%60%60%60%0A%40app.task(ignore_result%3DTrue)%0Adef%20parse_page_data(response)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E4%BB%8E%E6%97%A7%E7%BD%91%E7%AB%99%E4%B8%AD%E8%8E%B7%E5%8F%96%E8%8E%B7%E5%8F%96%E6%AF%8F%E4%B8%80%E4%B8%AA%E5%88%86%E7%B1%BB%E7%9A%84%EF%BC%88%E6%94%BF%E6%B2%BB%E3%80%81%E6%B3%95%E5%BE%8B%EF%BC%89%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E6%90%9C%E7%B4%A2%E7%BB%93%E6%9E%9C%E5%88%97%E8%A1%A8%E9%A1%B5%E4%B8%AD%EF%BC%8C%E6%8F%90%E5%8F%96%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85%E7%9A%84URL%E5%9C%B0%E5%9D%80%0A%20%20%20%20%3Aparam%20response%3A%0A%20%20%20%20%3Areturn%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20print('%E5%88%86%E9%A1%B5%E8%AF%B7%E6%B1%82%E6%88%90%E5%8A%9F%EF%BC%9A'%20%2B%20response.url)%0A%0A%20%20%20%20%23%20%E8%AE%BA%E6%96%87%E6%A0%87%E9%A2%98%E5%88%97%E8%A1%A8%0A%20%20%20%20%23%20%E4%BD%BF%E7%94%A8%E6%AD%A3%E5%88%99%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E5%88%86%E7%B1%BB%E5%85%B3%E9%94%AE%E5%AD%97%E5%92%8C%E5%BD%93%E5%89%8D%E7%9A%84%E9%A1%B5%E7%A0%81%E6%95%B0%0A%20%20%20%20pattern%20%3D%20re.compile('.*%3Fq%3D(.*%3F)%5C%2B.*%3FWF_(.*%3F)%26.*%3Fp%3D(%5Cd%2B)'%2C%20re.S)%0A%20%20%20%20result%20%3D%20re.findall(pattern%2C%20response.url)%5B0%5D%0A%20%20%20%20print(result)%0A%20%20%20%20keyword%20%3D%20parse.unquote(result%5B0%5D)%0A%20%20%20%20tag%20%3D%20result%5B1%5D%0A%20%20%20%20currentPage%20%3D%20result%5B2%5D%0A%20%20%20%20etree_html%20%3D%20etree.HTML(response.text)%0A%20%20%20%20%23%20record-item-list%0A%20%20%20%20itemList%20%3D%20etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22record-item-list%22%5D%2Fdiv%5B%40class%3D%22record-item%22%5D')%0A%20%20%20%20print(tag%20%2B%20keyword%20%2B%20'%E7%AC%AC'%20%2B%20str(currentPage)%20%2B%20'%E9%A1%B5%EF%BC%8C'%20%2B%20'%E8%8E%B7%E5%8F%96%E5%88%B0%E4%BA%86'%20%2B%20str(len(itemList))%20%2B%20'%E6%9D%A1%E6%95%B0%E6%8D%AE%E3%80%82')%0A%20%20%20%20if%20len(itemList)%20%3E%200%3A%0A%20%20%20%20%20%20%20%20for%20item%20in%20itemList%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20itemTitle%20%3D%20''.join(item.xpath('.%2F%2Fa%5B%40class%3D%22title%22%5D%2F%2Ftext()')).replace('%20'%2C%20'')%0A%20%20%20%20%20%20%20%20%20%20%20%20itemUrl%20%3D%20item.xpath('.%2F%2Fa%5B%40class%3D%22title%22%5D%2F%40href')%5B0%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20itemId%20%3D%20itemUrl.split('%2F')%5B-1%3A%5D%5B0%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20tag%20%3D%3D%20'HY'%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%E4%BC%9A%E8%AE%AE%E7%9A%84%E8%AF%A6%E6%83%85%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Dconference%26id%3D7730508%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20print(itemTitle%2C%20itemUrl%2C%20'%E4%BC%9A%E8%AE%AE%E7%9A%84%E8%AF%A6%E6%83%85'%2CitemId)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20newItemUrl%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Dconference%26id%3D'%20%2B%20itemId%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20info%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchKeyWord'%3A%20keyword%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchType'%3A%20'conference'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'title'%3A%20itemTitle%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20elif%20tag%20%3D%3D%20%22XW%22%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%E5%AD%A6%E4%BD%8D%E7%9A%84%E8%AF%A6%E6%83%85%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Ddegree%26id%3DD01551993%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20print(itemTitle%2C%20itemUrl%2C%20'%E5%AD%A6%E4%BD%8D%E7%9A%84%E8%AF%A6%E6%83%85'%2CitemId)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20newItemUrl%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Ddegree%26id%3D'%20%2B%20itemId%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20info%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchKeyWord'%3A%20keyword%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchType'%3A%20'degree'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'title'%3A%20itemTitle%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20elif%20tag%20%3D%3D%20%22QK%22%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20%E6%9C%9F%E5%88%8A%E7%9A%84%E8%AF%A6%E6%83%85%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Dperio%26id%3Dbjgydxxb-shkx201902004%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%20print(itemTitle%2C%20itemUrl%2C%20'%E6%9C%9F%E5%88%8A%E7%9A%84%E8%AF%A6%E6%83%85'%2C%20itemId)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20newItemUrl%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetail.do%3F_type%3Dperio%26id%3D'%20%2B%20itemId%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20info%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchKeyWord'%3A%20keyword%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'searchType'%3A%20'perio'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'title'%3A%20itemTitle%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20app.send_task('tasks.crawl_detail_with_url'%2C%20args%3D(newItemUrl%2C)%2C%20kwargs%3Dinfo)%0A%0A%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E4%B8%8B%E4%B8%80%E9%A1%B5%0A%20%20%20%20nextUrls%20%3D%20etree_html.xpath('%2F%2Fp%5B%40class%3D%22pager%22%5D%2F%2Fa%5B%40class%3D%22page%22%5D%2F%40href')%0A%0A%20%20%20%20if%20len(nextUrls)%3A%0A%20%20%20%20%20%20%20%20for%20nextUrl%20in%20nextUrls%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20nextUrl%20%3D%20parse.urljoin(response.url%2CnextUrl)%0A%20%20%20%20%20%20%20%20%20%20%20%20print(nextUrl)%0A%20%20%20%20%20%20%20%20%20%20%20%20app.send_task('tasks.crawl_pageurl_and_detailurl'%2Cargs%3D(nextUrl%2C))%0A%0A%60%60%60%0A%0A-%20**crawl_detail_with_url%3A%E6%A0%B9%E6%8D%AE%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85%E7%9A%84url%E5%9C%B0%E5%9D%80%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%EF%BC%8C%E5%B9%B6%E8%8E%B7%E5%8F%96%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C**%0A%0A%60%60%60%0A%40app.task()%0Adef%20crawl_detail_with_url(url%2C%20**kwargs)%3A%0A%20%20%20%20print('%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85url%E5%9C%B0%E5%9D%80%3A'%20%2B%20url)%0A%0A%20%20%20%20response%20%3D%20send_request(url)%0A%20%20%20%20print('%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85%E8%AF%B7%E6%B1%82%E6%88%90%E5%8A%9F'%20%2B%20response.url)%0A%20%20%20%20if%20response%20and%20url%20%3D%3D%20response.url%3A%0A%20%20%20%20%20%20%20%20title%20%3D%20kwargs%5B'title'%5D%0A%20%20%20%20%20%20%20%20print('%E8%AF%A6%E6%83%85%E8%AF%B7%E6%B1%82%E7%8A%B6%E6%80%81%E7%A0%81'%2C%20title%2C%20kwargs%2C%20response.status_code)%0A%20%20%20%20%20%20%20%20%23%20app.send_task('tasks.parse_detail_data'%2Cargs%3D(response.text%2Ckwargs))%0A%20%20%20%20%20%20%20%20item%20%3D%20parse_detail_data(response.text%2C%20kwargs)%0A%20%20%20%20%20%20%20%20return%20item%0A%60%60%60%0A%0A-%20**parse_detail_data%E6%96%B9%E6%B3%95%E8%A7%A3%E6%9E%90%E4%B8%AA%E5%88%86%E7%B1%BB%E5%AF%B9%E4%BA%8E%E7%9A%84%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%8C%E5%B9%B6%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%9C**%0A%0A%60%60%60%0Adef%20parse_detail_data(text%2C%20info)%3A%0A%20%20%20%20if%20info%5B'searchType'%5D%20%3D%3D%20'degree'%3A%0A%20%20%20%20%20%20%20%20item%20%3D%20parse_degree(text%2C%20info)%0A%20%20%20%20%20%20%20%20return%20item%0A%20%20%20%20elif%20info%5B'searchType'%5D%20%3D%3D%20'perio'%3A%0A%20%20%20%20%20%20%20%20item%20%3D%20parse_perio(text%2C%20info)%0A%20%20%20%20%20%20%20%20return%20item%0A%20%20%20%20elif%20info%5B'searchType'%5D%20%3D%3D%20'conference'%3A%0A%20%20%20%20%20%20%20%20item%20%3D%20parse_conference(text%2C%20info)%0A%20%20%20%20%20%20%20%20return%20item%0A%20%20%20%20elif%20info%5B'searchType'%5D%20%3D%3D%20'tech'%3A%0A%20%20%20%20%20%20%20%20item%20%3D%20parse_tech(text%2C%20info)%0A%20%20%20%20%20%20%20%20return%20item%0A%60%60%60%0A%0A%0A-%20**parse_degree%E8%A7%A3%E6%9E%90degree%E5%AD%A6%E4%BD%8D%E8%AF%A6%E6%83%85%E5%AD%97%E6%AE%B5%E5%B9%B6%E8%BF%94%E5%9B%9E**%0A%0A%60%60%60%0Adef%20parse_degree(text%2C%20info)%3A%0A%20%20%20%20item%20%3D%20%7B%7D%0A%20%20%20%20etree_html%20%3D%20etree.HTML(text)%0A%20%20%20%20%23%20item%5B'url'%5D%20%3D%20response.url%0A%20%20%20%20%23%20title(%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'title'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22title%22%5D%2Ftext()')).replace('%5Cr%5Cn'%2C%20'').replace('%5Ct'%2C%20'').replace('%E7%9B%AE%E5%BD%95'%2C'').replace('%20'%2C%20'')%0A%0A%20%20%20%20%23%20content(%E6%91%98%E8%A6%81)%0A%20%20%20%20item%5B'content'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22abstract%22%5D%2Ftextarea%2Ftext()')).replace('%5Cu3000'%2C'').replace('%5Ct'%2C'').replace('%20'%2C%20'').replace('%5Cn'%2C%20'')%0A%20%20%20%20%0A%20%20%20%20lis%20%3D%20etree_html.xpath('%2F%2Ful%5B%40class%3D%22info%22%5D%2F%2Fli')%0A%20%20%20%20print(len(lis))%0A%20%20%20%20for%20li%20in%20lis%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%9C%A8%E8%BF%99%E9%87%8C%E6%8F%90%E5%8F%96%E5%85%B6%E4%BB%96%E5%AD%97%E6%AE%B5%0A%20%20%20%20%20%20%20%20pass%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20item%5B'searchKey'%5D%20%3D%20info%5B'searchKeyWord'%5D%0A%20%20%20%20item%5B'searchType'%5D%20%3D%20info%5B'searchType'%5D%0A%0A%20%20%20%20return%20item%0A%60%60%60%0A%0A%0A%0A-%20**parse_perio%E8%A7%A3%E6%9E%90%E6%9C%9F%E5%88%8A%E8%AF%A6%E6%83%85%E5%AD%97%E6%AE%B5%E5%B9%B6%E8%BF%94%E5%9B%9E**%0A%0A%60%60%60%0Adef%20parse_perio(text%2C%20info)%3A%0A%20%20%20%20item%20%3D%20%7B%7D%0A%20%20%20%20%23%20item%5B'url'%5D%20%3D%20response.url%0A%20%20%20%20etree_html%20%3D%20etree.HTML(text)%0A%20%20%20%20%23%20title(%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'title'%5D%20%3D%20etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22title%22%5D%2Ftext()')%5B0%5D.replace('%5Cr%5Cn'%2C%20'').replace(%0A%20%20%20%20%20%20%20%20'%20'%2C%20'').replace('%5Ct'%2C%20'')%0A%20%20%20%20%23%20englishTitle(%E8%8B%B1%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'englishTitle'%5D%20%3D%20extract_first(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22English%22%5D%2Ftext()'))%20.replace('%5Ct'%2C%20'')%0A%20%20%20%20%23%20content(%E6%91%98%E8%A6%81)%0A%20%20%20%20item%5B'content'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22abstract%22%5D%2Ftextarea%2Ftext()')).replace('%5Cu3000'%2C').replace('%5Ct'%2C'').replace('%20'%2C%20'').replace('%5Cn'%2C%20'')%0A%0A%20%20%20%20lis%20%3D%20etree_html.xpath('%2F%2Ful%5B%40class%3D%22info%22%5D%2F%2Fli')%0A%20%20%20%20print(len(lis))%0A%20%20%20%20for%20li%20in%20lis%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%9C%A8%E8%BF%99%E9%87%8C%E6%8F%90%E5%8F%96%E5%85%B6%E4%BB%96%E5%AD%97%E6%AE%B5%0A%20%20%20%20%20%20%20%20pass%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20item%5B'searchKey'%5D%20%3D%20info%5B'searchKeyWord'%5D%0A%20%20%20%20item%5B'searchType'%5D%20%3D%20info%5B'searchType'%5D%0A%20%20%20%20return%20item%0A%60%60%60%0A%0A-%20**parse_conference%E8%A7%A3%E6%9E%90%E4%BC%9A%E8%AE%AE%E8%AF%A6%E6%83%85%E5%AD%97%E6%AE%B5%E5%B9%B6%E8%BF%94%E5%9B%9E**%0A%0A%60%60%60%0Adef%20parse_conference(text%2C%20info)%3A%0A%20%20%20%20item%20%3D%20%7B%7D%0A%20%20%20%20etree_html%20%3D%20etree.HTML(text)%0A%20%20%20%20%23%20item%5B'url'%5D%20%3D%20response.url%0A%20%20%20%20%23%20title(%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'title'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22title%22%5D%2Ftext()')).replace('%5Cr%5Cn'%2C%20'').replace('%5Ct'%2C%20'').replace('%E7%9B%AE%E5%BD%95'%2C%20'').replace('%20'%2C%20'')%0A%20%20%20%20%23%20content(%E6%91%98%E8%A6%81)%0A%20%20%20%20item%5B'content'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22abstract%22%5D%2Ftextarea%2Ftext()')).replace('%5Cu3000'%2C'').replace('%5Ct'%2C'').replace('%20'%2C%20'').replace('%5Cn'%2C%20'')%0A%0A%20%20%20%20lis%20%3D%20etree_html.xpath('%2F%2Ful%5B%40class%3D%22info%22%5D%2F%2Fli')%0A%20%20%20%20print(len(lis))%0A%20%20%20%20for%20li%20in%20lis%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%9C%A8%E8%BF%99%E9%87%8C%E6%8F%90%E5%8F%96%E5%85%B6%E4%BB%96%E5%AD%97%E6%AE%B5%0A%20%20%20%20%20%20%20%20pass%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20item%5B'searchKey'%5D%20%3D%20info%5B'searchKeyWord'%5D%0A%20%20%20%20item%5B'searchType'%5D%20%3D%20info%5B'searchType'%5D%0A%20%20%20%20return%20item%0A%60%60%60%0A%0A-%20**parse_tech%E8%A7%A3%E6%9E%90%E6%8A%80%E6%9C%AF%E8%AE%BA%E6%96%87%E8%AF%A6%E6%83%85%E5%AD%97%E6%AE%B5%E5%B9%B6%E8%BF%94%E5%9B%9E**%0A%0A%60%60%60%0Adef%20parse_tech(response%2C%20info)%3A%0A%20%20%20%20item%20%3D%20%7B%7D%0A%20%20%20%20etree_html%20%3D%20etree.HTML(response.text)%0A%20%20%20%20item%5B'url'%5D%20%3D%20response.url%0A%20%20%20%20%23%20title(%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'title'%5D%20%3D%20etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22title%22%5D%2Ftext()')%5B0%5D.replace('%5Cr%5Cn'%2C%20'').replace('%20'%2C%20'').replace('%5Ct'%2C%20'')%0A%20%20%20%20%23%20englishTitle(%E8%8B%B1%E6%96%87%E6%A0%87%E9%A2%98)%0A%20%20%20%20item%5B'englishTitle'%5D%20%3D%20extract_first(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22English%22%5D%2Ftext()')).replace('%5Ct'%2C%20'')%0A%20%20%20%20%23%20content(%E6%91%98%E8%A6%81)%0A%20%20%20%20item%5B'content'%5D%20%3D%20''.join(etree_html.xpath('%2F%2Fdiv%5B%40class%3D%22abstract%22%5D%2Ftextarea%2Ftext()')).replace('%5Cu3000'%2C'').replace('%5Ct'%2C'').replace('%20'%2C%20'').replace('%5Cn'%2C%20'')%0A%0A%20%20%20%20lis%20%3D%20etree_html.xpath('%2F%2Ful%5B%40class%3D%22info%22%5D%2F%2Fli')%0A%20%20%20%20print(len(lis))%0A%20%20%20%20for%20li%20in%20lis%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%9C%A8%E8%BF%99%E9%87%8C%E6%8F%90%E5%8F%96%E5%85%B6%E4%BB%96%E5%AD%97%E6%AE%B5%0A%20%20%20%20%20%20%20%20pass%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20item%5B'searchKey'%5D%20%3D%20info%5B'searchKeyWord'%5D%0A%20%20%20%20item%5B'searchType'%5D%20%3D%20info%5B'searchType'%5D%0A%20%20%20%20return%20item%0A%60%60%60%0A%0A**%E5%85%B3%E4%BA%8E%E5%A6%82%E4%BD%95%E8%BF%90%E8%A1%8C%E4%BB%A5%E4%B8%8A%E4%BB%A3%E7%A0%81**%0A%0A%E5%9C%A8%E7%BB%88%E7%AB%AF%E8%BF%9B%E5%85%A5%E9%A1%B9%E7%9B%AE%E6%96%87%E4%BB%B6%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%0A%3E%20celery%20-A%20worker%20tasks%20(-c%202%20%E6%8C%87%E5%AE%9A%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E7%9A%84%E8%BF%9B%E7%A8%8B%E6%95%B0%E9%87%8F%EF%BC%8C%E4%B8%8D%E6%8C%87%E5%AE%9A%E6%8C%87%E5%AE%9A%E4%B8%BA4%E4%B8%AA%E8%BF%9B%E7%A8%8B%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1)%20-l%20INFO%20%0A%0A%23%23%23%23%23%20step5%20%E5%AE%8C%E6%88%90%E4%B8%8A%E8%BF%B0%E4%BB%A3%E7%A0%81%E5%90%8E%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E4%BB%BB%E5%8A%A1%E6%96%87%E4%BB%B6%EF%BC%88starturls.py%EF%BC%89%EF%BC%8C%E5%B0%86%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%EF%BC%8C%E7%84%B6%E5%90%8Ecelery%E4%BC%9A%E5%8E%BB%E6%89%A7%E8%A1%8C%E8%BF%99%E4%BA%9B%E4%BB%BB%E5%8A%A1%EF%BC%8C%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%0A%60%60%60%0Afrom%20workers%20import%20app%0A%23%E8%AE%BE%E7%BD%AE%E8%B5%B7%E5%A7%8Burl%E4%BB%BB%E5%8A%A1%EF%BC%88%E5%8F%AF%E4%BB%A5%E7%9C%8B%E4%BD%9C%E6%98%AFscrapy-redis%E4%B8%AD%E7%9A%84lpush%EF%BC%89%0Afrom%20urllib.parse%20import%20quote%0Aimport%20tasks%0Adef%20set_start_url()%3A%0A%20%20%20%20%23%E8%AE%BE%E7%BD%AE%E8%B5%B7%E5%A7%8Burl%E7%9A%84%E5%9C%B0%E5%9D%80%0A%20%20%20%20start_urls%20%3D%20%5B%5D%0A%20%20%20%20%23%20%E5%88%86%E7%B1%BB%EF%BC%8C%E6%A0%B9%E6%8D%AE%E5%88%86%E7%B1%BB%E5%92%8C%E5%B9%B4%E9%99%90%E6%97%B6%E9%97%B4%E6%AE%B5%E6%B7%BB%E5%8A%A0url%E5%9C%B0%E5%9D%80%0A%20%20%20%20%23%20QK%EF%BC%9A%E6%9C%9F%E5%88%8A%20XW%EF%BC%9A%E5%AD%A6%E4%BD%8D%20HY%EF%BC%9A%E4%BC%9A%E8%AE%AE%0A%20%20%20%20categorys%20%3D%20%5B'QK'%2C'XW'%2C'HY'%2C%5D%0A%20%20%20%20%23%20%E5%85%B3%E9%94%AE%E5%AD%97%0A%20%20%20%20searchWords%20%3D%20%5B'%E6%B3%95%E5%BE%8B'%5D%0A%20%20%20%20for%20page%20in%20range(1%2C%202)%3A%0A%20%20%20%20%20%20%20%20%23%20page%20%E8%A1%A8%E7%A4%BA%E9%A1%B5%E7%A0%81%EF%BC%88%E4%BE%8B%E5%A6%82%EF%BC%9Arange(10%2C%20100)%EF%BC%9A%E8%A1%A8%E7%A4%BA%E8%AE%BE%E7%BD%AE%E5%90%84%E5%88%86%E7%B1%BB%E7%9A%84%E8%B5%B7%E5%A7%8B%E4%BB%BB%E5%8A%A1%E4%B8%BA10%EF%BD%9E100%E9%A1%B5%EF%BC%8C%E8%BF%99%E9%87%8C%E5%8F%AA%E9%9C%80%E8%A6%81%E7%BB%99%E5%87%BA%E4%B8%80%E9%83%A8%E5%88%86%E5%88%86%E9%A1%B5%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%9C%A8%E5%85%B7%E4%BD%93%E7%9A%84%E4%BB%A3%E7%A0%81%E4%B8%AD%EF%BC%8C%E4%BC%9A%E8%87%AA%E5%8A%A8%E8%8E%B7%E5%8F%96%E5%85%B6%E4%BB%96%E5%88%86%E9%A1%B5%EF%BC%89%0A%20%20%20%20%20%20%20%20%23%20%E6%B3%A8%E6%84%8F%EF%BC%9A%E5%9B%A0%E4%B8%BA%E4%B9%8B%E5%89%8D%E7%88%AC%E8%99%AB%E8%BF%90%E8%A1%8C%E8%BF%87%E4%BA%86%EF%BC%8Credis%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E4%BF%9D%E5%AD%98%E7%9D%80%E5%8E%BB%E9%87%8D%E7%9A%84%E6%8C%87%E7%BA%B9%E4%BF%A1%E6%81%AF%EF%BC%8C%E8%AE%BE%E7%BD%AE%E7%9A%84%E8%B5%B7%E5%A7%8Burl%E5%8F%AF%E8%83%BD%E4%B9%8B%E5%89%8D%E7%88%AC%E5%8F%96%E8%BF%87%E4%BA%86%EF%BC%8C%E6%89%80%E4%BB%A5%E8%B5%B7%E5%A7%8Burl%E5%92%8C%E6%88%AA%E6%AD%A2url%E9%97%B4%E5%8C%BA%E8%8C%83%E5%9B%B4%E5%8F%AF%E4%BB%A5%E9%80%82%E5%BD%93%E5%A4%A7%E4%B8%80%E4%BA%9B%0A%20%20%20%20%20%20%20%20for%20category%20in%20categorys%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20searchWord%20in%20searchWords%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23%E7%94%B1%E8%BF%99%E5%87%A0%E4%B8%AA%E9%83%A8%E5%88%86%E7%BB%84%E6%88%90%E5%AE%8C%E6%95%B4%E7%9A%84url%E5%9C%B0%E5%9D%80%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20url%20%3D%20'http%3A%2F%2Fs.wanfangdata.com.cn%2FPaper.aspx%3Fq%3D%25s%2BDBID%25sWF_%25s%26f%3Dtop%26p%3D%25s'%20%25%20(quote(searchWord)%2C'%253a'%2Ccategory%2Cstr(page))%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20print(url)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20start_urls.append(url)%0A%20%20%20%20return%20start_urls%0A%0A%0Adef%20manage_crawl_task(urls)%3A%0A%20%20%20%20for%20url%20in%20urls%3A%0A%20%20%20%20%20%20%20%23%20app.send_task('tasks.crawl_pageurl_and_detailurl'%2C%20args%3D(url%2C))%0A%20%20%20%20%20%20%20%20tasks.crawl_pageurl_and_detailurl.apply_async(args%3D(url%2C)%2Ccountdown%3D5)%0A%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%0A%20%20%20%20manage_crawl_task(set_start_url())%0A%20%20%20%20%0A%60%60%60%0A%0A**%E5%85%B3%E4%BA%8Eurl%E8%AF%B7%E6%B1%82%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8E%BB%E9%87%8D%EF%BC%8C%E8%AF%B7%E5%90%AC%E4%B8%8B%E5%9B%9E%E5%88%86%E8%A7%A3%EF%BC%88%E8%A7%81%E8%AF%BE%E4%BB%B61.3%EF%BC%89**%0A%0A%E5%85%B3%E4%BA%8E%E5%8E%BB%E9%87%8D%E6%A8%A1%E5%9D%97%E7%9A%84%E7%9B%B8%E5%85%B3%E7%B1%BB%E5%AE%9E%E7%8E%B0%E5%8F%AF%E4%BB%A5%E5%8F%82%E7%85%A7%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%EF%BC%9A%0A%23%23%23%23%23%20type1%EF%BC%88Md5%20%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E7%94%9F%E6%88%90%E6%8C%87%E7%BA%B9%EF%BC%89%EF%BC%9A%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AAdupfilter.py%E7%B1%BB%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A-%20%E5%AF%BC%E5%85%A5%E5%A6%82%E4%B8%8B%E6%A8%A1%E5%9D%97%0A%60%60%60%0Aimport%20redis%0Aimport%20hashlib%0A%60%60%60%0A%0A-%20%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%B1%BB%EF%BC%8C%E5%9C%A8__init__%E6%96%B9%E6%B3%95%E4%B8%AD%E5%88%9D%E5%A7%8B%E5%8C%96%E5%A6%82%E4%B8%8B%E5%8F%82%E6%95%B0%0A%0A%60%60%60%0Aclass%20DupeFilter(object)%3A%0A%0A%20%20%20%20def%20__init__(self)%3A%0A%0A%20%20%20%20%20%20%20%20self.server%20%3D%20redis.StrictRedis(%0A%20%20%20%20%20%20%20%20%20%20%20%20host%3D'118.24.255.219'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20port%3D6380%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20db%3D6%0A%20%20%20%20%20%20%20%20)%0A%20%20%20%20%20%20%20%20self.key%20%3D%20'dupeFilter%3Arequests'%0A%60%60%60%0A%0A%0A-%20request_seen%E6%96%B9%E6%B3%95%E6%A0%B9%E6%8D%AEurl%E7%94%9F%E6%88%90%E6%8C%87%E7%BA%B9%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%B9%B6%E4%B8%94%E5%92%8Credis%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E4%BF%9D%E5%AD%98%E7%9A%84%E6%8C%87%E7%BA%B9%E4%BF%A1%E6%81%AF%E6%AF%94%E5%AF%B9%EF%BC%8C%E8%BF%94%E5%9B%9E%20True%20%E8%A1%A8%E7%A4%BAurl%E5%B7%B2%E5%AD%98%E5%9C%A8%E8%AF%A5%E8%AF%B7%E6%B1%82%E4%BB%BB%E5%8A%A1%EF%BC%8CFalse%E5%88%99%E4%B8%8D%E5%AD%98%E5%9C%A8%E8%AF%A5%E8%AF%B7%E6%B1%82%E4%BB%BB%E5%8A%A1%0A%0A%60%60%60%0A%20%20%20%20def%20request_seen(self%2C%20url)%3A%0A%20%20%20%20%20%20%20%20%22%22%22Returns%20True%20if%20request%20was%20already%20seen.%0A%20%20%20%20%20%20%20%20Parameters%0A%20%20%20%20%20%20%20%20----------%0A%20%20%20%20%20%20%20%20request%20%3A%20scrapy.http.Request%0A%20%20%20%20%20%20%20%20Returns%0A%20%20%20%20%20%20%20%20-------%0A%20%20%20%20%20%20%20%20bool%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20fp%20%3D%20self.request_fingerprint(url)%0A%20%20%20%20%20%20%20%20%23%20This%20returns%20the%20number%20of%20values%20added%2C%20zero%20if%20already%20exists.%0A%20%20%20%20%20%20%20%20added%20%3D%20self.server.sadd(self.key%2C%20fp)%0A%20%20%20%20%20%20%20%20return%20added%20%3D%3D%200%0A%60%60%60%0A%0A%0A-%20request_fingerprint%E6%96%B9%E5%BC%8F%E6%A0%B9%E6%8D%AEmd5%E5%8A%A0%E5%AF%86%E7%94%9F%E6%88%90%E6%8C%87%E7%BA%B9%E4%BF%A1%E6%81%AF%E5%B9%B6%E8%BF%94%E5%9B%9E%0A%0A%60%60%60%0A%20%20%20%20def%20request_fingerprint(self%2C%20url)%3A%0A%20%20%20%20%20%20%20%20%22%22%22Returns%20a%20fingerprint%20for%20a%20given%20request.%0A%20%20%20%20%20%20%20%20Parameters%0A%20%20%20%20%20%20%20%20----------%0A%20%20%20%20%20%20%20%20request%20%3A%20scrapy.http.Request%0A%20%20%20%20%20%20%20%20Returns%0A%20%20%20%20%20%20%20%20-------%0A%20%20%20%20%20%20%20%20str%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%23%E6%A0%B9%E6%8D%AEurl%E7%94%9F%E6%88%90%E6%8C%87%E7%BA%B9%0A%20%20%20%20%20%20%20%20print('%E6%9C%AA%E5%8A%A0%E5%AF%86%E4%B9%8B%E5%89%8D%3A'%2Curl)%0A%20%20%20%20%20%20%20%20md5_obj%20%3D%20hashlib.md5()%0A%20%20%20%20%20%20%20%20%23%20%E8%BF%9B%E8%A1%8CMD5%E5%8A%A0%E5%AF%86%E5%89%8D%E5%BF%85%E9%A1%BB%20encode(%E7%BC%96%E7%A0%81)%EF%BC%8Cpython%E9%87%8C%E9%BB%98%E8%AE%A4%E6%98%AFunicode%E7%BC%96%E7%A0%81%EF%BC%8C%E5%BF%85%E9%A1%BB%E8%BD%AC%E6%8D%A2%E6%88%90utf-8%0A%20%20%20%20%20%20%20%20%23%20%E5%90%A6%E5%88%99%E6%8A%A5%E9%94%99%EF%BC%9ATypeError%3A%20Unicode-objects%20must%20be%20encoded%20before%20hashing%0A%20%20%20%20%20%20%20%20md5_obj.update(url.encode(encoding%3D'utf-8'))%0A%20%20%20%20%20%20%20%20md5_url%20%3D%20md5_obj.hexdigest()%0A%20%20%20%20%20%20%20%20print('MD5%E5%8A%A0%E5%AF%86%E5%90%8E%3A'%2Cmd5_url)%0A%20%20%20%20%20%20%20%20return%20md5_url%0A%60%60%60%0A%0A%23%23%23%23%23%23%20%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E8%AF%A5%E7%B1%BB%E8%BF%9B%E8%A1%8C%E5%8E%BB%E9%87%8D%E5%88%A4%E5%AE%9A%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%8F%AF%E5%8F%82%E7%85%A7%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%EF%BC%9A%0A%0A%60%60%60%0Aurl%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetaype%3Dconference%26id%3D7363410'%0A%20%20%20%20dupeFilter%20%3D%20DupeFilter()%0A%20%20%20%20result%20%3D%20dupeFilter.request_seen(url)%0A%20%20%20%20print(result)%0A%60%60%60%0A%0A%23%23%23%23%23%20type2%EF%BC%88%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%AE%9E%E7%8E%B0%EF%BC%89%EF%BC%9A%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AAdupfilter.py%E7%B1%BB%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A%0A-%20%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AAbldupfilter.py%E7%B1%BB%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A-%20%E5%AF%BC%E5%85%A5%E5%A6%82%E4%B8%8B%E6%A8%A1%E5%9D%97%0A%0A%0A%60%60%60%0A%23%20%E8%AE%BE%E7%BD%AE%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0%E7%9A%84%E4%B8%AA%E6%95%B0%0ABLOOMFILTER_HASH_NUMBER%20%3D%206%0A%23%20%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AE%BE%E7%BD%AEbit%E5%8F%82%E6%95%B0%EF%BC%8C%E9%BB%98%E8%AE%A430%EF%BC%8C%E5%8D%A0%E7%94%A8128M%E7%A9%BA%E9%97%B4%EF%BC%8C%E5%8E%BB%E9%87%8D%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%0A%E6%AD%A4%E5%8F%82%E6%95%B0%E5%86%B3%E5%AE%9A%E4%BA%86%E4%BD%8D%E6%95%B0%E7%BB%84%E7%9A%84%E4%BD%8D%E6%95%B0%EF%BC%8C%E5%A6%82%E6%9E%9CBLOOMFILTER_BIT%E4%B8%BA30%EF%BC%8C%E5%88%99%E4%BD%8D%E6%95%B0%E7%BB%84%0A%E4%BD%8D2%E7%9A%8430%E6%AC%A1%E6%96%B9%EF%BC%8C%E8%BF%99%E5%B0%86%E6%9A%82%E7%94%A8Redis%20128MB%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%EF%BC%8Curl%E5%8E%BB%E9%87%8D%E6%95%B0%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%EF%BC%8C%0A%E5%A6%82%E6%9E%9C%E7%88%AC%E5%8F%96%E7%9A%84%E9%87%8F%E5%9C%A810%E4%BA%BF%EF%BC%8C20%E4%BA%BF%E6%88%96%E5%88%99%E6%9B%B4%E9%AB%98%EF%BC%8C%E5%88%99%E9%9C%80%E8%A6%81%E5%B0%86%E6%AD%A4%E5%8F%82%E6%95%B0%E8%B0%83%E9%AB%98%0ABLOOMFILTER_BIT%20%3D%2030%0A%0Aclass%20HashMap(object)%3A%0A%20%20%20%20def%20__init__(self%2C%20m%2C%20seed)%3A%0A%20%20%20%20%20%20%20%20self.m%20%3D%20m%0A%20%20%20%20%20%20%20%20self.seed%20%3D%20seed%0A%20%20%20%20%0A%20%20%20%20def%20hash(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20Hash%20Algorithm%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%20Value%0A%20%20%20%20%20%20%20%20%3Areturn%3A%20Hash%20Value%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20ret%20%3D%200%0A%20%20%20%20%20%20%20%20for%20i%20in%20range(len(value))%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20ret%20%2B%3D%20self.seed%20*%20ret%20%2B%20ord(value%5Bi%5D)%0A%20%20%20%20%20%20%20%20return%20(self.m%20-%201)%20%26%20ret%0A%0A%0Aclass%20BloomFilter(object)%3A%0A%20%20%20%20def%20__init__(self%2C%20server%2C%20key%2C%20bit%3DBLOOMFILTER_BIT%2C%20hash_number%3DBLOOMFILTER_HASH_NUMBER)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20Initialize%20BloomFilter%0A%20%20%20%20%20%20%20%20%3Aparam%20server%3A%20Redis%20Server%0A%20%20%20%20%20%20%20%20%3Aparam%20key%3A%20BloomFilter%20Key%0A%20%20%20%20%20%20%20%20%3Aparam%20bit%3A%20m%20%3D%202%20%5E%20bit%0A%20%20%20%20%20%20%20%20%3Aparam%20hash_number%3A%20the%20number%20of%20hash%20function%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%23%20default%20to%201%20%3C%3C%2030%20%3D%2010%2C7374%2C1824%20%3D%202%5E30%20%3D%20128MB%2C%20max%20filter%202%5E30%2Fhash_number%20%3D%201%2C7895%2C6970%20fingerprints%0A%20%20%20%20%20%20%20%20self.m%20%3D%201%20%3C%3C%20bit%0A%20%20%20%20%20%20%20%20self.seeds%20%3D%20range(hash_number)%0A%20%20%20%20%20%20%20%20self.server%20%3D%20server%0A%20%20%20%20%20%20%20%20self.key%20%3D%20key%0A%20%20%20%20%20%20%20%20self.maps%20%3D%20%5BHashMap(self.m%2C%20seed)%20for%20seed%20in%20self.seeds%5D%0A%20%20%20%20%0A%20%20%20%20def%20exists(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20if%20value%20exists%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20if%20not%20value%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20False%0A%20%20%20%20%20%20%20%20exist%20%3D%20True%0A%20%20%20%20%20%20%20%20for%20map%20in%20self.maps%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20offset%20%3D%20map.hash(value)%0A%20%20%20%20%20%20%20%20%20%20%20%20exist%20%3D%20exist%20%26%20self.server.getbit(self.key%2C%20offset)%0A%20%20%20%20%20%20%20%20return%20exist%20%3D%3D%201%0A%20%20%20%20%0A%20%20%20%20def%20insert(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20add%20value%20to%20bloom%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20for%20f%20in%20self.maps%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20offset%20%3D%20f.hash(value)%0A%20%20%20%20%20%20%20%20%20%20%20%20self.server.setbit(self.key%2C%20offset%2C%201)%0A%60%60%60%0A%0A%23%23%23%23%23%23%20%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E8%AF%A5%E7%B1%BB%E8%BF%9B%E8%A1%8C%E5%8E%BB%E9%87%8D%E5%88%A4%E5%AE%9A%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%8F%AF%E5%8F%82%E7%85%A7%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%EF%BC%9A%0A%0A%60%60%60%0A%20%20%20%20client%20%3D%20redis.StrictRedis(host%3D'118.24.255.219'%2Cport%3D6380)%0A%20%20%20%20bl%20%3D%20BloomFilter(client%2C'bl%3Aurl')%0A%20%20%20%20url%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetaype%3Dconference%26id%3D7363410'%0A%20%20%20%20bl.insert(url)%0A%20%20%20%20url1%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetaype%3Dconference%26id%3D73634101'%0A%20%20%20%20result%20%3D%20bl.exists(url1)%0A%20%20%20%20print(result)%0A%60%60%60%0A%0A</center></body></html>

@@ -1,0 +1,69 @@
+----------------------1day
+1.Celery是什么？Celery官方文档：http://docs.celeryproject.org/en/latest/index.html
+	broker: 消息中间件，接收任务，和传递任务
+	backend: 存储中间件 ,存储内容
+
+2.mongdb复习  
+db : 查看当前数据库名
+show dbs : 查看所有数据库
+use 数据库名 :  切换数据库，如果数据库不存在，则指向数据库，但不创建，直到插入数据或创建集合时数据库才被创建。
+db.stats() 查看当前数据库信息
+db.dropDatabase(): 删除数据库
+db.createCollection(name,options) : 创建集合options ：{capped:(True,False),size:(数值),max:(数值)}
+show collections 查看数据库集合
+db.集合名称.drop() : 删除集合
+db.集合名称.insert({name:'',gender:1}) : 单条插入
+db.集合名称.insert([{name:'',gender:1},{name:'',gender:0}]) 多条插入
+remove(<query>,{justOne: <boolean>,})删  query: 删除文档条件，justOne: 如果设为True或1,则只删除一个文档
+db.集合名称.remove(document) 删除所有
+db.集合名称.update({name:'xxx'},{name:'李xx'}) : 全文档更新
+db.集合名称.updata({name:'李四'},$set{name:'王五'}) 指定属性更新
+save() 方法通过传入的文档来替换已有文档,如果文档的_id已经存在则修改，如果文档的_id不存在则添加
+db.集合名称.save({_id:'.......','name':'更新'})
+
+查询
+find():查询，返回所有满足条件数据
+db.集合名称.find({条件文档})
+db.集合名称.findOne({条件文档})
+db.集合名称.find({name:'李四'})
+db.集合名称findOne({name:'王五'})
+
+运算符
+小于 &lt
+小于等于 $lte
+大于 &gt
+大于等于 &gte
+不等于 $ne
+
+db.集合名称.find({age:($gte:18)}) 查询年龄大于18的学生
+db.集合名称.find({age:{$gte:18},gender:1}) 查询年龄大于18的学生,并且性别为1的学生
+db.集合名称.find({ $or:[ {age:($gte:18)},{gender:0}  ]}  ) 查询年龄大于18的学生，或者性别为0的学生
+db.集合名称.find({ $or:[ {age:($gte:18)},{gender:0}  ],name:'cxk'}  ) 查询年龄大于18的学生，或者性别为0的学生 并且名字为cxk
+
+$in $nin 判断是否在某个范围内
+db.集合名称.find({age: {$in:[18,28]} }) 查询年龄为18 28的学生
+
+LImit 与 Skip方法
+
+db.集合名称.find().limit(num) 查询指定 条数数据
+db.集合名称.find().skip(sum) 使用skip()方法来跳过指定数量的数据，skip方法同样接受一个数字参数作为跳过的记录条数。
+
+排序 sort()方法排序
+db.集合名称.find().sort({排序字段:1}) -----正序
+db.集合名称.find().sort({排序字段:-1}) -----降序，倒叙
+db.集合名称.find().sort({age:-1,gender:1}) --- 先根据年龄做降序，再根据性别做升序
+
+——----——————2day
+
+existS:返回false，表示url不存在
+
+
+
+
+https://www.17sucai.com/pins/33781.html
+
+
+
+
+
+nginx

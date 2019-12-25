@@ -1,0 +1,69 @@
+/*下拉菜单*/
+.distpicker-address-wrapper {
+  color: #9caebf;
+}
+.distpicker-address-wrapper select {
+    padding: .5rem .75rem;
+    height: 40px;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: #464a4c;
+    background-color: #fff;
+    background-image: none;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: .25rem;
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+}
+.distpicker-address-wrapper select option {
+      font-weight: normal;
+      display: block;
+      white-space: pre;
+      min-height: 1.2em;
+      padding: 0px 2px 1px;
+}
+.distpicker-address-wrapper ul {
+    margin: 0;
+    padding: 0;
+}
+.distpicker-address-wrapper ul li {
+      list-style: none;
+}
+.distpicker-address-wrapper .address-header {
+    background-color: #fff;
+}
+.distpicker-address-wrapper .address-header ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+}
+.distpicker-address-wrapper .address-header ul li {
+        display: inline-block;
+        padding: 10px 10px 7px;
+}
+.distpicker-address-wrapper .address-header ul li.active {
+          border-bottom: #52697f solid 3px;
+          color: #52697f;
+}
+.distpicker-address-wrapper .address-container {
+    background-color: #fff;
+}
+.distpicker-address-wrapper .address-container ul {
+      height: 100%;
+      overflow: auto;
+}
+.distpicker-address-wrapper .address-container ul li {
+        padding: 8px 10px;
+        border-top: 1px solid #f6f6f6;
+}
+.distpicker-address-wrapper .address-container ul li.active {
+          color: #52697f;
+}
+.disabled-color {
+  background: #f8f8f8;
+}

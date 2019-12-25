@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="37.00041580200195"/><meta name="author" content="李居豪"/><meta name="created" content="2019-04-23 02:21:32 +0000"/><meta name="latitude" content="39.63002651867087"/><meta name="longitude" content="116.0484188830839"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-04-23 02:21:48 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>DRF进阶07</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">别人给我们发送了一些数据,但是我们在request.POST怎么也得不到数据</li>
+</ul>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;">Django的request.POST和request.body</h2>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">(提交数据的时候request.POST不一定有数据,request.body一定有)</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">我们可以通过request的类型去查看</p>
+</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">url(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">r'^^(?P&lt;version&gt;[v1|v2]+)/dj/'</span>, DjangoView.as_view(),name=<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">'dj'</span>)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222163621.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">先导入一下,便于我们找到WSIGIRequest类</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222163853.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">执行load_post_and_files()方法</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222164113.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">load_post_and_files()方法里面读取了content_type<br/>
+<img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222164242.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">请求头:有application/x-www-form-urlencoded才可以去request.body中解析数据</p>
+</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222193347.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">请求体:数据格式要求</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">name=zs&amp;age=20&amp;gender=女
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">例如:</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">情况1： 
+<span style="color: #9b9b9b; line-height: 160%; box-sizing: content-box;">&lt;<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">form</span> <span style="color: #9cdcfe; line-height: 160%; box-sizing: content-box;">method....</span>&gt;</span>表单提交 
+<span style="color: #9b9b9b; line-height: 160%; box-sizing: content-box;">&lt;/<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">form</span>&gt;</span>   默认就是x-www-form-urlencoded
+
+情况2： 
+$.ajax({
+    url:....,
+    type:POST,
+    data:{name:zs,age=18} //里面默认转成 name=zs&amp;age=18这样格式
+})
+
+情况3： 
+<span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;">&lt;!-- 以下body里面有值,post没有值 --&gt;</span>
+$.ajax({
+    url:....,
+    type:POST,
+    headers:{"Content-type":"application/json"}
+    data:{name:zs,age=18} //里面默认转成 name=zs&amp;age=18这样格式
+})
+
+
+情况4： 
+$.ajax({
+    url:....,
+    type:POST,
+    headers:{"Content-type":"application/json"}
+    data:JSON.stringfy({name:zs,age=18}) 
+})
+解决:
+json.load(request.body)
+</code></pre>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000; margin-top: 14px;">DRF解析器（了解即可）</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">解析器的作用就是服务端接收客户端传过来的数据，把数据解析成自己想要的数据类型的过程.(DRF比Django强大很多)</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">Django的解析器</p>
+</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"> url(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">r'^(?P&lt;version&gt;[v1|v2]+)/django/$'</span>, views.DjangoView.as_view(), name=<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">'dja'</span>)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222195058.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.parsers <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> JSONParser
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">ParserView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(APIView)</span>:</span>
+    <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 允许用户发送json格式数据</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 1. 支持请求头content-type:application/json</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 2. 支持请求体{"name":"zs","age":20}</span>
+    parser_classes = [JSONParser]
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">post</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        print(type(request._request))
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"POST和Body"</span>)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222195337.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.parsers <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> JSONParser,FormParser
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">ParserView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(APIView)</span>:</span>
+    <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 允许用户发送json格式数据</span>
+    <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 1. 支持请求头content-type:application/json</span>
+    <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 2. 支持请求体{"name":"zs","age":20}</span>
+    parser_classes = [JSONParser,FormParser ]
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">post</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 获取解析后的结果</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># print(request.data)</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># print(request.POST["name"])</span>
+        print(request.data)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"POST和Body"</span>)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222200759.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">解析器流程</h1>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222200921.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201002.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201315.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201516.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">仅仅上传文件</h1>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">parser_classes = [FileUploadParser, ]
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">-%20%E5%88%AB%E4%BA%BA%E7%BB%99%E6%88%91%E4%BB%AC%E5%8F%91%E9%80%81%E4%BA%86%E4%B8%80%E4%BA%9B%E6%95%B0%E6%8D%AE%2C%E4%BD%86%E6%98%AF%E6%88%91%E4%BB%AC%E5%9C%A8request.POST%E6%80%8E%E4%B9%88%E4%B9%9F%E5%BE%97%E4%B8%8D%E5%88%B0%E6%95%B0%E6%8D%AE%0A%0A%23%23%20Django%E7%9A%84request.POST%E5%92%8Crequest.body%0A%0A-%20(%E6%8F%90%E4%BA%A4%E6%95%B0%E6%8D%AE%E7%9A%84%E6%97%B6%E5%80%99request.POST%E4%B8%8D%E4%B8%80%E5%AE%9A%E6%9C%89%E6%95%B0%E6%8D%AE%2Crequest.body%E4%B8%80%E5%AE%9A%E6%9C%89)%0A%0A-%20%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87request%E7%9A%84%E7%B1%BB%E5%9E%8B%E5%8E%BB%E6%9F%A5%E7%9C%8B%0A%60%60%60python%0Aurl(r'%5E%5E(%3FP%3Cversion%3E%5Bv1%7Cv2%5D%2B)%2Fdj%2F'%2C%20DjangoView.as_view()%2Cname%3D'dj')%0A%60%60%60%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222163621%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222163621.png)%0A-%20%E5%85%88%E5%AF%BC%E5%85%A5%E4%B8%80%E4%B8%8B%2C%E4%BE%BF%E4%BA%8E%E6%88%91%E4%BB%AC%E6%89%BE%E5%88%B0WSIGIRequest%E7%B1%BB%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222163853%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222163853.png)%0A%0A-%20%E6%89%A7%E8%A1%8Cload_post_and_files()%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222164113%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222164113.png)%0A%0A-%20load_post_and_files()%E6%96%B9%E6%B3%95%E9%87%8C%E9%9D%A2%E8%AF%BB%E5%8F%96%E4%BA%86content_type%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222164242%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222164242.png)%0A%0A-%20%E8%AF%B7%E6%B1%82%E5%A4%B4%3A%E6%9C%89application%2Fx-www-form-urlencoded%E6%89%8D%E5%8F%AF%E4%BB%A5%E5%8E%BBrequest.body%E4%B8%AD%E8%A7%A3%E6%9E%90%E6%95%B0%E6%8D%AE%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222193347%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222193347.png)%0A%0A-%20%E8%AF%B7%E6%B1%82%E4%BD%93%3A%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%A6%81%E6%B1%82%20%0A%60%60%60%0Aname%3Dzs%26age%3D20%26gender%3D%E5%A5%B3%0A%60%60%60%0A%0A-%20%E4%BE%8B%E5%A6%82%3A%0A%60%60%60html%0A%E6%83%85%E5%86%B51%EF%BC%9A%20%0A%3Cform%20method....%3E%E8%A1%A8%E5%8D%95%E6%8F%90%E4%BA%A4%20%0A%3C%2Fform%3E%20%20%20%E9%BB%98%E8%AE%A4%E5%B0%B1%E6%98%AFx-www-form-urlencoded%0A%0A%E6%83%85%E5%86%B52%EF%BC%9A%20%0A%24.ajax(%7B%0A%20%20%20%20url%3A....%2C%0A%20%20%20%20type%3APOST%2C%0A%20%20%20%20data%3A%7Bname%3Azs%2Cage%3D18%7D%20%2F%2F%E9%87%8C%E9%9D%A2%E9%BB%98%E8%AE%A4%E8%BD%AC%E6%88%90%20name%3Dzs%26age%3D18%E8%BF%99%E6%A0%B7%E6%A0%BC%E5%BC%8F%0A%7D)%0A%0A%E6%83%85%E5%86%B53%EF%BC%9A%20%0A%3C!--%20%E4%BB%A5%E4%B8%8Bbody%E9%87%8C%E9%9D%A2%E6%9C%89%E5%80%BC%2Cpost%E6%B2%A1%E6%9C%89%E5%80%BC%20--%3E%0A%24.ajax(%7B%0A%20%20%20%20url%3A....%2C%0A%20%20%20%20type%3APOST%2C%0A%20%20%20%20headers%3A%7B%22Content-type%22%3A%22application%2Fjson%22%7D%0A%20%20%20%20data%3A%7Bname%3Azs%2Cage%3D18%7D%20%2F%2F%E9%87%8C%E9%9D%A2%E9%BB%98%E8%AE%A4%E8%BD%AC%E6%88%90%20name%3Dzs%26age%3D18%E8%BF%99%E6%A0%B7%E6%A0%BC%E5%BC%8F%0A%7D)%0A%0A%0A%E6%83%85%E5%86%B54%EF%BC%9A%20%0A%24.ajax(%7B%0A%20%20%20%20url%3A....%2C%0A%20%20%20%20type%3APOST%2C%0A%20%20%20%20headers%3A%7B%22Content-type%22%3A%22application%2Fjson%22%7D%0A%20%20%20%20data%3AJSON.stringfy(%7Bname%3Azs%2Cage%3D18%7D)%20%0A%7D)%0A%E8%A7%A3%E5%86%B3%3A%0Ajson.load(request.body)%0A%60%60%60%0A%0A%23%20DRF%E8%A7%A3%E6%9E%90%E5%99%A8%EF%BC%88%E4%BA%86%E8%A7%A3%E5%8D%B3%E5%8F%AF%EF%BC%89%0A%0A-%20%E8%A7%A3%E6%9E%90%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8%E5%B0%B1%E6%98%AF%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E6%94%B6%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BC%A0%E8%BF%87%E6%9D%A5%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%8C%E6%8A%8A%E6%95%B0%E6%8D%AE%E8%A7%A3%E6%9E%90%E6%88%90%E8%87%AA%E5%B7%B1%E6%83%B3%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%BF%87%E7%A8%8B.(DRF%E6%AF%94Django%E5%BC%BA%E5%A4%A7%E5%BE%88%E5%A4%9A)%0A%0A-%20Django%E7%9A%84%E8%A7%A3%E6%9E%90%E5%99%A8%20%0A%60%60%60python%0A%20url(r'%5E(%3FP%3Cversion%3E%5Bv1%7Cv2%5D%2B)%2Fdjango%2F%24'%2C%20views.DjangoView.as_view()%2C%20name%3D'dja')%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222195058%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222195058.png)%0A%60%60%60python%0Afrom%20rest_framework.parsers%20import%20JSONParser%0A%0A%0Aclass%20ParserView(APIView)%3A%0A%20%20%20%20%23%20%E5%85%81%E8%AE%B8%E7%94%A8%E6%88%B7%E5%8F%91%E9%80%81json%E6%A0%BC%E5%BC%8F%E6%95%B0%E6%8D%AE%0A%20%20%20%20%20%20%20%20%23%201.%20%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E5%A4%B4content-type%3Aapplication%2Fjson%0A%20%20%20%20%20%20%20%20%23%202.%20%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E4%BD%93%7B%22name%22%3A%22zs%22%2C%22age%22%3A20%7D%0A%20%20%20%20parser_classes%20%3D%20%5BJSONParser%5D%0A%0A%20%20%20%20def%20post(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20print(type(request._request))%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22POST%E5%92%8CBody%22)%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222195337%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222195337.png)%0A%0A%60%60%60python%0Afrom%20rest_framework.parsers%20import%20JSONParser%2CFormParser%0A%0A%0Aclass%20ParserView(APIView)%3A%0A%20%20%20%20%23%20%E5%85%81%E8%AE%B8%E7%94%A8%E6%88%B7%E5%8F%91%E9%80%81json%E6%A0%BC%E5%BC%8F%E6%95%B0%E6%8D%AE%0A%20%20%20%20%23%201.%20%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E5%A4%B4content-type%3Aapplication%2Fjson%0A%20%20%20%20%23%202.%20%E6%94%AF%E6%8C%81%E8%AF%B7%E6%B1%82%E4%BD%93%7B%22name%22%3A%22zs%22%2C%22age%22%3A20%7D%0A%20%20%20%20parser_classes%20%3D%20%5BJSONParser%2CFormParser%20%5D%0A%0A%20%20%20%20def%20post(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E8%A7%A3%E6%9E%90%E5%90%8E%E7%9A%84%E7%BB%93%E6%9E%9C%0A%20%20%20%20%20%20%20%20%23%20print(request.data)%0A%20%20%20%20%20%20%20%20%23%20print(request.POST%5B%22name%22%5D)%0A%20%20%20%20%20%20%20%20print(request.data)%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22POST%E5%92%8CBody%22)%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222200759%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222200759.png)%0A%0A%23%20%E8%A7%A3%E6%9E%90%E5%99%A8%E6%B5%81%E7%A8%8B%20%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222200921%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222200921.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201002%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222201002.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201315%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222201315.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190222201516%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190222201516.png)%0A%0A%0A%23%20%E4%BB%85%E4%BB%85%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%0A%60%60%60python%0Aparser_classes%20%3D%20%5BFileUploadParser%2C%20%5D%0A%60%60%60%0A%0A</center></body></html>

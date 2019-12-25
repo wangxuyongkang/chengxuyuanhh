@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="36"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-26 15:37:53 +0000"/><meta name="latitude" content="39.63156861829253"/><meta name="longitude" content="116.0504730458487"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-04 06:32:08 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>14 协程的介绍和使用</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">迭代器</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">生成器</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">协程</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">yeild协程</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">greenlet协程</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><a style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">gevent协程</a></li>
+</ul>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">迭代器</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">迭代是访问集合元素的一种方式。迭代器是一个可以记住遍历的位置的对象。迭代器对象从集合的第一个元素开始访问，直到所有的元素被访问完结束。迭代器只能往前不会后退。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">1. 可迭代对象</strong><br/>
+我们已经知道可以对list、tuple、str等类型的数据使用for...in...的循环语法从其中依次拿到数据进行使用，我们把这样的过程称为遍历，也叫迭代。</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">data_list = [1,2,3,4,5,6,7,8]
+
+for i in data_list:
+    print(i)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">运行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">1
+2
+3
+4
+5
+6
+7
+8
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">但是，是否所有的数据类型都可以放到for...in...的语句中，然后让for...in...每次从中取出一条数据供我们使用，即供我们迭代吗？</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">for i in 1000:
+    print(i)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">运行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    for i in 1000:
+TypeError: 'int' object is not iterable
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">'int'对象是不能迭代的</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">2. 如何判断一个对象是否可以迭代</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from collections import Iterable
+
+print(isinstance([],Iterable))
+
+print(isinstance(1,Iterable))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">运行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">True
+False
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">3. 可迭代对象的本质</strong><br/>
+可迭代对象进行迭代使用的过程，每迭代一次（即在for...in...中每循环一次）都会返回对象中的下一条数据，一直向后读取数据直到迭代了所有数据后结束。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">可迭代对象通过__iter__方法向我们提供一个迭代器，我们在迭代一个可迭代对象的时候，实际上就是先获取该对象提供的一个迭代器，然后通过这个迭代器来依次获取对象中的每一个数据.</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">一个具备了 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">_<em style="line-height: 160%; box-sizing: content-box; font-style: italic;">iter</em>_</strong> 方法的对象，就是一个 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">可迭代对象</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from collections import Iterable
+
+class BookList(object):
+    def __init__(self):
+        self.data = []
+
+    def add(self,item):
+        self.data.append(item)
+
+    def __iter__(self):
+        """返回一个迭代器"""
+        return self
+
+books = BookList()
+
+print(isinstance(books,Iterable))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">运行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">True
+发现添加了__iter__方法的books对象已经是一个可迭代对象了
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">4. iter()函数与next()函数</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">list、tuple等都是可迭代对象，我们可以通过iter()函数获取这些可迭代对象的迭代器。然后我们可以对获取到的迭代器不断使用next()函数来获取下一条数据</strong>。iter()函数实际上就是调用了可迭代对象的__iter__方法。</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">data_list = [11,22,33,44]
+
+data_iter = iter(data_list)
+
+print(data_iter)
+
+print(next(data_iter))
+
+print(next(data_iter))
+
+....
+
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+StopIteration
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">5. 如何判断一个对象是否是迭代器</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from collections import Iterator
+
+print(isinstance([1,2], Iterator))
+
+print(isinstance(iter([1,2]), Iterator))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">执行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">False
+True
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">6. 迭代器Iterator</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">迭代器是用来帮助我们记录每次迭代访问到的位置，当我们对迭代器使用next()函数的时候，迭代器会向我们返回它所记录位置的下一个位置的数据。实际上，在使用next()函数的时候，调用的就是迭代器对象的__next__方法。所以，我们要想构造一个迭代器，就要实现它的__next__方法。并且python要求迭代器本身也是可迭代的，所以我们还要为迭代器实现__iter__方法，迭代器的__iter__方法返回自身即可。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">一个实现了__iter__方法和__next__方法的对象，就是迭代器。</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class BookList(object):
+    def __init__(self,num):
+        self.num = num
+        self.current_num = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current_num &lt; self.num:
+            self.current_num += 1
+            return 'book'+str(self.current_num)
+        else:
+            raise StopIteration
+
+
+books = BookList(4)
+
+print(isinstance(books,Iterator))
+
+for i in books:
+    print(i)
+# print(next(books))
+# print(next(books))
+# print(next(books))
+# print(next(books))
+# print(next(books))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">执行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">True
+book1
+book2
+book3
+book4
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">for...in...循环的本质</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">for item in Iterable</strong> 循环的本质就是先通过 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">iter()函数</strong> 获取 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">可迭代对象Iterable的迭代器</strong>，然后对获取到的迭代器不断调用 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">next()</strong> 方法来获取下一个值并将其赋值给item，当遇到  <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">StopIteration</strong> 的异常后循环结束。</p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">生成器</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">1. 生成器</strong><br/>
+利用迭代器，我们可以在每次迭代获取数据（通过next()方法）时按照特定的规律进行生成。但是我们在实现一个迭代器时，关于当前迭代到的状态需要我们自己记录，进而才能根据当前状态生成下一个数据。为了达到记录当前状态，并配合next()函数进行迭代使用，我们可以采用更简便的语法，即生成器(generator)。<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">生成器是一类特殊的迭代器。</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">2. 创建生成器方法1</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">data = (x*2 for x in range(5))
+
+print(data)
+
+print(isinstance(data,Iterator))
+
+print(next(data))
+
+print(next(data))
+
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">执行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">得到了一个生成器对象
+&lt;generator object &lt;genexpr&gt; at 0x7f3a705b10f8&gt;
+True
+0
+2
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">3. 创建生成器方法2</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">在使用生成器实现的方式中，我们将原本在迭代器__next__方法中实现的基本逻辑放到一个函数中来实现，但是将每次迭代返回数值的return换成了yield，此时新定义的函数便不再是函数，而是一个生成器了。简单来说：<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">只要在def中有yield关键字的 就称为 生成器</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def set_books(num):
+    n = 0
+    while n &lt; num:
+        n+=1
+        yield 'book'+str(n)
+
+books = set_books(5)
+
+print(books)
+
+print(isinstance(books,Iterator))
+
+print(next(books))
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">总结</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">使用了yield关键字的函数不再是函数，而是生成器。（使用了yield的函数就是生成器）</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">yield关键字有两点作用：
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">保存当前运行状态（断点），然后暂停执行，即将生成器（函数）挂起</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">将yield关键字后面表达式的值作为返回值返回，此时可以理解为起到了return的作用</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">可以使用next()函数让生成器从断点处继续执行.</li>
+</ul>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">协程</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">协程，又称微线程，纤程。英文名Coroutine。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">1.协程是什么？</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">协程是python个中另外一种实现多任务的方式，只不过比线程更小占用更小执行单元（理解为需要的资源）。 为啥说它是一个执行单元，因为它自带CPU寄存器上下文。这样只要在合适的时机， 我们可以把一个协程 切换到另一个协程。 只要这个过程中保存或恢复 CPU上下文那么程序还是可以运行的。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">通俗的理解：<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">在一个线程中的某个函数，可以在任何地方保存当前函数的一些临时变量等信息，然后切换到另外一个函数中执行，注意不是通过调用函数的方式做到的，并且切换的次数以及什么时候再切换到原来的函数都由开发者自己确定</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">2.协程和线程差异</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">在实现多任务时, 线程切换从系统层面远不止保存和恢复 CPU上下文这么简单。 操作系统为了程序运行的高效性每个线程都有自己缓存Cache等等数据，操作系统还会帮你做这些数据的恢复操作。 所以线程的切换非常耗性能。但是协程的切换只是单纯的操作CPU的上下文，所以一秒钟切换个上百万次系统都抗的住。</p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">yeild实现简单实现协程</h3>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import time
+
+def work1():
+    while True:
+        print("----work1---")
+        yield
+        time.sleep(0.5)
+
+def work2():
+    while True:
+        print("----work2---")
+        yield
+        time.sleep(0.5)
+
+def main():
+    w1 = work1()
+    w2 = work2()
+    while True:
+        next(w1)
+        next(w2)
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">实质：<br/>
+<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">其实任务是在主线程中并发执行的，看上去像同时执行而已，当执行next()的时候，函数执行到yield的时候先暂停一下，然后之后再调用next()的时候，接着上一次暂停的位置执行</strong></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">greenlet</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">为了更好使用协程来完成多任务，python中的greenlet模块对其封装，从而使得切换任务变的更加简单</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">1.安装方式</strong><br/>
+使用如下命令安装greenlet模块:</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">sudo pip3 install greenlet
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">2.greenlet的使用</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from greenlet import greenlet
+import requests
+
+def download1():
+    print('正在下载１')
+    #耗时的操作
+    response = requests.get(url='https://github.com/')
+    gre2.switch()
+    print('download1下载完了')
+    gre2.switch()
+
+
+def download2():
+    print('正在下载２')
+    response = requests.get(url='https://github.com/')
+    gre1.switch()
+    print('download2下载完了')
+
+
+gre1 = greenlet(download1)
+gre2 = greenlet(download2)
+gre1.switch()
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">执行结果</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">正在下载１
+正在下载２
+download1下载完了
+download2下载完了
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">思考</strong>：代码是如何运行的？</p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">gevent</h3>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">greenlet已经实现了协程，但是这个还的人工切换，是不是觉得太麻烦了，不要捉急，python还有一个比greenlet更强大的并且能够自动切换任务的模块gevent</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">其原理是当一个greenlet遇到IO(指的是input output 输入输出，比如网络、文件操作等)操作时，比如访问网络，就自动切换到其他的greenlet，等到IO操作完成，再在适当的时候切换回来继续执行。</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">由于IO操作非常耗时，经常使程序处于等待状态，有了gevent为我们自动切换协程，就保证总有greenlet在运行，而不是等待IO</p>
+</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">1.安装</strong><br/>
+pip3 install gevent</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">2.gevent的使用1</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">#gevent能够在内部自己实现携程之间的切换
+import gevent
+
+def f(n):
+    for i in range(n):
+        print(gevent.getcurrent(), i)
+        #用来模拟一个耗时操作，注意不是time模块中的sleep
+        gevent.sleep(1)
+
+g1 = gevent.spawn(f, 5)
+g2 = gevent.spawn(f, 5)
+g3 = gevent.spawn(f, 5)
+g1.join()
+g2.join()
+g3.join()
+
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">3.gevent的使用2</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">#gevent能够在内部自己实现携程之间的切换
+
+from gevent import monkey,pool
+import gevent,requests
+import lxml.etree as etree
+
+# 有耗时操作时需要
+monkey.patch_all()  # 将程序中用到的耗时操作的代码，换为gevent中自己实现的模块
+
+
+def download(url):
+    print(url+'正在下载1')
+    header = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
+    response = requests.get(url,headers=header)
+    print(len(response.text),url+'已完成１')
+
+def download2(url):
+    print(url+'正在下载2')
+    header = {'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'}
+    response = requests.get(url,headers=header)
+    print(len(response.text),url+'已完成2')
+
+pool = pool.Pool(2)
+
+gevent.joinall(
+    [
+        pool.spawn(download,'https://www.yahoo.com/'),
+        pool.spawn(download,'https://www.taobao.com/'),
+        pool.spawn(download,'https://github.com/'), 
+        pool.spawn(download2,'https://www.yahoo.com/'),
+        pool.spawn(download2,'https://www.taobao.com/'),
+        pool.spawn(download2,'https://github.com/'), 
+    ]
+)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">简单总结</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">进程</strong>是资源分配的单位</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">线程</strong>是操作系统调度的单位</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">进程</strong>切换需要的资源很最大，效率很低</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">线程</strong>切换需要的资源一般，效率一般（在不考虑GIL的情况下）</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">协程</strong>切换任务资源很小，效率高</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">多进程</strong>、<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">多线程</strong>根据cpu核数不一样可能是并行的，但是　<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">协程</strong>　是在一个　<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">线程中</strong> 所以是　<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">并发的</strong></p>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">*%20%5B%E8%BF%AD%E4%BB%A3%E5%99%A8%5D(%23%E8%BF%AD%E4%BB%A3%E5%99%A8)%0A*%20%5B%E7%94%9F%E6%88%90%E5%99%A8%5D(%23%E7%94%9F%E6%88%90%E5%99%A8)%0A*%20%5B%E5%8D%8F%E7%A8%8B%5D(%23%E5%8D%8F%E7%A8%8B)%0A*%20%5Byeild%E5%8D%8F%E7%A8%8B%5D(%23yeild%E5%8D%8F%E7%A8%8B)%0A*%20%5Bgreenlet%E5%8D%8F%E7%A8%8B%5D(%23greenlet%E5%8D%8F%E7%A8%8B)%0A*%20%5Bgevent%E5%8D%8F%E7%A8%8B%5D(%23gevent%E5%8D%8F%E7%A8%8B)%0A%0A%0A%23%23%23%20%E8%BF%AD%E4%BB%A3%E5%99%A8%0A%0A%E8%BF%AD%E4%BB%A3%E6%98%AF%E8%AE%BF%E9%97%AE%E9%9B%86%E5%90%88%E5%85%83%E7%B4%A0%E7%9A%84%E4%B8%80%E7%A7%8D%E6%96%B9%E5%BC%8F%E3%80%82%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%98%AF%E4%B8%80%E4%B8%AA%E5%8F%AF%E4%BB%A5%E8%AE%B0%E4%BD%8F%E9%81%8D%E5%8E%86%E7%9A%84%E4%BD%8D%E7%BD%AE%E7%9A%84%E5%AF%B9%E8%B1%A1%E3%80%82%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%AF%B9%E8%B1%A1%E4%BB%8E%E9%9B%86%E5%90%88%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E5%BC%80%E5%A7%8B%E8%AE%BF%E9%97%AE%EF%BC%8C%E7%9B%B4%E5%88%B0%E6%89%80%E6%9C%89%E7%9A%84%E5%85%83%E7%B4%A0%E8%A2%AB%E8%AE%BF%E9%97%AE%E5%AE%8C%E7%BB%93%E6%9D%9F%E3%80%82%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%8F%AA%E8%83%BD%E5%BE%80%E5%89%8D%E4%B8%8D%E4%BC%9A%E5%90%8E%E9%80%80%E3%80%82%0A%0A%0A**1.%20%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1**%0A%E6%88%91%E4%BB%AC%E5%B7%B2%E7%BB%8F%E7%9F%A5%E9%81%93%E5%8F%AF%E4%BB%A5%E5%AF%B9list%E3%80%81tuple%E3%80%81str%E7%AD%89%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%95%B0%E6%8D%AE%E4%BD%BF%E7%94%A8for...in...%E7%9A%84%E5%BE%AA%E7%8E%AF%E8%AF%AD%E6%B3%95%E4%BB%8E%E5%85%B6%E4%B8%AD%E4%BE%9D%E6%AC%A1%E6%8B%BF%E5%88%B0%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E4%BD%BF%E7%94%A8%EF%BC%8C%E6%88%91%E4%BB%AC%E6%8A%8A%E8%BF%99%E6%A0%B7%E7%9A%84%E8%BF%87%E7%A8%8B%E7%A7%B0%E4%B8%BA%E9%81%8D%E5%8E%86%EF%BC%8C%E4%B9%9F%E5%8F%AB%E8%BF%AD%E4%BB%A3%E3%80%82%0A%60%60%60%0Adata_list%20%3D%20%5B1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%5D%0A%0Afor%20i%20in%20data_list%3A%0A%20%20%20%20print(i)%0A%60%60%60%0A**%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0A1%0A2%0A3%0A4%0A5%0A6%0A7%0A8%0A%60%60%60%0A%0A**%E4%BD%86%E6%98%AF%EF%BC%8C%E6%98%AF%E5%90%A6%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%83%BD%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%88%B0for...in...%E7%9A%84%E8%AF%AD%E5%8F%A5%E4%B8%AD%EF%BC%8C%E7%84%B6%E5%90%8E%E8%AE%A9for...in...%E6%AF%8F%E6%AC%A1%E4%BB%8E%E4%B8%AD%E5%8F%96%E5%87%BA%E4%B8%80%E6%9D%A1%E6%95%B0%E6%8D%AE%E4%BE%9B%E6%88%91%E4%BB%AC%E4%BD%BF%E7%94%A8%EF%BC%8C%E5%8D%B3%E4%BE%9B%E6%88%91%E4%BB%AC%E8%BF%AD%E4%BB%A3%E5%90%97%EF%BC%9F**%0A%60%60%60%0Afor%20i%20in%201000%3A%0A%20%20%20%20print(i)%0A%60%60%60%0A**%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0A%20%20%20%20for%20i%20in%201000%3A%0ATypeError%3A%20'int'%20object%20is%20not%20iterable%0A%60%60%60%0A'int'%E5%AF%B9%E8%B1%A1%E6%98%AF%E4%B8%8D%E8%83%BD%E8%BF%AD%E4%BB%A3%E7%9A%84%0A%0A**2.%20%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%98%AF%E5%90%A6%E5%8F%AF%E4%BB%A5%E8%BF%AD%E4%BB%A3**%0A%60%60%60%0Afrom%20collections%20import%20Iterable%0A%0Aprint(isinstance(%5B%5D%2CIterable))%0A%0Aprint(isinstance(1%2CIterable))%0A%60%60%60%0A%0A**%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0ATrue%0AFalse%0A%60%60%60%0A%0A**3.%20%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%9C%AC%E8%B4%A8**%0A%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E8%BF%9B%E8%A1%8C%E8%BF%AD%E4%BB%A3%E4%BD%BF%E7%94%A8%E7%9A%84%E8%BF%87%E7%A8%8B%EF%BC%8C%E6%AF%8F%E8%BF%AD%E4%BB%A3%E4%B8%80%E6%AC%A1%EF%BC%88%E5%8D%B3%E5%9C%A8for...in...%E4%B8%AD%E6%AF%8F%E5%BE%AA%E7%8E%AF%E4%B8%80%E6%AC%A1%EF%BC%89%E9%83%BD%E4%BC%9A%E8%BF%94%E5%9B%9E%E5%AF%B9%E8%B1%A1%E4%B8%AD%E7%9A%84%E4%B8%8B%E4%B8%80%E6%9D%A1%E6%95%B0%E6%8D%AE%EF%BC%8C%E4%B8%80%E7%9B%B4%E5%90%91%E5%90%8E%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%E7%9B%B4%E5%88%B0%E8%BF%AD%E4%BB%A3%E4%BA%86%E6%89%80%E6%9C%89%E6%95%B0%E6%8D%AE%E5%90%8E%E7%BB%93%E6%9D%9F%E3%80%82%0A%0A%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E9%80%9A%E8%BF%87__iter__%E6%96%B9%E6%B3%95%E5%90%91%E6%88%91%E4%BB%AC%E6%8F%90%E4%BE%9B%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%8C%E6%88%91%E4%BB%AC%E5%9C%A8%E8%BF%AD%E4%BB%A3%E4%B8%80%E4%B8%AA%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%AE%9E%E9%99%85%E4%B8%8A%E5%B0%B1%E6%98%AF%E5%85%88%E8%8E%B7%E5%8F%96%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%8F%90%E4%BE%9B%E7%9A%84%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%8C%E7%84%B6%E5%90%8E%E9%80%9A%E8%BF%87%E8%BF%99%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%9D%A5%E4%BE%9D%E6%AC%A1%E8%8E%B7%E5%8F%96%E5%AF%B9%E8%B1%A1%E4%B8%AD%E7%9A%84%E6%AF%8F%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE.%0A%0A%E4%B8%80%E4%B8%AA%E5%85%B7%E5%A4%87%E4%BA%86%20**%5C__iter__**%20%E6%96%B9%E6%B3%95%E7%9A%84%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%B0%B1%E6%98%AF%E4%B8%80%E4%B8%AA%20**%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1**%0A%0A%60%60%60%0Afrom%20collections%20import%20Iterable%0A%0Aclass%20BookList(object)%3A%0A%20%20%20%20def%20__init__(self)%3A%0A%20%20%20%20%20%20%20%20self.data%20%3D%20%5B%5D%0A%0A%20%20%20%20def%20add(self%2Citem)%3A%0A%20%20%20%20%20%20%20%20self.data.append(item)%0A%0A%20%20%20%20def%20__iter__(self)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%E8%BF%94%E5%9B%9E%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%22%22%22%0A%20%20%20%20%20%20%20%20return%20self%0A%0Abooks%20%3D%20BookList()%0A%0Aprint(isinstance(books%2CIterable))%0A%60%60%60%0A%0A%0A**%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0ATrue%0A%E5%8F%91%E7%8E%B0%E6%B7%BB%E5%8A%A0%E4%BA%86__iter__%E6%96%B9%E6%B3%95%E7%9A%84books%E5%AF%B9%E8%B1%A1%E5%B7%B2%E7%BB%8F%E6%98%AF%E4%B8%80%E4%B8%AA%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E4%BA%86%0A%60%60%60%0A%0A**4.%20iter()%E5%87%BD%E6%95%B0%E4%B8%8Enext()%E5%87%BD%E6%95%B0**%0A%0A**list%E3%80%81tuple%E7%AD%89%E9%83%BD%E6%98%AF%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87iter()%E5%87%BD%E6%95%B0%E8%8E%B7%E5%8F%96%E8%BF%99%E4%BA%9B%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8%E3%80%82%E7%84%B6%E5%90%8E%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%AF%B9%E8%8E%B7%E5%8F%96%E5%88%B0%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%B8%8D%E6%96%AD%E4%BD%BF%E7%94%A8next()%E5%87%BD%E6%95%B0%E6%9D%A5%E8%8E%B7%E5%8F%96%E4%B8%8B%E4%B8%80%E6%9D%A1%E6%95%B0%E6%8D%AE**%E3%80%82iter()%E5%87%BD%E6%95%B0%E5%AE%9E%E9%99%85%E4%B8%8A%E5%B0%B1%E6%98%AF%E8%B0%83%E7%94%A8%E4%BA%86%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1%E7%9A%84__iter__%E6%96%B9%E6%B3%95%E3%80%82%0A%0A%60%60%60%0Adata_list%20%3D%20%5B11%2C22%2C33%2C44%5D%0A%0Adata_iter%20%3D%20iter(data_list)%0A%0Aprint(data_iter)%0A%0Aprint(next(data_iter))%0A%0Aprint(next(data_iter))%0A%0A....%0A%0ATraceback%20(most%20recent%20call%20last)%3A%0A%20%20File%20%22%3Cstdin%3E%22%2C%20line%201%2C%20in%20%3Cmodule%3E%0AStopIteration%0A%60%60%60%0A%0A**5.%20%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%98%AF%E5%90%A6%E6%98%AF%E8%BF%AD%E4%BB%A3%E5%99%A8**%0A%60%60%60%0Afrom%20collections%20import%20Iterator%0A%0Aprint(isinstance(%5B1%2C2%5D%2C%20Iterator))%0A%0Aprint(isinstance(iter(%5B1%2C2%5D)%2C%20Iterator))%0A%60%60%60%0A**%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0AFalse%0ATrue%0A%60%60%60%0A%0A**6.%20%E8%BF%AD%E4%BB%A3%E5%99%A8Iterator**%0A%0A%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%98%AF%E7%94%A8%E6%9D%A5%E5%B8%AE%E5%8A%A9%E6%88%91%E4%BB%AC%E8%AE%B0%E5%BD%95%E6%AF%8F%E6%AC%A1%E8%BF%AD%E4%BB%A3%E8%AE%BF%E9%97%AE%E5%88%B0%E7%9A%84%E4%BD%8D%E7%BD%AE%EF%BC%8C%E5%BD%93%E6%88%91%E4%BB%AC%E5%AF%B9%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%BD%BF%E7%94%A8next()%E5%87%BD%E6%95%B0%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%BC%9A%E5%90%91%E6%88%91%E4%BB%AC%E8%BF%94%E5%9B%9E%E5%AE%83%E6%89%80%E8%AE%B0%E5%BD%95%E4%BD%8D%E7%BD%AE%E7%9A%84%E4%B8%8B%E4%B8%80%E4%B8%AA%E4%BD%8D%E7%BD%AE%E7%9A%84%E6%95%B0%E6%8D%AE%E3%80%82%E5%AE%9E%E9%99%85%E4%B8%8A%EF%BC%8C%E5%9C%A8%E4%BD%BF%E7%94%A8next()%E5%87%BD%E6%95%B0%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E8%B0%83%E7%94%A8%E7%9A%84%E5%B0%B1%E6%98%AF%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%AF%B9%E8%B1%A1%E7%9A%84__next__%E6%96%B9%E6%B3%95%E3%80%82%E6%89%80%E4%BB%A5%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A6%81%E6%83%B3%E6%9E%84%E9%80%A0%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%8C%E5%B0%B1%E8%A6%81%E5%AE%9E%E7%8E%B0%E5%AE%83%E7%9A%84__next__%E6%96%B9%E6%B3%95%E3%80%82%E5%B9%B6%E4%B8%94python%E8%A6%81%E6%B1%82%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%9C%AC%E8%BA%AB%E4%B9%9F%E6%98%AF%E5%8F%AF%E8%BF%AD%E4%BB%A3%E7%9A%84%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E8%BF%98%E8%A6%81%E4%B8%BA%E8%BF%AD%E4%BB%A3%E5%99%A8%E5%AE%9E%E7%8E%B0__iter__%E6%96%B9%E6%B3%95%EF%BC%8C%E8%BF%AD%E4%BB%A3%E5%99%A8%E7%9A%84__iter__%E6%96%B9%E6%B3%95%E8%BF%94%E5%9B%9E%E8%87%AA%E8%BA%AB%E5%8D%B3%E5%8F%AF%E3%80%82%0A%0A**%E4%B8%80%E4%B8%AA%E5%AE%9E%E7%8E%B0%E4%BA%86__iter__%E6%96%B9%E6%B3%95%E5%92%8C__next__%E6%96%B9%E6%B3%95%E7%9A%84%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%B0%B1%E6%98%AF%E8%BF%AD%E4%BB%A3%E5%99%A8%E3%80%82**%0A%60%60%60%0Aclass%20BookList(object)%3A%0A%20%20%20%20def%20__init__(self%2Cnum)%3A%0A%20%20%20%20%20%20%20%20self.num%20%3D%20num%0A%20%20%20%20%20%20%20%20self.current_num%20%3D%200%0A%0A%20%20%20%20def%20__iter__(self)%3A%0A%20%20%20%20%20%20%20%20return%20self%0A%0A%20%20%20%20def%20__next__(self)%3A%0A%20%20%20%20%20%20%20%20if%20self.current_num%20%3C%20self.num%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.current_num%20%2B%3D%201%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20'book'%2Bstr(self.current_num)%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20raise%20StopIteration%0A%0A%0Abooks%20%3D%20BookList(4)%0A%0Aprint(isinstance(books%2CIterator))%0A%0Afor%20i%20in%20books%3A%0A%20%20%20%20print(i)%0A%23%20print(next(books))%0A%23%20print(next(books))%0A%23%20print(next(books))%0A%23%20print(next(books))%0A%23%20print(next(books))%0A%60%60%60%0A**%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0ATrue%0Abook1%0Abook2%0Abook3%0Abook4%0A%60%60%60%0A%0A**for...in...%E5%BE%AA%E7%8E%AF%E7%9A%84%E6%9C%AC%E8%B4%A8**%0A%0A**for%20item%20in%20Iterable**%20%E5%BE%AA%E7%8E%AF%E7%9A%84%E6%9C%AC%E8%B4%A8%E5%B0%B1%E6%98%AF%E5%85%88%E9%80%9A%E8%BF%87%20**iter()%E5%87%BD%E6%95%B0**%20%E8%8E%B7%E5%8F%96%20**%E5%8F%AF%E8%BF%AD%E4%BB%A3%E5%AF%B9%E8%B1%A1Iterable%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8**%EF%BC%8C%E7%84%B6%E5%90%8E%E5%AF%B9%E8%8E%B7%E5%8F%96%E5%88%B0%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8%E4%B8%8D%E6%96%AD%E8%B0%83%E7%94%A8%20**next()**%20%E6%96%B9%E6%B3%95%E6%9D%A5%E8%8E%B7%E5%8F%96%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%80%BC%E5%B9%B6%E5%B0%86%E5%85%B6%E8%B5%8B%E5%80%BC%E7%BB%99item%EF%BC%8C%E5%BD%93%E9%81%87%E5%88%B0%20%20**StopIteration**%20%E7%9A%84%E5%BC%82%E5%B8%B8%E5%90%8E%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9D%9F%E3%80%82%0A%0A%0A%23%23%23%20%E7%94%9F%E6%88%90%E5%99%A8%0A**1.%20%E7%94%9F%E6%88%90%E5%99%A8**%0A%E5%88%A9%E7%94%A8%E8%BF%AD%E4%BB%A3%E5%99%A8%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%9C%A8%E6%AF%8F%E6%AC%A1%E8%BF%AD%E4%BB%A3%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%EF%BC%88%E9%80%9A%E8%BF%87next()%E6%96%B9%E6%B3%95%EF%BC%89%E6%97%B6%E6%8C%89%E7%85%A7%E7%89%B9%E5%AE%9A%E7%9A%84%E8%A7%84%E5%BE%8B%E8%BF%9B%E8%A1%8C%E7%94%9F%E6%88%90%E3%80%82%E4%BD%86%E6%98%AF%E6%88%91%E4%BB%AC%E5%9C%A8%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%97%B6%EF%BC%8C%E5%85%B3%E4%BA%8E%E5%BD%93%E5%89%8D%E8%BF%AD%E4%BB%A3%E5%88%B0%E7%9A%84%E7%8A%B6%E6%80%81%E9%9C%80%E8%A6%81%E6%88%91%E4%BB%AC%E8%87%AA%E5%B7%B1%E8%AE%B0%E5%BD%95%EF%BC%8C%E8%BF%9B%E8%80%8C%E6%89%8D%E8%83%BD%E6%A0%B9%E6%8D%AE%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81%E7%94%9F%E6%88%90%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E3%80%82%E4%B8%BA%E4%BA%86%E8%BE%BE%E5%88%B0%E8%AE%B0%E5%BD%95%E5%BD%93%E5%89%8D%E7%8A%B6%E6%80%81%EF%BC%8C%E5%B9%B6%E9%85%8D%E5%90%88next()%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E8%BF%AD%E4%BB%A3%E4%BD%BF%E7%94%A8%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E9%87%87%E7%94%A8%E6%9B%B4%E7%AE%80%E4%BE%BF%E7%9A%84%E8%AF%AD%E6%B3%95%EF%BC%8C%E5%8D%B3%E7%94%9F%E6%88%90%E5%99%A8(generator)%E3%80%82**%E7%94%9F%E6%88%90%E5%99%A8%E6%98%AF%E4%B8%80%E7%B1%BB%E7%89%B9%E6%AE%8A%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8%E3%80%82**%0A%0A**2.%20%E5%88%9B%E5%BB%BA%E7%94%9F%E6%88%90%E5%99%A8%E6%96%B9%E6%B3%951**%0A%60%60%60%0Adata%20%3D%20(x*2%20for%20x%20in%20range(5))%0A%0Aprint(data)%0A%0Aprint(isinstance(data%2CIterator))%0A%0Aprint(next(data))%0A%0Aprint(next(data))%0A%0A%60%60%60%0A**%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0A%E5%BE%97%E5%88%B0%E4%BA%86%E4%B8%80%E4%B8%AA%E7%94%9F%E6%88%90%E5%99%A8%E5%AF%B9%E8%B1%A1%0A%3Cgenerator%20object%20%3Cgenexpr%3E%20at%200x7f3a705b10f8%3E%0ATrue%0A0%0A2%0A%60%60%60%0A%0A**3.%20%E5%88%9B%E5%BB%BA%E7%94%9F%E6%88%90%E5%99%A8%E6%96%B9%E6%B3%952**%0A%0A%E5%9C%A8%E4%BD%BF%E7%94%A8%E7%94%9F%E6%88%90%E5%99%A8%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%96%B9%E5%BC%8F%E4%B8%AD%EF%BC%8C%E6%88%91%E4%BB%AC%E5%B0%86%E5%8E%9F%E6%9C%AC%E5%9C%A8%E8%BF%AD%E4%BB%A3%E5%99%A8__next__%E6%96%B9%E6%B3%95%E4%B8%AD%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%9F%BA%E6%9C%AC%E9%80%BB%E8%BE%91%E6%94%BE%E5%88%B0%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0%E4%B8%AD%E6%9D%A5%E5%AE%9E%E7%8E%B0%EF%BC%8C%E4%BD%86%E6%98%AF%E5%B0%86%E6%AF%8F%E6%AC%A1%E8%BF%AD%E4%BB%A3%E8%BF%94%E5%9B%9E%E6%95%B0%E5%80%BC%E7%9A%84return%E6%8D%A2%E6%88%90%E4%BA%86yield%EF%BC%8C%E6%AD%A4%E6%97%B6%E6%96%B0%E5%AE%9A%E4%B9%89%E7%9A%84%E5%87%BD%E6%95%B0%E4%BE%BF%E4%B8%8D%E5%86%8D%E6%98%AF%E5%87%BD%E6%95%B0%EF%BC%8C%E8%80%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E7%94%9F%E6%88%90%E5%99%A8%E4%BA%86%E3%80%82%E7%AE%80%E5%8D%95%E6%9D%A5%E8%AF%B4%EF%BC%9A**%E5%8F%AA%E8%A6%81%E5%9C%A8def%E4%B8%AD%E6%9C%89yield%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%20%E5%B0%B1%E7%A7%B0%E4%B8%BA%20%E7%94%9F%E6%88%90%E5%99%A8**%0A%60%60%60%0Adef%20set_books(num)%3A%0A%20%20%20%20n%20%3D%200%0A%20%20%20%20while%20n%20%3C%20num%3A%0A%20%20%20%20%20%20%20%20n%2B%3D1%0A%20%20%20%20%20%20%20%20yield%20'book'%2Bstr(n)%0A%0Abooks%20%3D%20set_books(5)%0A%0Aprint(books)%0A%0Aprint(isinstance(books%2CIterator))%0A%0Aprint(next(books))%0A%60%60%60%0A%0A**%E6%80%BB%E7%BB%93**%0A%0A-%20%E4%BD%BF%E7%94%A8%E4%BA%86yield%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E5%87%BD%E6%95%B0%E4%B8%8D%E5%86%8D%E6%98%AF%E5%87%BD%E6%95%B0%EF%BC%8C%E8%80%8C%E6%98%AF%E7%94%9F%E6%88%90%E5%99%A8%E3%80%82%EF%BC%88%E4%BD%BF%E7%94%A8%E4%BA%86yield%E7%9A%84%E5%87%BD%E6%95%B0%E5%B0%B1%E6%98%AF%E7%94%9F%E6%88%90%E5%99%A8%EF%BC%89%0A-%20yield%E5%85%B3%E9%94%AE%E5%AD%97%E6%9C%89%E4%B8%A4%E7%82%B9%E4%BD%9C%E7%94%A8%EF%BC%9A%0A%20%20-%20%E4%BF%9D%E5%AD%98%E5%BD%93%E5%89%8D%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%EF%BC%88%E6%96%AD%E7%82%B9%EF%BC%89%EF%BC%8C%E7%84%B6%E5%90%8E%E6%9A%82%E5%81%9C%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%8D%B3%E5%B0%86%E7%94%9F%E6%88%90%E5%99%A8%EF%BC%88%E5%87%BD%E6%95%B0%EF%BC%89%E6%8C%82%E8%B5%B7%0A%20%20-%20%E5%B0%86yield%E5%85%B3%E9%94%AE%E5%AD%97%E5%90%8E%E9%9D%A2%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%80%BC%E4%BD%9C%E4%B8%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E8%BF%94%E5%9B%9E%EF%BC%8C%E6%AD%A4%E6%97%B6%E5%8F%AF%E4%BB%A5%E7%90%86%E8%A7%A3%E4%B8%BA%E8%B5%B7%E5%88%B0%E4%BA%86return%E7%9A%84%E4%BD%9C%E7%94%A8%0A-%20%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8next()%E5%87%BD%E6%95%B0%E8%AE%A9%E7%94%9F%E6%88%90%E5%99%A8%E4%BB%8E%E6%96%AD%E7%82%B9%E5%A4%84%E7%BB%A7%E7%BB%AD%E6%89%A7%E8%A1%8C.%0A%0A%23%23%23%20%E5%8D%8F%E7%A8%8B%0A%0A%E5%8D%8F%E7%A8%8B%EF%BC%8C%E5%8F%88%E7%A7%B0%E5%BE%AE%E7%BA%BF%E7%A8%8B%EF%BC%8C%E7%BA%A4%E7%A8%8B%E3%80%82%E8%8B%B1%E6%96%87%E5%90%8DCoroutine%E3%80%82%0A%0A**1.%E5%8D%8F%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F**%0A%0A%E5%8D%8F%E7%A8%8B%E6%98%AFpython%E4%B8%AA%E4%B8%AD%E5%8F%A6%E5%A4%96%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E5%A4%9A%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%96%B9%E5%BC%8F%EF%BC%8C%E5%8F%AA%E4%B8%8D%E8%BF%87%E6%AF%94%E7%BA%BF%E7%A8%8B%E6%9B%B4%E5%B0%8F%E5%8D%A0%E7%94%A8%E6%9B%B4%E5%B0%8F%E6%89%A7%E8%A1%8C%E5%8D%95%E5%85%83%EF%BC%88%E7%90%86%E8%A7%A3%E4%B8%BA%E9%9C%80%E8%A6%81%E7%9A%84%E8%B5%84%E6%BA%90%EF%BC%89%E3%80%82%20%E4%B8%BA%E5%95%A5%E8%AF%B4%E5%AE%83%E6%98%AF%E4%B8%80%E4%B8%AA%E6%89%A7%E8%A1%8C%E5%8D%95%E5%85%83%EF%BC%8C%E5%9B%A0%E4%B8%BA%E5%AE%83%E8%87%AA%E5%B8%A6CPU%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%8A%E4%B8%8B%E6%96%87%E3%80%82%E8%BF%99%E6%A0%B7%E5%8F%AA%E8%A6%81%E5%9C%A8%E5%90%88%E9%80%82%E7%9A%84%E6%97%B6%E6%9C%BA%EF%BC%8C%20%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E6%8A%8A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%20%E5%88%87%E6%8D%A2%E5%88%B0%E5%8F%A6%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E3%80%82%20%E5%8F%AA%E8%A6%81%E8%BF%99%E4%B8%AA%E8%BF%87%E7%A8%8B%E4%B8%AD%E4%BF%9D%E5%AD%98%E6%88%96%E6%81%A2%E5%A4%8D%20CPU%E4%B8%8A%E4%B8%8B%E6%96%87%E9%82%A3%E4%B9%88%E7%A8%8B%E5%BA%8F%E8%BF%98%E6%98%AF%E5%8F%AF%E4%BB%A5%E8%BF%90%E8%A1%8C%E7%9A%84%E3%80%82%0A%0A%E9%80%9A%E4%BF%97%E7%9A%84%E7%90%86%E8%A7%A3%EF%BC%9A**%E5%9C%A8%E4%B8%80%E4%B8%AA%E7%BA%BF%E7%A8%8B%E4%B8%AD%E7%9A%84%E6%9F%90%E4%B8%AA%E5%87%BD%E6%95%B0%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%9C%A8%E4%BB%BB%E4%BD%95%E5%9C%B0%E6%96%B9%E4%BF%9D%E5%AD%98%E5%BD%93%E5%89%8D%E5%87%BD%E6%95%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E4%B8%B4%E6%97%B6%E5%8F%98%E9%87%8F%E7%AD%89%E4%BF%A1%E6%81%AF%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%87%E6%8D%A2%E5%88%B0%E5%8F%A6%E5%A4%96%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0%E4%B8%AD%E6%89%A7%E8%A1%8C%EF%BC%8C%E6%B3%A8%E6%84%8F%E4%B8%8D%E6%98%AF%E9%80%9A%E8%BF%87%E8%B0%83%E7%94%A8%E5%87%BD%E6%95%B0%E7%9A%84%E6%96%B9%E5%BC%8F%E5%81%9A%E5%88%B0%E7%9A%84%EF%BC%8C%E5%B9%B6%E4%B8%94%E5%88%87%E6%8D%A2%E7%9A%84%E6%AC%A1%E6%95%B0%E4%BB%A5%E5%8F%8A%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%86%8D%E5%88%87%E6%8D%A2%E5%88%B0%E5%8E%9F%E6%9D%A5%E7%9A%84%E5%87%BD%E6%95%B0%E9%83%BD%E7%94%B1%E5%BC%80%E5%8F%91%E8%80%85%E8%87%AA%E5%B7%B1%E7%A1%AE%E5%AE%9A**%0A%0A**2.%E5%8D%8F%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%B7%AE%E5%BC%82**%0A%0A%E5%9C%A8%E5%AE%9E%E7%8E%B0%E5%A4%9A%E4%BB%BB%E5%8A%A1%E6%97%B6%2C%20%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2%E4%BB%8E%E7%B3%BB%E7%BB%9F%E5%B1%82%E9%9D%A2%E8%BF%9C%E4%B8%8D%E6%AD%A2%E4%BF%9D%E5%AD%98%E5%92%8C%E6%81%A2%E5%A4%8D%20CPU%E4%B8%8A%E4%B8%8B%E6%96%87%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95%E3%80%82%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%BA%E4%BA%86%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E7%9A%84%E9%AB%98%E6%95%88%E6%80%A7%E6%AF%8F%E4%B8%AA%E7%BA%BF%E7%A8%8B%E9%83%BD%E6%9C%89%E8%87%AA%E5%B7%B1%E7%BC%93%E5%AD%98Cache%E7%AD%89%E7%AD%89%E6%95%B0%E6%8D%AE%EF%BC%8C%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%BF%98%E4%BC%9A%E5%B8%AE%E4%BD%A0%E5%81%9A%E8%BF%99%E4%BA%9B%E6%95%B0%E6%8D%AE%E7%9A%84%E6%81%A2%E5%A4%8D%E6%93%8D%E4%BD%9C%E3%80%82%20%E6%89%80%E4%BB%A5%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%87%E6%8D%A2%E9%9D%9E%E5%B8%B8%E8%80%97%E6%80%A7%E8%83%BD%E3%80%82%E4%BD%86%E6%98%AF%E5%8D%8F%E7%A8%8B%E7%9A%84%E5%88%87%E6%8D%A2%E5%8F%AA%E6%98%AF%E5%8D%95%E7%BA%AF%E7%9A%84%E6%93%8D%E4%BD%9CCPU%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%8C%E6%89%80%E4%BB%A5%E4%B8%80%E7%A7%92%E9%92%9F%E5%88%87%E6%8D%A2%E4%B8%AA%E4%B8%8A%E7%99%BE%E4%B8%87%E6%AC%A1%E7%B3%BB%E7%BB%9F%E9%83%BD%E6%8A%97%E7%9A%84%E4%BD%8F%E3%80%82%0A%0A%23%23%23%20yeild%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%8D%8F%E7%A8%8B%0A%60%60%60%0Aimport%20time%0A%0Adef%20work1()%3A%0A%20%20%20%20while%20True%3A%0A%20%20%20%20%20%20%20%20print(%22----work1---%22)%0A%20%20%20%20%20%20%20%20yield%0A%20%20%20%20%20%20%20%20time.sleep(0.5)%0A%0Adef%20work2()%3A%0A%20%20%20%20while%20True%3A%0A%20%20%20%20%20%20%20%20print(%22----work2---%22)%0A%20%20%20%20%20%20%20%20yield%0A%20%20%20%20%20%20%20%20time.sleep(0.5)%0A%0Adef%20main()%3A%0A%20%20%20%20w1%20%3D%20work1()%0A%20%20%20%20w2%20%3D%20work2()%0A%20%20%20%20while%20True%3A%0A%20%20%20%20%20%20%20%20next(w1)%0A%20%20%20%20%20%20%20%20next(w2)%0A%0Aif%20__name__%20%3D%3D%20%22__main__%22%3A%0A%20%20%20%20main()%0A%60%60%60%0A%E5%AE%9E%E8%B4%A8%EF%BC%9A%0A**%E5%85%B6%E5%AE%9E%E4%BB%BB%E5%8A%A1%E6%98%AF%E5%9C%A8%E4%B8%BB%E7%BA%BF%E7%A8%8B%E4%B8%AD%E5%B9%B6%E5%8F%91%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%8C%E7%9C%8B%E4%B8%8A%E5%8E%BB%E5%83%8F%E5%90%8C%E6%97%B6%E6%89%A7%E8%A1%8C%E8%80%8C%E5%B7%B2%EF%BC%8C%E5%BD%93%E6%89%A7%E8%A1%8Cnext()%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E5%87%BD%E6%95%B0%E6%89%A7%E8%A1%8C%E5%88%B0yield%E7%9A%84%E6%97%B6%E5%80%99%E5%85%88%E6%9A%82%E5%81%9C%E4%B8%80%E4%B8%8B%EF%BC%8C%E7%84%B6%E5%90%8E%E4%B9%8B%E5%90%8E%E5%86%8D%E8%B0%83%E7%94%A8next()%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%8E%A5%E7%9D%80%E4%B8%8A%E4%B8%80%E6%AC%A1%E6%9A%82%E5%81%9C%E7%9A%84%E4%BD%8D%E7%BD%AE%E6%89%A7%E8%A1%8C**%0A%0A%23%23%23%20greenlet%0A%0A%E4%B8%BA%E4%BA%86%E6%9B%B4%E5%A5%BD%E4%BD%BF%E7%94%A8%E5%8D%8F%E7%A8%8B%E6%9D%A5%E5%AE%8C%E6%88%90%E5%A4%9A%E4%BB%BB%E5%8A%A1%EF%BC%8Cpython%E4%B8%AD%E7%9A%84greenlet%E6%A8%A1%E5%9D%97%E5%AF%B9%E5%85%B6%E5%B0%81%E8%A3%85%EF%BC%8C%E4%BB%8E%E8%80%8C%E4%BD%BF%E5%BE%97%E5%88%87%E6%8D%A2%E4%BB%BB%E5%8A%A1%E5%8F%98%E7%9A%84%E6%9B%B4%E5%8A%A0%E7%AE%80%E5%8D%95%0A%0A**1.%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F**%0A%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%E5%AE%89%E8%A3%85greenlet%E6%A8%A1%E5%9D%97%3A%0A%60%60%60%0Asudo%20pip3%20install%20greenlet%0A%60%60%60%0A%0A**2.greenlet%E7%9A%84%E4%BD%BF%E7%94%A8**%0A%0A%60%60%60%0Afrom%20greenlet%20import%20greenlet%0Aimport%20requests%0A%0Adef%20download1()%3A%0A%20%20%20%20print('%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD%EF%BC%91')%0A%20%20%20%20%23%E8%80%97%E6%97%B6%E7%9A%84%E6%93%8D%E4%BD%9C%0A%20%20%20%20response%20%3D%20requests.get(url%3D'https%3A%2F%2Fgithub.com%2F')%0A%20%20%20%20gre2.switch()%0A%20%20%20%20print('download1%E4%B8%8B%E8%BD%BD%E5%AE%8C%E4%BA%86')%0A%20%20%20%20gre2.switch()%0A%0A%0Adef%20download2()%3A%0A%20%20%20%20print('%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD%EF%BC%92')%0A%20%20%20%20response%20%3D%20requests.get(url%3D'https%3A%2F%2Fgithub.com%2F')%0A%20%20%20%20gre1.switch()%0A%20%20%20%20print('download2%E4%B8%8B%E8%BD%BD%E5%AE%8C%E4%BA%86')%0A%0A%0Agre1%20%3D%20greenlet(download1)%0Agre2%20%3D%20greenlet(download2)%0Agre1.switch()%0A%60%60%60%0A**%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C**%0A%60%60%60%0A%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD%EF%BC%91%0A%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD%EF%BC%92%0Adownload1%E4%B8%8B%E8%BD%BD%E5%AE%8C%E4%BA%86%0Adownload2%E4%B8%8B%E8%BD%BD%E5%AE%8C%E4%BA%86%0A%60%60%60%0A**%E6%80%9D%E8%80%83**%EF%BC%9A%E4%BB%A3%E7%A0%81%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%90%E8%A1%8C%E7%9A%84%EF%BC%9F%0A%0A%0A%23%23%23%20gevent%0A%0A-%20greenlet%E5%B7%B2%E7%BB%8F%E5%AE%9E%E7%8E%B0%E4%BA%86%E5%8D%8F%E7%A8%8B%EF%BC%8C%E4%BD%86%E6%98%AF%E8%BF%99%E4%B8%AA%E8%BF%98%E7%9A%84%E4%BA%BA%E5%B7%A5%E5%88%87%E6%8D%A2%EF%BC%8C%E6%98%AF%E4%B8%8D%E6%98%AF%E8%A7%89%E5%BE%97%E5%A4%AA%E9%BA%BB%E7%83%A6%E4%BA%86%EF%BC%8C%E4%B8%8D%E8%A6%81%E6%8D%89%E6%80%A5%EF%BC%8Cpython%E8%BF%98%E6%9C%89%E4%B8%80%E4%B8%AA%E6%AF%94greenlet%E6%9B%B4%E5%BC%BA%E5%A4%A7%E7%9A%84%E5%B9%B6%E4%B8%94%E8%83%BD%E5%A4%9F%E8%87%AA%E5%8A%A8%E5%88%87%E6%8D%A2%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%A8%A1%E5%9D%97gevent%0A%0A-%20%E5%85%B6%E5%8E%9F%E7%90%86%E6%98%AF%E5%BD%93%E4%B8%80%E4%B8%AAgreenlet%E9%81%87%E5%88%B0IO(%E6%8C%87%E7%9A%84%E6%98%AFinput%20output%20%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%EF%BC%8C%E6%AF%94%E5%A6%82%E7%BD%91%E7%BB%9C%E3%80%81%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%AD%89)%E6%93%8D%E4%BD%9C%E6%97%B6%EF%BC%8C%E6%AF%94%E5%A6%82%E8%AE%BF%E9%97%AE%E7%BD%91%E7%BB%9C%EF%BC%8C%E5%B0%B1%E8%87%AA%E5%8A%A8%E5%88%87%E6%8D%A2%E5%88%B0%E5%85%B6%E4%BB%96%E7%9A%84greenlet%EF%BC%8C%E7%AD%89%E5%88%B0IO%E6%93%8D%E4%BD%9C%E5%AE%8C%E6%88%90%EF%BC%8C%E5%86%8D%E5%9C%A8%E9%80%82%E5%BD%93%E7%9A%84%E6%97%B6%E5%80%99%E5%88%87%E6%8D%A2%E5%9B%9E%E6%9D%A5%E7%BB%A7%E7%BB%AD%E6%89%A7%E8%A1%8C%E3%80%82%0A%0A-%20%E7%94%B1%E4%BA%8EIO%E6%93%8D%E4%BD%9C%E9%9D%9E%E5%B8%B8%E8%80%97%E6%97%B6%EF%BC%8C%E7%BB%8F%E5%B8%B8%E4%BD%BF%E7%A8%8B%E5%BA%8F%E5%A4%84%E4%BA%8E%E7%AD%89%E5%BE%85%E7%8A%B6%E6%80%81%EF%BC%8C%E6%9C%89%E4%BA%86gevent%E4%B8%BA%E6%88%91%E4%BB%AC%E8%87%AA%E5%8A%A8%E5%88%87%E6%8D%A2%E5%8D%8F%E7%A8%8B%EF%BC%8C%E5%B0%B1%E4%BF%9D%E8%AF%81%E6%80%BB%E6%9C%89greenlet%E5%9C%A8%E8%BF%90%E8%A1%8C%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E7%AD%89%E5%BE%85IO%0A%0A**1.%E5%AE%89%E8%A3%85**%0Apip3%20install%20gevent%0A%0A**2.gevent%E7%9A%84%E4%BD%BF%E7%94%A81**%0A%60%60%60%0A%23gevent%E8%83%BD%E5%A4%9F%E5%9C%A8%E5%86%85%E9%83%A8%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E6%90%BA%E7%A8%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E5%88%87%E6%8D%A2%0Aimport%20gevent%0A%0Adef%20f(n)%3A%0A%20%20%20%20for%20i%20in%20range(n)%3A%0A%20%20%20%20%20%20%20%20print(gevent.getcurrent()%2C%20i)%0A%20%20%20%20%20%20%20%20%23%E7%94%A8%E6%9D%A5%E6%A8%A1%E6%8B%9F%E4%B8%80%E4%B8%AA%E8%80%97%E6%97%B6%E6%93%8D%E4%BD%9C%EF%BC%8C%E6%B3%A8%E6%84%8F%E4%B8%8D%E6%98%AFtime%E6%A8%A1%E5%9D%97%E4%B8%AD%E7%9A%84sleep%0A%20%20%20%20%20%20%20%20gevent.sleep(1)%0A%0Ag1%20%3D%20gevent.spawn(f%2C%205)%0Ag2%20%3D%20gevent.spawn(f%2C%205)%0Ag3%20%3D%20gevent.spawn(f%2C%205)%0Ag1.join()%0Ag2.join()%0Ag3.join()%0A%0A%60%60%60%0A%0A**3.gevent%E7%9A%84%E4%BD%BF%E7%94%A82**%0A%0A%60%60%60%0A%23gevent%E8%83%BD%E5%A4%9F%E5%9C%A8%E5%86%85%E9%83%A8%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E6%90%BA%E7%A8%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E5%88%87%E6%8D%A2%0A%0Afrom%20gevent%20import%20monkey%2Cpool%0Aimport%20gevent%2Crequests%0Aimport%20lxml.etree%20as%20etree%0A%0A%23%20%E6%9C%89%E8%80%97%E6%97%B6%E6%93%8D%E4%BD%9C%E6%97%B6%E9%9C%80%E8%A6%81%0Amonkey.patch_all()%20%20%23%20%E5%B0%86%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%94%A8%E5%88%B0%E7%9A%84%E8%80%97%E6%97%B6%E6%93%8D%E4%BD%9C%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E6%8D%A2%E4%B8%BAgevent%E4%B8%AD%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%A8%A1%E5%9D%97%0A%0A%0Adef%20download(url)%3A%0A%20%20%20%20print(url%2B'%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD1')%0A%20%20%20%20header%20%3D%20%7B'User-Agent'%3A'Mozilla%2F5.0%20(X11%3B%20Ubuntu%3B%20Linux%20x86_64%3B%20rv%3A61.0)%20Gecko%2F20100101%20Firefox%2F61.0'%7D%0A%20%20%20%20response%20%3D%20requests.get(url%2Cheaders%3Dheader)%0A%20%20%20%20print(len(response.text)%2Curl%2B'%E5%B7%B2%E5%AE%8C%E6%88%90%EF%BC%91')%0A%0Adef%20download2(url)%3A%0A%20%20%20%20print(url%2B'%E6%AD%A3%E5%9C%A8%E4%B8%8B%E8%BD%BD2')%0A%20%20%20%20header%20%3D%20%7B'User-Agent'%3A'Mozilla%2F5.0%20(X11%3B%20Ubuntu%3B%20Linux%20x86_64%3B%20rv%3A61.0)%20Gecko%2F20100101%20Firefox%2F61.0'%7D%0A%20%20%20%20response%20%3D%20requests.get(url%2Cheaders%3Dheader)%0A%20%20%20%20print(len(response.text)%2Curl%2B'%E5%B7%B2%E5%AE%8C%E6%88%902')%0A%0Apool%20%3D%20pool.Pool(2)%0A%0Agevent.joinall(%0A%20%20%20%20%5B%0A%20%20%20%20%20%20%20%20pool.spawn(download%2C'https%3A%2F%2Fwww.yahoo.com%2F')%2C%0A%20%20%20%20%20%20%20%20pool.spawn(download%2C'https%3A%2F%2Fwww.taobao.com%2F')%2C%0A%20%20%20%20%20%20%20%20pool.spawn(download%2C'https%3A%2F%2Fgithub.com%2F')%2C%20%0A%20%20%20%20%20%20%20%20pool.spawn(download2%2C'https%3A%2F%2Fwww.yahoo.com%2F')%2C%0A%20%20%20%20%20%20%20%20pool.spawn(download2%2C'https%3A%2F%2Fwww.taobao.com%2F')%2C%0A%20%20%20%20%20%20%20%20pool.spawn(download2%2C'https%3A%2F%2Fgithub.com%2F')%2C%20%0A%20%20%20%20%5D%0A)%0A%60%60%60%0A%0A**%E7%AE%80%E5%8D%95%E6%80%BB%E7%BB%93**%0A%0A**%E8%BF%9B%E7%A8%8B**%E6%98%AF%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E7%9A%84%E5%8D%95%E4%BD%8D%0A%0A**%E7%BA%BF%E7%A8%8B**%E6%98%AF%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%B0%83%E5%BA%A6%E7%9A%84%E5%8D%95%E4%BD%8D%0A%0A**%E8%BF%9B%E7%A8%8B**%E5%88%87%E6%8D%A2%E9%9C%80%E8%A6%81%E7%9A%84%E8%B5%84%E6%BA%90%E5%BE%88%E6%9C%80%E5%A4%A7%EF%BC%8C%E6%95%88%E7%8E%87%E5%BE%88%E4%BD%8E%0A%0A**%E7%BA%BF%E7%A8%8B**%E5%88%87%E6%8D%A2%E9%9C%80%E8%A6%81%E7%9A%84%E8%B5%84%E6%BA%90%E4%B8%80%E8%88%AC%EF%BC%8C%E6%95%88%E7%8E%87%E4%B8%80%E8%88%AC%EF%BC%88%E5%9C%A8%E4%B8%8D%E8%80%83%E8%99%91GIL%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%89%0A%0A**%E5%8D%8F%E7%A8%8B**%E5%88%87%E6%8D%A2%E4%BB%BB%E5%8A%A1%E8%B5%84%E6%BA%90%E5%BE%88%E5%B0%8F%EF%BC%8C%E6%95%88%E7%8E%87%E9%AB%98%0A%0A**%E5%A4%9A%E8%BF%9B%E7%A8%8B**%E3%80%81**%E5%A4%9A%E7%BA%BF%E7%A8%8B**%E6%A0%B9%E6%8D%AEcpu%E6%A0%B8%E6%95%B0%E4%B8%8D%E4%B8%80%E6%A0%B7%E5%8F%AF%E8%83%BD%E6%98%AF%E5%B9%B6%E8%A1%8C%E7%9A%84%EF%BC%8C%E4%BD%86%E6%98%AF%E3%80%80**%E5%8D%8F%E7%A8%8B**%E3%80%80%E6%98%AF%E5%9C%A8%E4%B8%80%E4%B8%AA%E3%80%80**%E7%BA%BF%E7%A8%8B%E4%B8%AD**%20%E6%89%80%E4%BB%A5%E6%98%AF%E3%80%80**%E5%B9%B6%E5%8F%91%E7%9A%84**%0A</center></body></html>

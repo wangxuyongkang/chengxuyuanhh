@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>商品详情</title>
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/fonts/iconfont.css">
+  <link rel="stylesheet" type="text/css" href="css/head.css">
+  <link rel="stylesheet" type="text/css" href="css/current-loc.css">
+  <link rel="stylesheet" type="text/css" href="css/productDetail.css">
+  <link rel="stylesheet" type="text/css" href="css/footer.css">
+  <script type="text/javascript">
+    window.onload = function(){
+      var buy_btn = document.getElementById('buy_btn');
+      var box = document.getElementsByClassName('full-height')[0];
+      var back = document.getElementsByClassName('back')[0];
+      buy_btn.onclick = function(){
+        box.style.display = 'block';
+      }
+      back.onclick = function(){
+        box.style.display = 'none';
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 页头 -->
+  <div id="header" class="new_header">
+    <div class="hd_bar">
+      <div class="bd_bar_bd cle">
+        <ul class="welcome">
+          <li id="ECS_MEMBERZONE">
+            <a href="userinfo.html">易烊千玺</a>
+            &nbsp;[
+            <a href="#">退出</a>
+            ]
+          </li>
+          <li id="ECS_MEMBERZONE">
+            <a href="login.html">请登录</a>
+            <s>|</s>
+            <a href="register.html">免费注册</a>
+          </li>
+        </ul>
+        <ul id="userinfo-bar">
+          <li class="more-menu"> <a>会员中心</a><i class="iconfont arrow">&#xe645;</i>
+            <!-- 加“show”显示会员中心子菜单 -->
+            <!-- <div class="more-bd show"> -->
+            <div class="more-bd">
+              <div class="list">
+                <a href="order.html">我的订单</a>
+                <a href="collection.html">我的收藏</a>
+                <a href="receive.html">修改收货地址</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_main cle">
+      <div class="logo">
+        <a href="cart.html" class="lizi_logo">
+            <img src="images/head/logo.jpg" alt="生鲜商城">
+        </a>
+      </div>
+      <div class="search_box">
+        <input class="sea_input" type="text" name="keywords" id="keyword">
+        <button class="sea_submit">搜索</button>
+      </div>
+      <div class="head_search_hot">
+        <span>热搜榜：</span>
+        <a href="#">啤酒</a>
+        <a href="#">蔬菜</a>
+        <a href="#">牛奶</a>
+        <a href="#">水果</a>
+      </div>
+      <div class="intro">
+        <ul>
+          <li class="no1">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>正品保障</h4>
+              <p>100%正品低价</p>
+            </a>
+          </li>
+          <li class="no2">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>30天退换货</h4>
+              <p>购物有保障</p>
+            </a>
+          </li>
+          <li class="no3">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>满99就包邮</h4>
+              <p>闪电发货</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_nav">
+      <div class="hd_nav_bd cle">
+        <div class="main_nav main_nav_hover" id="main_nav">
+          <div class="main_nav_link">
+            <a class="meunAll">全部商品分类
+              <i class="iconfont">&#xe643;</i>
+            </a>
+            <!-- display控制一级类别菜单显示隐藏 -->
+            <div class="main_cata" id="J_mainCata" style="display: none;">
+            <!-- <div class="main_cata" id="J_mainCata"> -->
+              <ul>
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">生鲜食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">精品肉类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">羊肉</a>
+                            <a href="list.html">禽类</a>
+                            <a href="list.html">猪肉</a>
+                            <a href="list.html">牛肉</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">海鲜水产</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">参鲍</a>
+                            <a href="list.html">鱼</a>
+                            <a href="list.html">虾</a>
+                            <a href="list.html">蟹/贝</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">蛋制品</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">松花蛋/咸鸭蛋</a>
+                            <a href="list.html">鸡蛋</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">叶菜类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">生菜</a>
+                            <a href="list.html">菠菜</a>
+                            <a href="list.html">圆椒</a>
+                            <a href="list.html">西兰花</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">根茎类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">茄果类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">菌菇类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">进口生鲜</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">酒水饮料</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">白酒</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">五粮液</a>
+                            <a href="list.html">泸州老窖</a>
+                            <a href="list.html">茅台</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">葡萄酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">洋酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">啤酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">其他酒品</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">其他品牌</a>
+                            <a href="list.html">黄酒</a>
+                            <a href="list.html">养生酒</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">饮料/水</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">红酒</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">白兰地</a>
+                            <a href="list.html">威士忌</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">粮油副食</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">蔬菜水果</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">休闲食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">奶类食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">天然干货</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">精选茗茶</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <ul class="sub_nav cle" id="sub_nav">
+            <li>
+                <a href="index.html">首页</a>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >生鲜食品</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >酒水饮料</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >粮油副食</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >蔬菜水果</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >休闲食品</a>
+              </div>
+            </li>
+        </ul>
+        <div class="hd_cart" id="ECS_CARTINFO">
+          <a class="tit" href="cart.html" target="_blank">
+            <b class="iconfont">&#xe600;</b>去购物车结算<span><i class="iconfont">&#xe645;</i></span>
+            <em class="num" id="hd_cartnum" style="visibility: visible;">2</em>
+          </a>
+          <!-- display控制购物车显示隐藏 -->
+          <div class="list" style="display: none;">
+          <!-- <div class="list"> -->
+            <div class="data">
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/1.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">白兰瓜</a></h4>
+                  <p><span class="red">5</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/2.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">田然牛肉大黄瓜条生鲜牛肉</a></h4>
+                  <p><span class="red">88</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+            </div>
+            <div class="count">共<span class="red" id="hd_cart_count">2</span>件商品哦~
+              <p>
+                总价:<span class="red"><em id="hd_cart_total">93</em></span>
+                <a class="btn" href="cart.html" target="_blank">去结算</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- 页面主体 -->
+  <div>
+    <!-- 面包屑导航 -->
+    <div class="current-loc">
+      <div class="breadcrumbs cle z-detail-box">
+        <div class="menus">
+          <a href="index.html">首页</a>
+          <code>&gt;</code>
+          <a href="list.html">生鲜食品</a>
+          <code>&gt;</code>
+          <a href="list.html">根茎类</a>
+          <code>&gt;</code>
+          新鲜水果甜蜜香脆单果约800克
+        </div>
+      </div>
+    </div>
+
+    <!--商品详情页上方-->
+    <div class="detail cle z-detail-box">
+      <div class="detail_wrap">
+        <div class="detail_img" id="detail_img">
+          <div class="pic_view">
+            <a class="MagicZoomPlus" id="Zoomer" style="position: relative; display: inline-block; text-decoration: none; outline: 0px; overflow: hidden; width: auto; height: auto;">
+              <!-- 大图展示 -->
+              <img src="images/goods/images/3_P_1448945490837.jpg" alt="" style="opacity: 1;">
+              <div class="MagicZoomPup" style="z-index: 10; position: absolute; overflow: hidden;  visibility: hidden; width: 190px; height: 190px; opacity: 0.5;"></div>
+              <div class="MagicZoomPlusHint" style="display: block; overflow: hidden; position: absolute; visibility: visible; z-index: 1; left: 2px; right: auto; top: 2px; bottom: auto; opacity: 0.75; max-width: 376px;"></div>
+            </a>
+          </div>
+          <div class="item-thumbs" id="item-thumbs">
+            <a class="prev" href="javascript:void(0);"></a>
+            <a class="next" href="javascript:void(0);"></a>
+            <div class="bd">
+              <div class="tempWrap" style="overflow:hidden; position:relative; width:330px">
+                <ul class="cle" style="width: 330px; position: relative; overflow: hidden; padding: 0px; margin: 0px; left: 0px;">
+                  <!-- 小图列表项 -->
+                  <li class="current">
+                    <a>
+                      <img src="images/goods/images/3_P_1448945490837.jpg" alt="">
+                    </a>
+                  </li>
+                  <li>
+                    <a>
+                      <img src="images/goods/images/3_P_1448945490837.jpg" alt="">
+                    </a>
+                  </li>
+                  <li>
+                    <a>
+                      <img src="images/goods/images/3_P_1448945490837.jpg" alt="">
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--商品基本信息-->
+        <div class="item-info" id="item-info">
+          <dl class="loaded">
+            <dt class="product_name">
+              <h1>澳洲进口牛尾巴300g新鲜肥牛肉</h1>
+              <p class="desc"> 
+                <span class="gray">新鲜羊羔肉整只共15斤，原生态大山放牧羊羔，曾经的皇室贡品，央视推荐，2005年北京招待全球财金首脑，五层专用包装箱+真空包装+冰袋+保鲜箱+顺丰冷链发货，路途保质期8天</span> 
+              </p>
+            </dt>
+            <dd class="property">
+              <ul>
+                <!-- 根据后台数据设置是否显示 -->
+                <li>
+                  此商品为免运费商品，计算配送金额时将不计入配送费用 
+                </li>
+                <li>
+                  <span class="lbl">市场价</span> <em class="cancel">￥306元</em>
+                </li>
+                <li>
+                  <span class="icon_promo">抢购</span> <span class="lbl">促销价</span><span class="unit"> <strong class="nala_price red" id="ECS_SHOPPRICE">￥255元</strong> </span>  <span class="timedown" id="timedown"></span>
+                </li>
+                <li>
+                  <span class="lbl">销&nbsp;&nbsp;&nbsp;量</span><span>最近售出<em class="red">0</em>件</span>
+                </li>
+              </ul>
+            </dd>
+            <dd class="tobuy-box cle">
+              <ul class="sku">
+                <li class="skunum_li cle">
+                  <span class="lbl">数&nbsp;&nbsp;&nbsp;量</span>
+                  <div class="skunum"> <span class="minus" title="减少1个数量"><i class="iconfont">-</i></span>
+                    <input id="number" name="number" type="text" min="1" readonly>
+                    <span class="add" title="增加1个数量"><i class="iconfont">+</i></span> <cite class="storage"> 件 </cite>
+                  </div>
+                  <div class="skunum">
+                    <!--库存-->
+                    <cite class="storage">(<font id="shows_number">0件</font>)</cite>
+                  </div>
+                </li>
+                <li class="add_cart_li">
+                  <a class="btn" id="buy_btn">
+                    <i class="iconfont">&#xe600;</i>加入购物车
+                  </a>
+                  <a id="fav-btn" class="graybtn">
+                    <i class="iconfont">&#xe613;</i>已收藏
+                  </a>
+                  <a class="graybtn">
+                    <i class="iconfont">&#xe613;</i>收藏
+                  </a>
+                </li>
+              </ul>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!--商品详情页下方-->
+    <div class="detail_bgcolor">
+      <div class="z-detail-box cle">
+        <div class="z-detail-left">
+          <div class="taocan_bd">
+            <div class="product_tabs">
+              <div class="sectionbox z-box" id="spxqitem">
+                <div class="spxq_main">
+                  <div>
+                    <div>
+                      <table>
+                        <tbody>
+                          <tr>
+                            <td width="20%" class="th"> 产品名称 :</td>
+                            <td width="80%">澳洲进口牛尾巴300g新鲜肥牛肉</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p>&nbsp; </p>
+                  </div>
+                  <div class="spxq_dec">
+                    <!-- 富文本内容 -->
+                    <p>
+                      <img src="images/productDetail/images/1(1).jpg" alt="">
+                      <img src="images/productDetail/images/2.jpg" alt="">
+                      <img src="images/productDetail/images/3.jpg" alt="">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 热卖商品 -->
+        <div class="z-detail-right">
+          <div class="tabs_bar_right">
+            <div class="tabs_bar2">热卖商品</div>
+          </div>
+          <div class="hot_box">
+            <ul>
+              <!-- 商品 -->
+              <li>
+                <a href="productDetail.html">
+                  <img width="194px" height="194px" src="images/goods/images/24_P_1448948023823.jpg">
+                  <p>有机黑米</p>
+                  <p class="hot_price">￥9元</p>
+                </a>
+              </li>
+              
+              <li>
+                <a href="productDetail.html">
+                  <img width="194px" height="194px" src="images/goods/images/25_P_1448947875346.jpg">
+                  <p>非转基因橄榄大豆油</p>
+                  <p class="hot_price">￥92元</p>
+                </a>
+              </li>
+              
+              <li>
+                <a href="productDetail.html">
+                  <img width="194px" height="194px" src="images/goods/images/37_P_1448949284365.jpg">
+                  <p>旺儿佳全脂乳粉</p>
+                  <p class="hot_price">￥162元</p>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+
+    <!-- 加入购物车成功提示框 -->
+    <div class="full-height full-width model-box" style="display: none;">
+      <div id="easyDialogBox" style="margin: -117.5px 0px 0px -243px; padding: 0px; border: none; z-index: 10000; position: fixed; top: 50%; left: 50%; display: block;">
+        <div class="add_ok" id="cart_show" style="display: block; margin: 0px;">
+          <div class="tip">
+            <i class="iconfont">&#xe60b;</i>商品已成功加入购物车
+          </div>
+          <div class="go">
+            <a class="back">&lt;&lt;继续购物</a>
+            <a class="btn" href="cart.html">去结算</a>
+          </div>
+        </div>
+      </div>
+    </div>
+      
+  </div>
+
+
+
+
+
+
+
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <div class="ft-bg">
+      <div class="w-ensure mb20">
+        <div class="w-main">
+          <ul>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr1.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr2.gif">
+            </a></li>
+            <li><a >
+              <img width="300" height="90" src="images/footer/ft-svr3.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr4.gif">
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="ft_main"></div>
+        <div class="ft_txt">
+          <p class="ft_contact"> <span>服务时间：09:00-23:00</span>
+            <span class="ft_phone">客服热线: <em>010-88888888</em></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

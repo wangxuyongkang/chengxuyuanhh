@@ -1,0 +1,18 @@
+<!--pages/image/demo1/index.wxml-->
+<view class="container">
+    <view class="content">
+        <view class="img-list1">
+            <view class="ul">
+                <view class="li" wx:for="{{imgList}}" wx:for-item="item"  wx:key="item.id">
+                    <navigator url="url">
+                        <image src="{{item.url}}" mode="widthFix"></image>
+                        <text>{{item.text}}</text>
+                        <view class="bg"></view>
+                    </navigator>
+                </view>
+            </view>
+        </view>
+    </view>
+    <view hidden="{{loadingMoreHidden ? false : true}}" class="no-more-pic">正在加载.....</view>
+    <view hidden="{{loadingMoreHidden ? true : false}}" class="no-more-pic">哥也是有底线的</view>
+</view>

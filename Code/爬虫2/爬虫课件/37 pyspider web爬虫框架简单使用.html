@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="36"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 14:53:02 +0000"/><meta name="latitude" content="39.63154896098916"/><meta name="longitude" content="116.050468666952"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-19 02:23:17 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>37 pyspider web爬虫框架简单使用</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">sudo apt-get install phantomjs</p>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">pyspider简介</strong></h2>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">官方文档：http://docs.pyspider.org/</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">中文网址：http://www.pyspider.cn/book/pyspider/</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">最新版本: https://github.com/binux/pyspider/releases</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">PySpider：一个国人编写的强大的网络爬虫系统并带有强大的WebUI。采用Python语言编写，分布式架构，支持多种数据库后端，强大的WebUI支持脚本编辑器，任务监视器，项目管理器以及结果查看器。在线示例： http://demo.pyspider.org/</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">pyspider是作者之前做的一个爬虫架构的开源化实现。主要的功能需求是：</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">抓取、更新调度多站点的特定的页面</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">需要对页面进行结构化信息提取</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">灵活可扩展，稳定可监控 而这也是绝大多数python爬虫的需求 —— 定向抓取，结构化化解析。但是面对结构迥异的各种网站，单一的抓取模式并不一定能满足，灵活的抓取控制是必须的。为了达到这个目的，单纯的配置文件往往不够灵活，于是，通过脚本去控制抓取是我最后的选择。 而去重调度，队列，抓取，异常处理，监控等功能作为框架，提供给抓取脚本，并保证灵活性。最后加上web的编辑调试环境，以及web任务监控，即成为了这套框架。</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">pyspider的设计基础是：以python脚本驱动的抓取环模型爬虫</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">通过python脚本进行结构化信息的提取，follow链接调度抓取控制，实现最大的灵活性</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">通过web化的脚本编写、调试环境。web展现调度状态</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">抓取环模型成熟稳定，模块间相互独立，通过消息队列连接，从单进程到多机分布式灵活拓展</li>
+</ul>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">安装:</strong></h2>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">添加依赖</strong></p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">sudo apt-get install python python-dev python-distribute python-pip libcurl4-openssl-dev libxml2-dev libxslt1-dev python-lxml libssl-dev zlib1g-dev</p>
+</blockquote>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">sudo apt-get install phantomjs</p>
+</blockquote>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip3 install pyspider</p>
+</blockquote>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">启动:</strong></h2>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pyspider  all</p>
+</blockquote>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">开启编写一个pyspider项目</strong></h2>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from pyspider.libs.base_handler import *
+import pymongo,pymysql
+
+class Handler(BaseHandler):
+    """
+    Handler 就是 pyspider 爬虫的主类，我
+    们可以在此处定义爬取、解析、存储的逻辑。
+    整个爬虫的功能只需要一个 Handler 即可完成
+    """
+
+    #crawl_config 属性。我们可以将本项目的
+    #所有爬取配置统一定义到这里，如定义 
+    #Headers、设置代理等，配置之后全局生效
+    crawl_config = {
+    }
+    
+    #mongodb数据库连接
+    mongocli = pymongo.MongoClient(host='localhost', port=27017)
+    db = mongocli['jobbole']
+    jobbolearticle = db['jobbolearticle']
+
+    #mysql数据库连接
+    client = pymysql.Connect(
+        'localhost','root','ljh1314',
+        'class1804',charset='utf8'
+    )
+    cursor = client.cursor()
+
+    #on_start() 方法是爬取入口，初始的爬取
+    #请求会在这里产生
+    @every(minutes=24 * 60)
+    def on_start(self):
+        self.crawl('http://blog.jobbole.com/all-posts/', callback=self.index_page)
+
+    @config(age=10 * 24 * 60 * 60)
+    def index_page(self, response):
+        print(response)
+        for each in response.doc('a[]').items():
+            self.crawl(each.attr.href, callback=self.detail_page)
+
+    @config(priority=2)
+    def detail_page(self, response):
+        
+        self.index_page(response)
+        
+        list = response.doc('#archive .post.floated-thumb')
+       # print(list)
+        for item in list.items():
+            print('拿到了数据')
+            print(type(item))
+            title = item('a.archive-title').text()
+            url = item('a.archive-title').attr.href
+            print(title,url)
+            return {
+                'title':title,
+                'url':url,
+            }
+
+    #方法中return的结果会执行on_result
+    def on_result(self,result):
+        #可以在这里做数据的持久化
+        print(result)
+
+        #mysql数据库存储
+        sql = """
+        INSERT INTO jobbole()
+        VALUE (%s,%s)
+        """
+        
+        try:
+            self.cursor.execute(sql,[result['title'],result['url']])
+            self.client.commit()
+        except Exception as err:
+            print(err)
+            self.client.rollback()
+
+        #mongodb数据库存储
+        self.jobbolearticle.insert(result)
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">sudo%20apt-get%20install%20phantomjs%0A%23%23%20**pyspider%E7%AE%80%E4%BB%8B**%0A%0A**%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%EF%BC%9Ahttp%3A%2F%2Fdocs.pyspider.org%2F**%0A%0A**%E4%B8%AD%E6%96%87%E7%BD%91%E5%9D%80%EF%BC%9Ahttp%3A%2F%2Fwww.pyspider.cn%2Fbook%2Fpyspider%2F**%0A%0A**%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC%3A%20https%3A%2F%2Fgithub.com%2Fbinux%2Fpyspider%2Freleases**%0A%0APySpider%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%9B%BD%E4%BA%BA%E7%BC%96%E5%86%99%E7%9A%84%E5%BC%BA%E5%A4%A7%E7%9A%84%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%B3%BB%E7%BB%9F%E5%B9%B6%E5%B8%A6%E6%9C%89%E5%BC%BA%E5%A4%A7%E7%9A%84WebUI%E3%80%82%E9%87%87%E7%94%A8Python%E8%AF%AD%E8%A8%80%E7%BC%96%E5%86%99%EF%BC%8C%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%94%AF%E6%8C%81%E5%A4%9A%E7%A7%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E5%90%8E%E7%AB%AF%EF%BC%8C%E5%BC%BA%E5%A4%A7%E7%9A%84WebUI%E6%94%AF%E6%8C%81%E8%84%9A%E6%9C%AC%E7%BC%96%E8%BE%91%E5%99%A8%EF%BC%8C%E4%BB%BB%E5%8A%A1%E7%9B%91%E8%A7%86%E5%99%A8%EF%BC%8C%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%99%A8%E4%BB%A5%E5%8F%8A%E7%BB%93%E6%9E%9C%E6%9F%A5%E7%9C%8B%E5%99%A8%E3%80%82%E5%9C%A8%E7%BA%BF%E7%A4%BA%E4%BE%8B%EF%BC%9A%20http%3A%2F%2Fdemo.pyspider.org%2F%0A%0Apyspider%E6%98%AF%E4%BD%9C%E8%80%85%E4%B9%8B%E5%89%8D%E5%81%9A%E7%9A%84%E4%B8%80%E4%B8%AA%E7%88%AC%E8%99%AB%E6%9E%B6%E6%9E%84%E7%9A%84%E5%BC%80%E6%BA%90%E5%8C%96%E5%AE%9E%E7%8E%B0%E3%80%82%E4%B8%BB%E8%A6%81%E7%9A%84%E5%8A%9F%E8%83%BD%E9%9C%80%E6%B1%82%E6%98%AF%EF%BC%9A%0A%0A-%20%E6%8A%93%E5%8F%96%E3%80%81%E6%9B%B4%E6%96%B0%E8%B0%83%E5%BA%A6%E5%A4%9A%E7%AB%99%E7%82%B9%E7%9A%84%E7%89%B9%E5%AE%9A%E7%9A%84%E9%A1%B5%E9%9D%A2%0A-%20%E9%9C%80%E8%A6%81%E5%AF%B9%E9%A1%B5%E9%9D%A2%E8%BF%9B%E8%A1%8C%E7%BB%93%E6%9E%84%E5%8C%96%E4%BF%A1%E6%81%AF%E6%8F%90%E5%8F%96%0A-%20%E7%81%B5%E6%B4%BB%E5%8F%AF%E6%89%A9%E5%B1%95%EF%BC%8C%E7%A8%B3%E5%AE%9A%E5%8F%AF%E7%9B%91%E6%8E%A7%20%E8%80%8C%E8%BF%99%E4%B9%9F%E6%98%AF%E7%BB%9D%E5%A4%A7%E5%A4%9A%E6%95%B0python%E7%88%AC%E8%99%AB%E7%9A%84%E9%9C%80%E6%B1%82%20%E2%80%94%E2%80%94%20%E5%AE%9A%E5%90%91%E6%8A%93%E5%8F%96%EF%BC%8C%E7%BB%93%E6%9E%84%E5%8C%96%E5%8C%96%E8%A7%A3%E6%9E%90%E3%80%82%E4%BD%86%E6%98%AF%E9%9D%A2%E5%AF%B9%E7%BB%93%E6%9E%84%E8%BF%A5%E5%BC%82%E7%9A%84%E5%90%84%E7%A7%8D%E7%BD%91%E7%AB%99%EF%BC%8C%E5%8D%95%E4%B8%80%E7%9A%84%E6%8A%93%E5%8F%96%E6%A8%A1%E5%BC%8F%E5%B9%B6%E4%B8%8D%E4%B8%80%E5%AE%9A%E8%83%BD%E6%BB%A1%E8%B6%B3%EF%BC%8C%E7%81%B5%E6%B4%BB%E7%9A%84%E6%8A%93%E5%8F%96%E6%8E%A7%E5%88%B6%E6%98%AF%E5%BF%85%E9%A1%BB%E7%9A%84%E3%80%82%E4%B8%BA%E4%BA%86%E8%BE%BE%E5%88%B0%E8%BF%99%E4%B8%AA%E7%9B%AE%E7%9A%84%EF%BC%8C%E5%8D%95%E7%BA%AF%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%BE%80%E5%BE%80%E4%B8%8D%E5%A4%9F%E7%81%B5%E6%B4%BB%EF%BC%8C%E4%BA%8E%E6%98%AF%EF%BC%8C%E9%80%9A%E8%BF%87%E8%84%9A%E6%9C%AC%E5%8E%BB%E6%8E%A7%E5%88%B6%E6%8A%93%E5%8F%96%E6%98%AF%E6%88%91%E6%9C%80%E5%90%8E%E7%9A%84%E9%80%89%E6%8B%A9%E3%80%82%20%E8%80%8C%E5%8E%BB%E9%87%8D%E8%B0%83%E5%BA%A6%EF%BC%8C%E9%98%9F%E5%88%97%EF%BC%8C%E6%8A%93%E5%8F%96%EF%BC%8C%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%EF%BC%8C%E7%9B%91%E6%8E%A7%E7%AD%89%E5%8A%9F%E8%83%BD%E4%BD%9C%E4%B8%BA%E6%A1%86%E6%9E%B6%EF%BC%8C%E6%8F%90%E4%BE%9B%E7%BB%99%E6%8A%93%E5%8F%96%E8%84%9A%E6%9C%AC%EF%BC%8C%E5%B9%B6%E4%BF%9D%E8%AF%81%E7%81%B5%E6%B4%BB%E6%80%A7%E3%80%82%E6%9C%80%E5%90%8E%E5%8A%A0%E4%B8%8Aweb%E7%9A%84%E7%BC%96%E8%BE%91%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%EF%BC%8C%E4%BB%A5%E5%8F%8Aweb%E4%BB%BB%E5%8A%A1%E7%9B%91%E6%8E%A7%EF%BC%8C%E5%8D%B3%E6%88%90%E4%B8%BA%E4%BA%86%E8%BF%99%E5%A5%97%E6%A1%86%E6%9E%B6%E3%80%82%0A%0Apyspider%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%9F%BA%E7%A1%80%E6%98%AF%EF%BC%9A%E4%BB%A5python%E8%84%9A%E6%9C%AC%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%8A%93%E5%8F%96%E7%8E%AF%E6%A8%A1%E5%9E%8B%E7%88%AC%E8%99%AB%0A%0A-%20%E9%80%9A%E8%BF%87python%E8%84%9A%E6%9C%AC%E8%BF%9B%E8%A1%8C%E7%BB%93%E6%9E%84%E5%8C%96%E4%BF%A1%E6%81%AF%E7%9A%84%E6%8F%90%E5%8F%96%EF%BC%8Cfollow%E9%93%BE%E6%8E%A5%E8%B0%83%E5%BA%A6%E6%8A%93%E5%8F%96%E6%8E%A7%E5%88%B6%EF%BC%8C%E5%AE%9E%E7%8E%B0%E6%9C%80%E5%A4%A7%E7%9A%84%E7%81%B5%E6%B4%BB%E6%80%A7%0A-%20%E9%80%9A%E8%BF%87web%E5%8C%96%E7%9A%84%E8%84%9A%E6%9C%AC%E7%BC%96%E5%86%99%E3%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E3%80%82web%E5%B1%95%E7%8E%B0%E8%B0%83%E5%BA%A6%E7%8A%B6%E6%80%81%0A-%20%E6%8A%93%E5%8F%96%E7%8E%AF%E6%A8%A1%E5%9E%8B%E6%88%90%E7%86%9F%E7%A8%B3%E5%AE%9A%EF%BC%8C%E6%A8%A1%E5%9D%97%E9%97%B4%E7%9B%B8%E4%BA%92%E7%8B%AC%E7%AB%8B%EF%BC%8C%E9%80%9A%E8%BF%87%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E8%BF%9E%E6%8E%A5%EF%BC%8C%E4%BB%8E%E5%8D%95%E8%BF%9B%E7%A8%8B%E5%88%B0%E5%A4%9A%E6%9C%BA%E5%88%86%E5%B8%83%E5%BC%8F%E7%81%B5%E6%B4%BB%E6%8B%93%E5%B1%95%0A%0A%23%23%20**%E5%AE%89%E8%A3%85%3A**%0A%0A**%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96**%0A%0A%3Esudo%20apt-get%20install%20python%20python-dev%20python-distribute%20python-pip%20libcurl4-openssl-dev%20libxml2-dev%20libxslt1-dev%20python-lxml%20libssl-dev%20zlib1g-dev%0A%0A%3Esudo%20apt-get%20install%20phantomjs%0A%0A%3Epip3%20install%20pyspider%0A%0A%23%23%20**%E5%90%AF%E5%8A%A8%3A**%0A%0A%3Epyspider%20%20all%0A%0A%23%23%20**%E5%BC%80%E5%90%AF%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AApyspider%E9%A1%B9%E7%9B%AE**%0A%60%60%60%0Afrom%20pyspider.libs.base_handler%20import%20*%0Aimport%20pymongo%2Cpymysql%0A%0Aclass%20Handler(BaseHandler)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20Handler%20%E5%B0%B1%E6%98%AF%20pyspider%20%E7%88%AC%E8%99%AB%E7%9A%84%E4%B8%BB%E7%B1%BB%EF%BC%8C%E6%88%91%0A%20%20%20%20%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%9C%A8%E6%AD%A4%E5%A4%84%E5%AE%9A%E4%B9%89%E7%88%AC%E5%8F%96%E3%80%81%E8%A7%A3%E6%9E%90%E3%80%81%E5%AD%98%E5%82%A8%E7%9A%84%E9%80%BB%E8%BE%91%E3%80%82%0A%20%20%20%20%E6%95%B4%E4%B8%AA%E7%88%AC%E8%99%AB%E7%9A%84%E5%8A%9F%E8%83%BD%E5%8F%AA%E9%9C%80%E8%A6%81%E4%B8%80%E4%B8%AA%20Handler%20%E5%8D%B3%E5%8F%AF%E5%AE%8C%E6%88%90%0A%20%20%20%20%22%22%22%0A%0A%20%20%20%20%23crawl_config%20%E5%B1%9E%E6%80%A7%E3%80%82%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%B0%86%E6%9C%AC%E9%A1%B9%E7%9B%AE%E7%9A%84%0A%20%20%20%20%23%E6%89%80%E6%9C%89%E7%88%AC%E5%8F%96%E9%85%8D%E7%BD%AE%E7%BB%9F%E4%B8%80%E5%AE%9A%E4%B9%89%E5%88%B0%E8%BF%99%E9%87%8C%EF%BC%8C%E5%A6%82%E5%AE%9A%E4%B9%89%20%0A%20%20%20%20%23Headers%E3%80%81%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%E7%AD%89%EF%BC%8C%E9%85%8D%E7%BD%AE%E4%B9%8B%E5%90%8E%E5%85%A8%E5%B1%80%E7%94%9F%E6%95%88%0A%20%20%20%20crawl_config%20%3D%20%7B%0A%20%20%20%20%7D%0A%20%20%20%20%0A%20%20%20%20%23mongodb%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%0A%20%20%20%20mongocli%20%3D%20pymongo.MongoClient(host%3D'localhost'%2C%20port%3D27017)%0A%20%20%20%20db%20%3D%20mongocli%5B'jobbole'%5D%0A%20%20%20%20jobbolearticle%20%3D%20db%5B'jobbolearticle'%5D%0A%0A%20%20%20%20%23mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%0A%20%20%20%20client%20%3D%20pymysql.Connect(%0A%20%20%20%20%20%20%20%20'localhost'%2C'root'%2C'ljh1314'%2C%0A%20%20%20%20%20%20%20%20'class1804'%2Ccharset%3D'utf8'%0A%20%20%20%20)%0A%20%20%20%20cursor%20%3D%20client.cursor()%0A%0A%20%20%20%20%23on_start()%20%E6%96%B9%E6%B3%95%E6%98%AF%E7%88%AC%E5%8F%96%E5%85%A5%E5%8F%A3%EF%BC%8C%E5%88%9D%E5%A7%8B%E7%9A%84%E7%88%AC%E5%8F%96%0A%20%20%20%20%23%E8%AF%B7%E6%B1%82%E4%BC%9A%E5%9C%A8%E8%BF%99%E9%87%8C%E4%BA%A7%E7%94%9F%0A%20%20%20%20%40every(minutes%3D24%20*%2060)%0A%20%20%20%20def%20on_start(self)%3A%0A%20%20%20%20%20%20%20%20self.crawl('http%3A%2F%2Fblog.jobbole.com%2Fall-posts%2F'%2C%20callback%3Dself.index_page)%0A%0A%20%20%20%20%40config(age%3D10%20*%2024%20*%2060%20*%2060)%0A%20%20%20%20def%20index_page(self%2C%20response)%3A%0A%20%20%20%20%20%20%20%20print(response)%0A%20%20%20%20%20%20%20%20for%20each%20in%20response.doc('a%5Bclass%3D%22page-numbers%22%5D').items()%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.crawl(each.attr.href%2C%20callback%3Dself.detail_page)%0A%0A%20%20%20%20%40config(priority%3D2)%0A%20%20%20%20def%20detail_page(self%2C%20response)%3A%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20self.index_page(response)%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20list%20%3D%20response.doc('%23archive%20.post.floated-thumb')%0A%20%20%20%20%20%20%20%23%20print(list)%0A%20%20%20%20%20%20%20%20for%20item%20in%20list.items()%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print('%E6%8B%BF%E5%88%B0%E4%BA%86%E6%95%B0%E6%8D%AE')%0A%20%20%20%20%20%20%20%20%20%20%20%20print(type(item))%0A%20%20%20%20%20%20%20%20%20%20%20%20title%20%3D%20item('a.archive-title').text()%0A%20%20%20%20%20%20%20%20%20%20%20%20url%20%3D%20item('a.archive-title').attr.href%0A%20%20%20%20%20%20%20%20%20%20%20%20print(title%2Curl)%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'title'%3Atitle%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'url'%3Aurl%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%23%E6%96%B9%E6%B3%95%E4%B8%ADreturn%E7%9A%84%E7%BB%93%E6%9E%9C%E4%BC%9A%E6%89%A7%E8%A1%8Con_result%0A%20%20%20%20def%20on_result(self%2Cresult)%3A%0A%20%20%20%20%20%20%20%20%23%E5%8F%AF%E4%BB%A5%E5%9C%A8%E8%BF%99%E9%87%8C%E5%81%9A%E6%95%B0%E6%8D%AE%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96%0A%20%20%20%20%20%20%20%20print(result)%0A%0A%20%20%20%20%20%20%20%20%23mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8%0A%20%20%20%20%20%20%20%20sql%20%3D%20%22%22%22%0A%20%20%20%20%20%20%20%20INSERT%20INTO%20jobbole()%0A%20%20%20%20%20%20%20%20VALUE%20(%25s%2C%25s)%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20try%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.cursor.execute(sql%2C%5Bresult%5B'title'%5D%2Cresult%5B'url'%5D%5D)%0A%20%20%20%20%20%20%20%20%20%20%20%20self.client.commit()%0A%20%20%20%20%20%20%20%20except%20Exception%20as%20err%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print(err)%0A%20%20%20%20%20%20%20%20%20%20%20%20self.client.rollback()%0A%0A%20%20%20%20%20%20%20%20%23mongodb%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%98%E5%82%A8%0A%20%20%20%20%20%20%20%20self.jobbolearticle.insert(result)%0A%60%60%60</center></body></html>

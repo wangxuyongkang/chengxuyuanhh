@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="36"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 13:58:53 +0000"/><meta name="latitude" content="39.63155600945159"/><meta name="longitude" content="116.0504260503393"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-13 06:06:57 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>25  Scrapy DOWNLOADER_MIDDLEWARE 下载中间件</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;">Scrapy DOWNLOADER_MIDDLEWARE 下载中间件</h2>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">反爬虫相关机制</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">(有些网站使用不同程度的复杂性规则防止爬虫访问，绕过这些规则是困难和复杂的，有时可能需要特殊的设置)</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">Scrapy官方文档描述：http://doc.scrapy.org/en/master/topics/practices.html#avoiding-getting-banned</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">通常防止爬虫被反主要有以下几个策略：</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">动态设置User-Agent</strong>（随机切换User-Agent，模拟不同用户的浏览器信息）</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">禁用Cookies(前提是爬取的网站不需要cookies参数)</strong>（也就是不启用cookies middleware，不向Server发送cookies，有些网站通过cookie的使用发现爬虫行为）</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">使用cookies池，自定义中间件</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">除非特殊需要，否则禁用cookies，防止某些网站根据Cookie来封锁爬虫。</p>
+</li>
+</ul>
+</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">COOKIES_ENABLED = False
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">设置延迟下载(降低访问网站的频率)</strong>（设置为2秒或更高）</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">DOWNLOAD_DELAY = 2
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">使用IP代理地址池</strong>：VPN和代理IP，现在大部分网站都是根据IP来反爬的。</li>
+</ul>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">针对于反爬手段</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">方案一</strong><br/>
+使用 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Crawlera（专用于爬虫的代理组件）</strong>，正确配置和设置下载中间件后，项目所有的request都是通过crawlera发出。<br/>
+官方网站：https://scrapinghub.com/crawlera<br/>
+参考网站：https://www.aliyun.com/jiaocheng/481939.html</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">DOWNLOADER_MIDDLEWARES = {
+    'scrapy_crawlera.CrawleraMiddleware': 600
+}
+
+CRAWLERA_ENABLED = True
+CRAWLERA_USER = '注册/购买的UserKey'
+CRAWLERA_PASS = '注册/购买的Password'
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">方式二</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">自定义下载中间件（Downloader Middlewares）</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">下载中间件是处于引擎(crawler.engine)和下载器(crawler.engine.download())之间的一层组件，可以用来修改Request和Response。</p>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">当引擎传递请求(Request)给下载器的过程中，下载中间件可以对请求进行处理</strong> （例如增加http header信息(User-Agent)，增加proxy代理等);</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">在下载器完成http请求，传递响应给引擎的过程中， 下载中间件可以对响应进行处理</strong></p>
+</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">要激活下载器中间件组件，将其加入到 DOWNLOADER_MIDDLEWARES 设置中。 该设置是一个字典(dict)，键为中间件类的路径，值为其中间件的优先级。<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">值越低，代表优先级越高</strong>。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">自定义中间键需要了解<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">middlewares.py</strong>下载中间件相关方法</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">每个中间件组件是一个定义了以下一个或多个方法</strong></p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">def  process_request(self, request, spider)</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">当每个request对象通过下载中间件时该方法被调用。</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_request()</strong> 必须返回以下其中之一：</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">None</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">None</strong>: Scrapy将继续处理request，执行其他的中间件的相应方法。</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Response 对象</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Response</strong> 对象: Scrapy不会再调用任何其他的中间件的 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_request()</strong> 或相应地下载函数； 直接返回这个<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">response</strong>对象。已激活的中间件的 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_response()</strong> 方法则会在每个 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">response</strong> 返回时被调用。</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Request 对象</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Request</strong> 对象，Scrapy则停止调用其他中间件的process_request方法，并重新将返回的request对象放置到调度器等待下载。</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">IgnoreRequest异常</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回<strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">raise IgnoreRequest</strong> 异常:下载中间件的 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_exception()</strong> 方法会被用。如果没有捕获该异常， 则request发情请求时设置的errback(Request.errback)方法会被调用。如果也没有设置异常回调，则该异常被忽略且不记录。</li>
+</ul>
+</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_request()有两个参数:</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">request</strong> (Request 对象) – 处理的request</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">spider</strong> (Spider 对象) – 该request对应的spider</li>
+</ul>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_response(self, request, response, spider)</strong></h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">当下载器完成http请求，传递Response给引擎的时调用</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_response()</strong> 必须返回以下其中之一:</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Response 对象</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Request</strong>: 更低优先级的下载中间件的process_response方法不会继续调用，该Request会被重新放到调度器任务队列中等待调度，相当于一个新的Request。</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Request 对象</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果返回 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Response</strong> 对象，更低优先级的下载中间件的process_response方法会被继续调用对Response对象进行处理</li>
+</ul>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">IgnoreRequest异常</strong>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">如果抛出 <strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">IgnoreRequest</strong> 异常，则调用request设置的errback(Request.errback)函数。 如果异常没有被处理，则该异常被忽略且不记录。</li>
+</ul>
+</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">process_response()有三个参数:</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">request</strong> (Request 对象) – response所对应的request</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">response</strong> (Response 对象) – 被处理的response</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">spider</strong> (Spider 对象) – response所对应的spider</li>
+</ul>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">常见的中间件代码实例</strong>：</h4>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">设置User-Agent中间件</strong></h2>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Scrapy代理IP、Uesr-Agent的切换都是通过DOWNLOADER_MIDDLEWARES进行控制，我们在settings.py同级目录下创建middlewares.py文件，包装所有请求。</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">在settings.py文件中添加USER_AGENTS</strong>：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">USER_AGENTS = [
+    "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 2.0.50727; Media Center PC 6.0)",
+    "Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET CLR 1.0.3705; .NET CLR 1.1.4322)",
+    "Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.0.04506.30)",
+    "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)",
+    "Mozilla/5.0 (X11; U; Linux; en-US) AppleWebKit/527+ (KHTML, like Gecko, Safari/419.3) Arora/0.6",
+]
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">方式１</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import random
+class RandomUserAgent(object):
+
+    def process_request(self, request, spider):
+        
+        #获取到代理的代理池
+        useragents = spider.settings['USERAGENTS']
+
+        #随机获取一个User-Agent
+        user_agent = random.choice(useragents)
+        print('执行下载中间件'+user_agent)
+
+        if user_agent:
+            #赋值的两种方式
+            request.headers.setdefault(b'User-Agent', user_agent)
+            # request.headers['User-Agent'] = user_agent
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">方式２</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 使用第三方插件来随机获取User-Agent
+from fake_useragent import UserAgent
+
+class RandomUserAgentMiddlewareTwo(object):
+
+    def process_request(self, request, spider):
+
+        user_agent = UserAgent().random
+        print('执行下载中间件'+user_agent)
+
+        if user_agent:
+            #赋值的两种方式
+            request.headers.setdefault(b'User-Agent', user_agent)
+            # request.headers['User-Agent'] = user_agent
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">最后设置setting.py里的DOWNLOADER_MIDDLEWARES，激活自己编写的下载中间件类</strong>。</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">DOWNLOADER_MIDDLEWARES = {
+    'mySpider.middlewares.RandomUserAgent': 99,
+}
+</code></pre>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">设置代理中间件</strong></h2>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">添加代理IP设置PROXIES</strong>：<br/>
+代理一般分为公开代理(不需要账号密码)和私密代理(需要账号密码)<br/>
+代理获取方式：</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">免费代理IP可以网上搜索，</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">也可以付费购买一批可用的私密代理IP</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 在settings.py文件中模拟一个代理池(对于少量代理可以这么做)
+PROXIES = [
+    {'ip_port': '111.8.60.9:8123', 'user_pwd': 'user1:pass1'},
+    {'ip_port': '101.71.27.120:80', 'user_pwd': 'user2:pass2'},
+    {'ip_port': '122.96.59.104:80', 'user_pwd': None},
+    {'ip_port': '122.224.249.122:8088', 'user_pwd': None},
+]
+</code></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># middlewares.py
+
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+import random
+import base64
+
+#定义一个代理的中间件
+import base64
+class RandomProxyMiddleware(object):
+    def process_request(self, request, spider):
+
+        proxies = spider.settings['PROXIES']
+        proxy = random.choice(self.proxies)
+        if proxy['user_pwd'] is None:
+            # 没有代理账户验证的代理使用方式
+            request.meta['proxy'] = proxy['ip_port']
+        else:
+            #对账户密码进行base64编码
+            user_pwd = base64.b64encode(proxy['user_pwd'].encode('utf-8')).decode('utf-8')
+            #对应到代理服务器的信令格式里
+            request.headers['Proxy-Authorization'] = 'Basic ' + user_pwd
+            request.meta['proxy'] = proxy['ip_port']
+</code></pre>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">为什么HTTP代理要使用base64编码：</p>
+</blockquote>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">HTTP代理的原理很简单，就是通过HTTP协议与代理服务器建立连接，协议信令中包含要连接到的远程主机的IP和端口号，如果有需要身份验证的话还需要加上授权信息，服务器收到信令后首先进行身份验证，通过后便与远程主机建立连接，连接成功之后会返回给客户端200，表示验证通过，就这么简单，下面是具体的信令格式：</p>
+</blockquote>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">CONNECT 59.64.128.198:21 HTTP/1.1
+Host: 59.64.128.198:21
+Proxy-Authorization: Basic bGV2I1TU5OTIz
+User-Agent: OpenFetion
+</code></pre>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">其中Proxy-Authorization是身份验证信息，Basic后面的字符串是用户名和密码组合后进行base64编码的结果，也就是对username:password进行base64编码。</p>
+</blockquote>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">HTTP/1.0 200 Connection established
+</code></pre>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">客户端收到收面的信令后表示成功建立连接，接下来要发送给远程主机的数据就可以发送给代理服务器了，代理服务器建立连接后会在根据IP地址和端口号对应的连接放入缓存，收到信令后再根据IP地址和端口号从缓存中找到对应的连接，将数据通过该连接转发出去。</p>
+</blockquote>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;">设置cookies中间件</h2>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import random
+class RandomCookiesMiddleware(object):
+    
+    def process_request(self,request,spider):
+        cookies = spider.settings['COOKIES']
+        #随机获取一个cookies
+        cookie = random.choice(cookies)
+        if cookie:
+            request.cookies = cookie
+</code></pre>
+<h2 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 34px; border-bottom: 1px solid #dbdbdb; color: #333;">设置selenium中间件</h2>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from scrapy.http import HtmlResponse
+
+class SeleniumMiddleware(object):
+    def __init__(self):
+
+        self.drive = webdriver.Chrome(executable_path='')
+        self.drive.set_page_load_timeout(10)
+
+    def process_request(self,request,spider):
+        try:
+            url = request.url
+            self.drive.get(url)
+            if self.drive.page_source:
+                return HtmlResponse(url=url,body=self.drive.page_source,status=200,encoding='utf-8',request=request)
+        except TimeoutException:
+            print('请求超时')
+            return HtmlResponse(url=url,body=None,status=500)
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%20Scrapy%20DOWNLOADER_MIDDLEWARE%20%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%0A%0A%0A**%E5%8F%8D%E7%88%AC%E8%99%AB%E7%9B%B8%E5%85%B3%E6%9C%BA%E5%88%B6**%0A%0A(%E6%9C%89%E4%BA%9B%E7%BD%91%E7%AB%99%E4%BD%BF%E7%94%A8%E4%B8%8D%E5%90%8C%E7%A8%8B%E5%BA%A6%E7%9A%84%E5%A4%8D%E6%9D%82%E6%80%A7%E8%A7%84%E5%88%99%E9%98%B2%E6%AD%A2%E7%88%AC%E8%99%AB%E8%AE%BF%E9%97%AE%EF%BC%8C%E7%BB%95%E8%BF%87%E8%BF%99%E4%BA%9B%E8%A7%84%E5%88%99%E6%98%AF%E5%9B%B0%E9%9A%BE%E5%92%8C%E5%A4%8D%E6%9D%82%E7%9A%84%EF%BC%8C%E6%9C%89%E6%97%B6%E5%8F%AF%E8%83%BD%E9%9C%80%E8%A6%81%E7%89%B9%E6%AE%8A%E7%9A%84%E8%AE%BE%E7%BD%AE)%0A%0A%3EScrapy%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E6%8F%8F%E8%BF%B0%EF%BC%9Ahttp%3A%2F%2Fdoc.scrapy.org%2Fen%2Fmaster%2Ftopics%2Fpractices.html%23avoiding-getting-banned%0A%0A**%E9%80%9A%E5%B8%B8%E9%98%B2%E6%AD%A2%E7%88%AC%E8%99%AB%E8%A2%AB%E5%8F%8D%E4%B8%BB%E8%A6%81%E6%9C%89%E4%BB%A5%E4%B8%8B%E5%87%A0%E4%B8%AA%E7%AD%96%E7%95%A5%EF%BC%9A**%0A%0A-%20**%E5%8A%A8%E6%80%81%E8%AE%BE%E7%BD%AEUser-Agent**%EF%BC%88%E9%9A%8F%E6%9C%BA%E5%88%87%E6%8D%A2User-Agent%EF%BC%8C%E6%A8%A1%E6%8B%9F%E4%B8%8D%E5%90%8C%E7%94%A8%E6%88%B7%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%E4%BF%A1%E6%81%AF%EF%BC%89%0A%0A-%20**%E7%A6%81%E7%94%A8Cookies(%E5%89%8D%E6%8F%90%E6%98%AF%E7%88%AC%E5%8F%96%E7%9A%84%E7%BD%91%E7%AB%99%E4%B8%8D%E9%9C%80%E8%A6%81cookies%E5%8F%82%E6%95%B0)**%EF%BC%88%E4%B9%9F%E5%B0%B1%E6%98%AF%E4%B8%8D%E5%90%AF%E7%94%A8cookies%20middleware%EF%BC%8C%E4%B8%8D%E5%90%91Server%E5%8F%91%E9%80%81cookies%EF%BC%8C%E6%9C%89%E4%BA%9B%E7%BD%91%E7%AB%99%E9%80%9A%E8%BF%87cookie%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%91%E7%8E%B0%E7%88%AC%E8%99%AB%E8%A1%8C%E4%B8%BA%EF%BC%89%0A%0A%20%20%20%20-%20%E4%BD%BF%E7%94%A8cookies%E6%B1%A0%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%AD%E9%97%B4%E4%BB%B6%0A%20%20%20%20%0A%20%20%20%20-%20%E9%99%A4%E9%9D%9E%E7%89%B9%E6%AE%8A%E9%9C%80%E8%A6%81%EF%BC%8C%E5%90%A6%E5%88%99%E7%A6%81%E7%94%A8cookies%EF%BC%8C%E9%98%B2%E6%AD%A2%E6%9F%90%E4%BA%9B%E7%BD%91%E7%AB%99%E6%A0%B9%E6%8D%AECookie%E6%9D%A5%E5%B0%81%E9%94%81%E7%88%AC%E8%99%AB%E3%80%82%0A%60%60%60%0ACOOKIES_ENABLED%20%3D%20False%0A%60%60%60%0A%0A-%20**%E8%AE%BE%E7%BD%AE%E5%BB%B6%E8%BF%9F%E4%B8%8B%E8%BD%BD(%E9%99%8D%E4%BD%8E%E8%AE%BF%E9%97%AE%E7%BD%91%E7%AB%99%E7%9A%84%E9%A2%91%E7%8E%87)**%EF%BC%88%E8%AE%BE%E7%BD%AE%E4%B8%BA2%E7%A7%92%E6%88%96%E6%9B%B4%E9%AB%98%EF%BC%89%0A%60%60%60%0ADOWNLOAD_DELAY%20%3D%202%0A%60%60%60%0A%0A-%20**%E4%BD%BF%E7%94%A8IP%E4%BB%A3%E7%90%86%E5%9C%B0%E5%9D%80%E6%B1%A0**%EF%BC%9AVPN%E5%92%8C%E4%BB%A3%E7%90%86IP%EF%BC%8C%E7%8E%B0%E5%9C%A8%E5%A4%A7%E9%83%A8%E5%88%86%E7%BD%91%E7%AB%99%E9%83%BD%E6%98%AF%E6%A0%B9%E6%8D%AEIP%E6%9D%A5%E5%8F%8D%E7%88%AC%E7%9A%84%E3%80%82%0A%0A%23%23%23%23%20**%E9%92%88%E5%AF%B9%E4%BA%8E%E5%8F%8D%E7%88%AC%E6%89%8B%E6%AE%B5**%0A%0A%0A**%E6%96%B9%E6%A1%88%E4%B8%80**%0A%E4%BD%BF%E7%94%A8%20**Crawlera%EF%BC%88%E4%B8%93%E7%94%A8%E4%BA%8E%E7%88%AC%E8%99%AB%E7%9A%84%E4%BB%A3%E7%90%86%E7%BB%84%E4%BB%B6%EF%BC%89**%EF%BC%8C%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AE%E5%92%8C%E8%AE%BE%E7%BD%AE%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%90%8E%EF%BC%8C%E9%A1%B9%E7%9B%AE%E6%89%80%E6%9C%89%E7%9A%84request%E9%83%BD%E6%98%AF%E9%80%9A%E8%BF%87crawlera%E5%8F%91%E5%87%BA%E3%80%82%0A%E5%AE%98%E6%96%B9%E7%BD%91%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Fscrapinghub.com%2Fcrawlera%0A%E5%8F%82%E8%80%83%E7%BD%91%E7%AB%99%EF%BC%9Ahttps%3A%2F%2Fwww.aliyun.com%2Fjiaocheng%2F481939.html%0A%0A%60%60%60%0ADOWNLOADER_MIDDLEWARES%20%3D%20%7B%0A%20%20%20%20'scrapy_crawlera.CrawleraMiddleware'%3A%20600%0A%7D%0A%0ACRAWLERA_ENABLED%20%3D%20True%0ACRAWLERA_USER%20%3D%20'%E6%B3%A8%E5%86%8C%2F%E8%B4%AD%E4%B9%B0%E7%9A%84UserKey'%0ACRAWLERA_PASS%20%3D%20'%E6%B3%A8%E5%86%8C%2F%E8%B4%AD%E4%B9%B0%E7%9A%84Password'%0A%60%60%60%0A%0A**%E6%96%B9%E5%BC%8F%E4%BA%8C**%0A%0A**%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88Downloader%20Middlewares%EF%BC%89**%0A%0A%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%98%AF%E5%A4%84%E4%BA%8E%E5%BC%95%E6%93%8E(crawler.engine)%E5%92%8C%E4%B8%8B%E8%BD%BD%E5%99%A8(crawler.engine.download())%E4%B9%8B%E9%97%B4%E7%9A%84%E4%B8%80%E5%B1%82%E7%BB%84%E4%BB%B6%EF%BC%8C%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%9D%A5%E4%BF%AE%E6%94%B9Request%E5%92%8CResponse%E3%80%82%0A%0A1.%20**%E5%BD%93%E5%BC%95%E6%93%8E%E4%BC%A0%E9%80%92%E8%AF%B7%E6%B1%82(Request)%E7%BB%99%E4%B8%8B%E8%BD%BD%E5%99%A8%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%8F%AF%E4%BB%A5%E5%AF%B9%E8%AF%B7%E6%B1%82%E8%BF%9B%E8%A1%8C%E5%A4%84%E7%90%86**%20%EF%BC%88%E4%BE%8B%E5%A6%82%E5%A2%9E%E5%8A%A0http%20header%E4%BF%A1%E6%81%AF(User-Agent)%EF%BC%8C%E5%A2%9E%E5%8A%A0proxy%E4%BB%A3%E7%90%86%E7%AD%89)%3B%0A%0A2.%20**%E5%9C%A8%E4%B8%8B%E8%BD%BD%E5%99%A8%E5%AE%8C%E6%88%90http%E8%AF%B7%E6%B1%82%EF%BC%8C%E4%BC%A0%E9%80%92%E5%93%8D%E5%BA%94%E7%BB%99%E5%BC%95%E6%93%8E%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%20%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%8F%AF%E4%BB%A5%E5%AF%B9%E5%93%8D%E5%BA%94%E8%BF%9B%E8%A1%8C%E5%A4%84%E7%90%86**%0A%0A%E8%A6%81%E6%BF%80%E6%B4%BB%E4%B8%8B%E8%BD%BD%E5%99%A8%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%BB%84%E4%BB%B6%EF%BC%8C%E5%B0%86%E5%85%B6%E5%8A%A0%E5%85%A5%E5%88%B0%20DOWNLOADER_MIDDLEWARES%20%E8%AE%BE%E7%BD%AE%E4%B8%AD%E3%80%82%20%E8%AF%A5%E8%AE%BE%E7%BD%AE%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AD%97%E5%85%B8(dict)%EF%BC%8C%E9%94%AE%E4%B8%BA%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B1%BB%E7%9A%84%E8%B7%AF%E5%BE%84%EF%BC%8C%E5%80%BC%E4%B8%BA%E5%85%B6%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7%E3%80%82**%E5%80%BC%E8%B6%8A%E4%BD%8E%EF%BC%8C%E4%BB%A3%E8%A1%A8%E4%BC%98%E5%85%88%E7%BA%A7%E8%B6%8A%E9%AB%98**%E3%80%82%0A%0A%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%AD%E9%97%B4%E9%94%AE%E9%9C%80%E8%A6%81%E4%BA%86%E8%A7%A3**middlewares.py**%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95%0A%0A**%E6%AF%8F%E4%B8%AA%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%BB%84%E4%BB%B6%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AE%9A%E4%B9%89%E4%BA%86%E4%BB%A5%E4%B8%8B%E4%B8%80%E4%B8%AA%E6%88%96%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95**%0A%0A%23%23%23%23%20**def%20%20process_request(self%2C%20request%2C%20spider)**%0A%0A**%E5%BD%93%E6%AF%8F%E4%B8%AArequest%E5%AF%B9%E8%B1%A1%E9%80%9A%E8%BF%87%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%97%B6%E8%AF%A5%E6%96%B9%E6%B3%95%E8%A2%AB%E8%B0%83%E7%94%A8%E3%80%82**%0A%0A**process_request()**%20%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E4%BB%A5%E4%B8%8B%E5%85%B6%E4%B8%AD%E4%B9%8B%E4%B8%80%EF%BC%9A%0A%0A-%20**None**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%20**None**%3A%20Scrapy%E5%B0%86%E7%BB%A7%E7%BB%AD%E5%A4%84%E7%90%86request%EF%BC%8C%E6%89%A7%E8%A1%8C%E5%85%B6%E4%BB%96%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84%E7%9B%B8%E5%BA%94%E6%96%B9%E6%B3%95%E3%80%82%0A-%20**Response%20%E5%AF%B9%E8%B1%A1**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%20**Response**%20%E5%AF%B9%E8%B1%A1%3A%20Scrapy%E4%B8%8D%E4%BC%9A%E5%86%8D%E8%B0%83%E7%94%A8%E4%BB%BB%E4%BD%95%E5%85%B6%E4%BB%96%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84%20**process_request()**%20%E6%88%96%E7%9B%B8%E5%BA%94%E5%9C%B0%E4%B8%8B%E8%BD%BD%E5%87%BD%E6%95%B0%EF%BC%9B%20%E7%9B%B4%E6%8E%A5%E8%BF%94%E5%9B%9E%E8%BF%99%E4%B8%AA**response**%E5%AF%B9%E8%B1%A1%E3%80%82%E5%B7%B2%E6%BF%80%E6%B4%BB%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84%20**process_response()**%20%E6%96%B9%E6%B3%95%E5%88%99%E4%BC%9A%E5%9C%A8%E6%AF%8F%E4%B8%AA%20**response**%20%E8%BF%94%E5%9B%9E%E6%97%B6%E8%A2%AB%E8%B0%83%E7%94%A8%E3%80%82%0A-%20**Request%20%E5%AF%B9%E8%B1%A1**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%20**Request**%20%E5%AF%B9%E8%B1%A1%EF%BC%8CScrapy%E5%88%99%E5%81%9C%E6%AD%A2%E8%B0%83%E7%94%A8%E5%85%B6%E4%BB%96%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84process_request%E6%96%B9%E6%B3%95%EF%BC%8C%E5%B9%B6%E9%87%8D%E6%96%B0%E5%B0%86%E8%BF%94%E5%9B%9E%E7%9A%84request%E5%AF%B9%E8%B1%A1%E6%94%BE%E7%BD%AE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%99%A8%E7%AD%89%E5%BE%85%E4%B8%8B%E8%BD%BD%E3%80%82%0A-%20**IgnoreRequest%E5%BC%82%E5%B8%B8**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E**raise%20IgnoreRequest**%20%E5%BC%82%E5%B8%B8%3A%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84%20**process_exception()**%20%E6%96%B9%E6%B3%95%E4%BC%9A%E8%A2%AB%E7%94%A8%E3%80%82%E5%A6%82%E6%9E%9C%E6%B2%A1%E6%9C%89%E6%8D%95%E8%8E%B7%E8%AF%A5%E5%BC%82%E5%B8%B8%EF%BC%8C%20%E5%88%99request%E5%8F%91%E6%83%85%E8%AF%B7%E6%B1%82%E6%97%B6%E8%AE%BE%E7%BD%AE%E7%9A%84errback(Request.errback)%E6%96%B9%E6%B3%95%E4%BC%9A%E8%A2%AB%E8%B0%83%E7%94%A8%E3%80%82%E5%A6%82%E6%9E%9C%E4%B9%9F%E6%B2%A1%E6%9C%89%E8%AE%BE%E7%BD%AE%E5%BC%82%E5%B8%B8%E5%9B%9E%E8%B0%83%EF%BC%8C%E5%88%99%E8%AF%A5%E5%BC%82%E5%B8%B8%E8%A2%AB%E5%BF%BD%E7%95%A5%E4%B8%94%E4%B8%8D%E8%AE%B0%E5%BD%95%E3%80%82%0A%0A**process_request()%E6%9C%89%E4%B8%A4%E4%B8%AA%E5%8F%82%E6%95%B0%3A**%0A%0A-%20**request**%20(Request%20%E5%AF%B9%E8%B1%A1)%20%E2%80%93%20%E5%A4%84%E7%90%86%E7%9A%84request%0A-%20**spider**%20(Spider%20%E5%AF%B9%E8%B1%A1)%20%E2%80%93%20%E8%AF%A5request%E5%AF%B9%E5%BA%94%E7%9A%84spider%0A%0A------------------------------------------%0A%23%23%23%23%20**process_response(self%2C%20request%2C%20response%2C%20spider)**%0A%0A**%E5%BD%93%E4%B8%8B%E8%BD%BD%E5%99%A8%E5%AE%8C%E6%88%90http%E8%AF%B7%E6%B1%82%EF%BC%8C%E4%BC%A0%E9%80%92Response%E7%BB%99%E5%BC%95%E6%93%8E%E7%9A%84%E6%97%B6%E8%B0%83%E7%94%A8**%0A%0A**process_response()**%20%E5%BF%85%E9%A1%BB%E8%BF%94%E5%9B%9E%E4%BB%A5%E4%B8%8B%E5%85%B6%E4%B8%AD%E4%B9%8B%E4%B8%80%3A%0A%0A-%20**Response%20%E5%AF%B9%E8%B1%A1**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%20**Request**%3A%20%E6%9B%B4%E4%BD%8E%E4%BC%98%E5%85%88%E7%BA%A7%E7%9A%84%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84process_response%E6%96%B9%E6%B3%95%E4%B8%8D%E4%BC%9A%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%EF%BC%8C%E8%AF%A5Request%E4%BC%9A%E8%A2%AB%E9%87%8D%E6%96%B0%E6%94%BE%E5%88%B0%E8%B0%83%E5%BA%A6%E5%99%A8%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%E4%B8%AD%E7%AD%89%E5%BE%85%E8%B0%83%E5%BA%A6%EF%BC%8C%E7%9B%B8%E5%BD%93%E4%BA%8E%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84Request%E3%80%82%0A-%20**Request%20%E5%AF%B9%E8%B1%A1**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E8%BF%94%E5%9B%9E%20**Response**%20%E5%AF%B9%E8%B1%A1%EF%BC%8C%E6%9B%B4%E4%BD%8E%E4%BC%98%E5%85%88%E7%BA%A7%E7%9A%84%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%9A%84process_response%E6%96%B9%E6%B3%95%E4%BC%9A%E8%A2%AB%E7%BB%A7%E7%BB%AD%E8%B0%83%E7%94%A8%E5%AF%B9Response%E5%AF%B9%E8%B1%A1%E8%BF%9B%E8%A1%8C%E5%A4%84%E7%90%86%0A-%20**IgnoreRequest%E5%BC%82%E5%B8%B8**%0A%20%20%20%20-%20%E5%A6%82%E6%9E%9C%E6%8A%9B%E5%87%BA%20**IgnoreRequest**%20%E5%BC%82%E5%B8%B8%EF%BC%8C%E5%88%99%E8%B0%83%E7%94%A8request%E8%AE%BE%E7%BD%AE%E7%9A%84errback(Request.errback)%E5%87%BD%E6%95%B0%E3%80%82%20%E5%A6%82%E6%9E%9C%E5%BC%82%E5%B8%B8%E6%B2%A1%E6%9C%89%E8%A2%AB%E5%A4%84%E7%90%86%EF%BC%8C%E5%88%99%E8%AF%A5%E5%BC%82%E5%B8%B8%E8%A2%AB%E5%BF%BD%E7%95%A5%E4%B8%94%E4%B8%8D%E8%AE%B0%E5%BD%95%E3%80%82%0A%0A**process_response()%E6%9C%89%E4%B8%89%E4%B8%AA%E5%8F%82%E6%95%B0%3A**%0A%0A-%20**request**%20(Request%20%E5%AF%B9%E8%B1%A1)%20%E2%80%93%20response%E6%89%80%E5%AF%B9%E5%BA%94%E7%9A%84request%0A-%20**response**%20(Response%20%E5%AF%B9%E8%B1%A1)%20%E2%80%93%20%E8%A2%AB%E5%A4%84%E7%90%86%E7%9A%84response%0A-%20**spider**%20(Spider%20%E5%AF%B9%E8%B1%A1)%20%E2%80%93%20response%E6%89%80%E5%AF%B9%E5%BA%94%E7%9A%84spider%0A%0A-------%0A%0A%23%23%23%23%20**%E5%B8%B8%E8%A7%81%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E4%BB%A3%E7%A0%81%E5%AE%9E%E4%BE%8B**%EF%BC%9A%0A%0A%23%23%20**%E8%AE%BE%E7%BD%AEUser-Agent%E4%B8%AD%E9%97%B4%E4%BB%B6**%0A%0AScrapy%E4%BB%A3%E7%90%86IP%E3%80%81Uesr-Agent%E7%9A%84%E5%88%87%E6%8D%A2%E9%83%BD%E6%98%AF%E9%80%9A%E8%BF%87DOWNLOADER_MIDDLEWARES%E8%BF%9B%E8%A1%8C%E6%8E%A7%E5%88%B6%EF%BC%8C%E6%88%91%E4%BB%AC%E5%9C%A8settings.py%E5%90%8C%E7%BA%A7%E7%9B%AE%E5%BD%95%E4%B8%8B%E5%88%9B%E5%BB%BAmiddlewares.py%E6%96%87%E4%BB%B6%EF%BC%8C%E5%8C%85%E8%A3%85%E6%89%80%E6%9C%89%E8%AF%B7%E6%B1%82%E3%80%82%0A%0A-%20**%E5%9C%A8settings.py%E6%96%87%E4%BB%B6%E4%B8%AD%E6%B7%BB%E5%8A%A0USER_AGENTS**%EF%BC%9A%0A%60%60%60%0AUSER_AGENTS%20%3D%20%5B%0A%20%20%20%20%22Mozilla%2F5.0%20(compatible%3B%20MSIE%209.0%3B%20Windows%20NT%206.1%3B%20Win64%3B%20x64%3B%20Trident%2F5.0%3B%20.NET%20CLR%203.5.30729%3B%20.NET%20CLR%203.0.30729%3B%20.NET%20CLR%202.0.50727%3B%20Media%20Center%20PC%206.0)%22%2C%0A%20%20%20%20%22Mozilla%2F5.0%20(compatible%3B%20MSIE%208.0%3B%20Windows%20NT%206.0%3B%20Trident%2F4.0%3B%20WOW64%3B%20Trident%2F4.0%3B%20SLCC2%3B%20.NET%20CLR%202.0.50727%3B%20.NET%20CLR%203.5.30729%3B%20.NET%20CLR%203.0.30729%3B%20.NET%20CLR%201.0.3705%3B%20.NET%20CLR%201.1.4322)%22%2C%0A%20%20%20%20%22Mozilla%2F4.0%20(compatible%3B%20MSIE%207.0b%3B%20Windows%20NT%205.2%3B%20.NET%20CLR%201.1.4322%3B%20.NET%20CLR%202.0.50727%3B%20InfoPath.2%3B%20.NET%20CLR%203.0.04506.30)%22%2C%0A%20%20%20%20%22Mozilla%2F5.0%20(Windows%3B%20U%3B%20Windows%20NT%205.1%3B%20zh-CN)%20AppleWebKit%2F523.15%20(KHTML%2C%20like%20Gecko%2C%20Safari%2F419.3)%20Arora%2F0.3%20(Change%3A%20287%20c9dfb30)%22%2C%0A%20%20%20%20%22Mozilla%2F5.0%20(X11%3B%20U%3B%20Linux%3B%20en-US)%20AppleWebKit%2F527%2B%20(KHTML%2C%20like%20Gecko%2C%20Safari%2F419.3)%20Arora%2F0.6%22%2C%0A%5D%0A%60%60%60%0A**%E6%96%B9%E5%BC%8F%EF%BC%91**%0A%60%60%60%0Aimport%20random%0Aclass%20RandomUserAgent(object)%3A%0A%0A%20%20%20%20def%20process_request(self%2C%20request%2C%20spider)%3A%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%23%E8%8E%B7%E5%8F%96%E5%88%B0%E4%BB%A3%E7%90%86%E7%9A%84%E4%BB%A3%E7%90%86%E6%B1%A0%0A%20%20%20%20%20%20%20%20useragents%20%3D%20spider.settings%5B'USERAGENTS'%5D%0A%0A%20%20%20%20%20%20%20%20%23%E9%9A%8F%E6%9C%BA%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AAUser-Agent%0A%20%20%20%20%20%20%20%20user_agent%20%3D%20random.choice(useragents)%0A%20%20%20%20%20%20%20%20print('%E6%89%A7%E8%A1%8C%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6'%2Buser_agent)%0A%0A%20%20%20%20%20%20%20%20if%20user_agent%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%B5%8B%E5%80%BC%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20request.headers.setdefault(b'User-Agent'%2C%20user_agent)%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%20request.headers%5B'User-Agent'%5D%20%3D%20user_agent%0A%60%60%60%0A**%E6%96%B9%E5%BC%8F%EF%BC%92**%0A%60%60%60%0A%23%20%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8F%92%E4%BB%B6%E6%9D%A5%E9%9A%8F%E6%9C%BA%E8%8E%B7%E5%8F%96User-Agent%0Afrom%20fake_useragent%20import%20UserAgent%0A%0Aclass%20RandomUserAgentMiddlewareTwo(object)%3A%0A%0A%20%20%20%20def%20process_request(self%2C%20request%2C%20spider)%3A%0A%0A%20%20%20%20%20%20%20%20user_agent%20%3D%20UserAgent().random%0A%20%20%20%20%20%20%20%20print('%E6%89%A7%E8%A1%8C%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6'%2Buser_agent)%0A%0A%20%20%20%20%20%20%20%20if%20user_agent%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E8%B5%8B%E5%80%BC%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20request.headers.setdefault(b'User-Agent'%2C%20user_agent)%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%20request.headers%5B'User-Agent'%5D%20%3D%20user_agent%0A%60%60%60%0A%0A**%E6%9C%80%E5%90%8E%E8%AE%BE%E7%BD%AEsetting.py%E9%87%8C%E7%9A%84DOWNLOADER_MIDDLEWARES%EF%BC%8C%E6%BF%80%E6%B4%BB%E8%87%AA%E5%B7%B1%E7%BC%96%E5%86%99%E7%9A%84%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%E7%B1%BB**%E3%80%82%0A%60%60%60%0ADOWNLOADER_MIDDLEWARES%20%3D%20%7B%0A%20%20%20%20'mySpider.middlewares.RandomUserAgent'%3A%2099%2C%0A%7D%0A%60%60%60%0A%0A%23%23%20**%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%E4%B8%AD%E9%97%B4%E4%BB%B6**%20%0A%0A-%20**%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%90%86IP%E8%AE%BE%E7%BD%AEPROXIES**%EF%BC%9A%0A%E4%BB%A3%E7%90%86%E4%B8%80%E8%88%AC%E5%88%86%E4%B8%BA%E5%85%AC%E5%BC%80%E4%BB%A3%E7%90%86(%E4%B8%8D%E9%9C%80%E8%A6%81%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81)%E5%92%8C%E7%A7%81%E5%AF%86%E4%BB%A3%E7%90%86(%E9%9C%80%E8%A6%81%E8%B4%A6%E5%8F%B7%E5%AF%86%E7%A0%81)%0A%E4%BB%A3%E7%90%86%E8%8E%B7%E5%8F%96%E6%96%B9%E5%BC%8F%EF%BC%9A%0A-%20%E5%85%8D%E8%B4%B9%E4%BB%A3%E7%90%86IP%E5%8F%AF%E4%BB%A5%E7%BD%91%E4%B8%8A%E6%90%9C%E7%B4%A2%EF%BC%8C%0A-%20%E4%B9%9F%E5%8F%AF%E4%BB%A5%E4%BB%98%E8%B4%B9%E8%B4%AD%E4%B9%B0%E4%B8%80%E6%89%B9%E5%8F%AF%E7%94%A8%E7%9A%84%E7%A7%81%E5%AF%86%E4%BB%A3%E7%90%86IP%0A%60%60%60%0A%23%20%E5%9C%A8settings.py%E6%96%87%E4%BB%B6%E4%B8%AD%E6%A8%A1%E6%8B%9F%E4%B8%80%E4%B8%AA%E4%BB%A3%E7%90%86%E6%B1%A0(%E5%AF%B9%E4%BA%8E%E5%B0%91%E9%87%8F%E4%BB%A3%E7%90%86%E5%8F%AF%E4%BB%A5%E8%BF%99%E4%B9%88%E5%81%9A)%0APROXIES%20%3D%20%5B%0A%20%20%20%20%7B'ip_port'%3A%20'111.8.60.9%3A8123'%2C%20'user_pwd'%3A%20'user1%3Apass1'%7D%2C%0A%20%20%20%20%7B'ip_port'%3A%20'101.71.27.120%3A80'%2C%20'user_pwd'%3A%20'user2%3Apass2'%7D%2C%0A%20%20%20%20%7B'ip_port'%3A%20'122.96.59.104%3A80'%2C%20'user_pwd'%3A%20None%7D%2C%0A%20%20%20%20%7B'ip_port'%3A%20'122.224.249.122%3A8088'%2C%20'user_pwd'%3A%20None%7D%2C%0A%5D%0A%60%60%60%0A%0A%60%60%60%0A%23%20middlewares.py%0A%0A%23!%2Fusr%2Fbin%2Fenv%20python%0A%23%20-*-%20coding%3Autf-8%20-*-%0A%0Aimport%20random%0Aimport%20base64%0A%0A%23%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E4%BB%A3%E7%90%86%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%0Aimport%20base64%0Aclass%20RandomProxyMiddleware(object)%3A%0A%20%20%20%20def%20process_request(self%2C%20request%2C%20spider)%3A%0A%0A%20%20%20%20%20%20%20%20proxies%20%3D%20spider.settings%5B'PROXIES'%5D%0A%20%20%20%20%20%20%20%20proxy%20%3D%20random.choice(self.proxies)%0A%20%20%20%20%20%20%20%20if%20proxy%5B'user_pwd'%5D%20is%20None%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%20%E6%B2%A1%E6%9C%89%E4%BB%A3%E7%90%86%E8%B4%A6%E6%88%B7%E9%AA%8C%E8%AF%81%E7%9A%84%E4%BB%A3%E7%90%86%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%0A%20%20%20%20%20%20%20%20%20%20%20%20request.meta%5B'proxy'%5D%20%3D%20proxy%5B'ip_port'%5D%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E5%AF%B9%E8%B4%A6%E6%88%B7%E5%AF%86%E7%A0%81%E8%BF%9B%E8%A1%8Cbase64%E7%BC%96%E7%A0%81%0A%20%20%20%20%20%20%20%20%20%20%20%20user_pwd%20%3D%20base64.b64encode(proxy%5B'user_pwd'%5D.encode('utf-8')).decode('utf-8')%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%E5%AF%B9%E5%BA%94%E5%88%B0%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E4%BF%A1%E4%BB%A4%E6%A0%BC%E5%BC%8F%E9%87%8C%0A%20%20%20%20%20%20%20%20%20%20%20%20request.headers%5B'Proxy-Authorization'%5D%20%3D%20'Basic%20'%20%2B%20user_pwd%0A%20%20%20%20%20%20%20%20%20%20%20%20request.meta%5B'proxy'%5D%20%3D%20proxy%5B'ip_port'%5D%0A%60%60%60%0A%0A%3E%20%20%20%E4%B8%BA%E4%BB%80%E4%B9%88HTTP%E4%BB%A3%E7%90%86%E8%A6%81%E4%BD%BF%E7%94%A8base64%E7%BC%96%E7%A0%81%EF%BC%9A%0A%0A%3E%20%20%20HTTP%E4%BB%A3%E7%90%86%E7%9A%84%E5%8E%9F%E7%90%86%E5%BE%88%E7%AE%80%E5%8D%95%EF%BC%8C%E5%B0%B1%E6%98%AF%E9%80%9A%E8%BF%87HTTP%E5%8D%8F%E8%AE%AE%E4%B8%8E%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%8C%E5%8D%8F%E8%AE%AE%E4%BF%A1%E4%BB%A4%E4%B8%AD%E5%8C%85%E5%90%AB%E8%A6%81%E8%BF%9E%E6%8E%A5%E5%88%B0%E7%9A%84%E8%BF%9C%E7%A8%8B%E4%B8%BB%E6%9C%BA%E7%9A%84IP%E5%92%8C%E7%AB%AF%E5%8F%A3%E5%8F%B7%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%9C%89%E9%9C%80%E8%A6%81%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%9A%84%E8%AF%9D%E8%BF%98%E9%9C%80%E8%A6%81%E5%8A%A0%E4%B8%8A%E6%8E%88%E6%9D%83%E4%BF%A1%E6%81%AF%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%94%B6%E5%88%B0%E4%BF%A1%E4%BB%A4%E5%90%8E%E9%A6%96%E5%85%88%E8%BF%9B%E8%A1%8C%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%EF%BC%8C%E9%80%9A%E8%BF%87%E5%90%8E%E4%BE%BF%E4%B8%8E%E8%BF%9C%E7%A8%8B%E4%B8%BB%E6%9C%BA%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%8C%E8%BF%9E%E6%8E%A5%E6%88%90%E5%8A%9F%E4%B9%8B%E5%90%8E%E4%BC%9A%E8%BF%94%E5%9B%9E%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF200%EF%BC%8C%E8%A1%A8%E7%A4%BA%E9%AA%8C%E8%AF%81%E9%80%9A%E8%BF%87%EF%BC%8C%E5%B0%B1%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95%EF%BC%8C%E4%B8%8B%E9%9D%A2%E6%98%AF%E5%85%B7%E4%BD%93%E7%9A%84%E4%BF%A1%E4%BB%A4%E6%A0%BC%E5%BC%8F%EF%BC%9A%0A%60%60%60%0ACONNECT%2059.64.128.198%3A21%20HTTP%2F1.1%0AHost%3A%2059.64.128.198%3A21%0AProxy-Authorization%3A%20Basic%20bGV2I1TU5OTIz%0AUser-Agent%3A%20OpenFetion%0A%60%60%60%0A%0A%3E%E5%85%B6%E4%B8%ADProxy-Authorization%E6%98%AF%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%BF%A1%E6%81%AF%EF%BC%8CBasic%E5%90%8E%E9%9D%A2%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%98%AF%E7%94%A8%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81%E7%BB%84%E5%90%88%E5%90%8E%E8%BF%9B%E8%A1%8Cbase64%E7%BC%96%E7%A0%81%E7%9A%84%E7%BB%93%E6%9E%9C%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AF%E5%AF%B9username%3Apassword%E8%BF%9B%E8%A1%8Cbase64%E7%BC%96%E7%A0%81%E3%80%82%0A%60%60%60%0AHTTP%2F1.0%20200%20Connection%20established%0A%60%60%60%0A%0A%3E%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%94%B6%E5%88%B0%E6%94%B6%E9%9D%A2%E7%9A%84%E4%BF%A1%E4%BB%A4%E5%90%8E%E8%A1%A8%E7%A4%BA%E6%88%90%E5%8A%9F%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%8C%E6%8E%A5%E4%B8%8B%E6%9D%A5%E8%A6%81%E5%8F%91%E9%80%81%E7%BB%99%E8%BF%9C%E7%A8%8B%E4%B8%BB%E6%9C%BA%E7%9A%84%E6%95%B0%E6%8D%AE%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%8F%91%E9%80%81%E7%BB%99%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BA%86%EF%BC%8C%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%E5%90%8E%E4%BC%9A%E5%9C%A8%E6%A0%B9%E6%8D%AEIP%E5%9C%B0%E5%9D%80%E5%92%8C%E7%AB%AF%E5%8F%A3%E5%8F%B7%E5%AF%B9%E5%BA%94%E7%9A%84%E8%BF%9E%E6%8E%A5%E6%94%BE%E5%85%A5%E7%BC%93%E5%AD%98%EF%BC%8C%E6%94%B6%E5%88%B0%E4%BF%A1%E4%BB%A4%E5%90%8E%E5%86%8D%E6%A0%B9%E6%8D%AEIP%E5%9C%B0%E5%9D%80%E5%92%8C%E7%AB%AF%E5%8F%A3%E5%8F%B7%E4%BB%8E%E7%BC%93%E5%AD%98%E4%B8%AD%E6%89%BE%E5%88%B0%E5%AF%B9%E5%BA%94%E7%9A%84%E8%BF%9E%E6%8E%A5%EF%BC%8C%E5%B0%86%E6%95%B0%E6%8D%AE%E9%80%9A%E8%BF%87%E8%AF%A5%E8%BF%9E%E6%8E%A5%E8%BD%AC%E5%8F%91%E5%87%BA%E5%8E%BB%E3%80%82%0A%0A%0A%23%23%20%E8%AE%BE%E7%BD%AEcookies%E4%B8%AD%E9%97%B4%E4%BB%B6%0A%60%60%60%0Aimport%20random%0Aclass%20RandomCookiesMiddleware(object)%3A%0A%20%20%20%20%0A%20%20%20%20def%20process_request(self%2Crequest%2Cspider)%3A%0A%20%20%20%20%20%20%20%20cookies%20%3D%20spider.settings%5B'COOKIES'%5D%0A%20%20%20%20%20%20%20%20%23%E9%9A%8F%E6%9C%BA%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AAcookies%0A%20%20%20%20%20%20%20%20cookie%20%3D%20random.choice(cookies)%0A%20%20%20%20%20%20%20%20if%20cookie%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20request.cookies%20%3D%20cookie%0A%60%60%60%0A%0A%23%23%20%E8%AE%BE%E7%BD%AEselenium%E4%B8%AD%E9%97%B4%E4%BB%B6%0A%0A%60%60%60%0Afrom%20selenium%20import%20webdriver%0Afrom%20selenium.common.exceptions%20import%20TimeoutException%0Afrom%20scrapy.http%20import%20HtmlResponse%0A%0Aclass%20SeleniumMiddleware(object)%3A%0A%20%20%20%20def%20__init__(self)%3A%0A%0A%20%20%20%20%20%20%20%20self.drive%20%3D%20webdriver.Chrome(executable_path%3D'')%0A%20%20%20%20%20%20%20%20self.drive.set_page_load_timeout(10)%0A%0A%20%20%20%20def%20process_request(self%2Crequest%2Cspider)%3A%0A%20%20%20%20%20%20%20%20try%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20url%20%3D%20request.url%0A%20%20%20%20%20%20%20%20%20%20%20%20self.drive.get(url)%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20self.drive.page_source%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20HtmlResponse(url%3Durl%2Cbody%3Dself.drive.page_source%2Cstatus%3D200%2Cencoding%3D'utf-8'%2Crequest%3Drequest)%0A%20%20%20%20%20%20%20%20except%20TimeoutException%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print('%E8%AF%B7%E6%B1%82%E8%B6%85%E6%97%B6')%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20HtmlResponse(url%3Durl%2Cbody%3DNone%2Cstatus%3D500)%0A%60%60%60</center></body></html>

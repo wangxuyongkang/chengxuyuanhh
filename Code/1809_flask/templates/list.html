@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% for foo in articles %}
+<li>
+    <p><a href="/show/{{ foo.id }}">标题:{{ foo.title }}</a></p>
+    <p>描述:{{ foo.desc }}</p>
+</li>
+{% endfor %}
+
+
+</body>
+</html>

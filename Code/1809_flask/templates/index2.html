@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% macro m_input() %}
+    <h1>哈哈</h1><br>
+{% endmacro %}
+{{ m_input() }}
+{% macro m_input(tip,type,val = '123') %}
+    {{ tip }}:<input type="{{ type }}" value="{{ val }}"><br>
+{% endmacro %}
+{{ m_input('账号','text') }}
+{{ m_input('密码','password') }}
+{{ m_input('账号','text','456') }}
+{{ m_input('密码','password') }}
+</body>
+</html>

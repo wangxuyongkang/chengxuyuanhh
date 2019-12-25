@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1> welcom to study flask </h1>
+    姓名:{{name}}
+    年龄:{{age}}
+<ul>
+    {% for h in hobby %}
+        {% if loop.index == 1 %}
+            <li style="background-color: blueviolet">{{ h }}</li>
+        {% elif loop.index == 2 %}
+            <li style="background-color: aquamarine">{{ h }}</li>
+        {% else %}
+            <li style="background-color: brown">{{ h }}</li>
+        {% endif %}
+   {% endfor %}
+   </ul>
+{#男:<span>{{ test.a }}</span><br>#}
+{##}
+{#女:<span>{{ test.b }}</span>#}
+{#长度:{{ name|length }}<br>#}
+{#大写:{{ name|upper }}<br>#}
+{#默认:{{ name|default('男') }}<br>#}
+{#反转:{{ name|reverse }}<br>#}
+{##}
+{#禁用转译{{ content|safe }}<br>#}
+{##}
+{#自定义加密过滤器:{{ password|dp() }}<br>#}
+{#{{ password | add(5) }}<br>#}
+
+</body>
+</html>

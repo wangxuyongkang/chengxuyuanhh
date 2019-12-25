@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 15:04:53 +0000"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-29 15:06:43 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>45  scrapy中关于Splash的使用</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">curl -sSL https://get.docker.com/ | sh</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">为什么要学习Splash？</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">我们经常使用scrapy框架编写爬虫代码，站在巨人的肩膀上感觉很好，但是一旦遇到网站用JavaScript动态渲染，scrapy就显得有些力不从心了，我们了解的selenium可以完成动态加载，返回浏览器渲染后的页面，今天我们不讲selenium，Scrapy-Splash（是一个Scrapy中支持JavaScript渲染的工具）同样可以完成这件事，下面我们来说说Splash如何与Scrapy进行对接。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">官方文档：https://splash.readthedocs.io/en/stable/</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">准备工作</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">安装:https://splash.readthedocs.io/en/stable/install.html<br/>
+Scrapy-Splash 会使用Splash的HTTP API 进行页面渲染，所以我们需要安装Splash，这里需要通过Docker安装</li>
+</ul>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">Linux + Docker</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Linux<br/>
+详细的分步骤的安装说明可以参见官方文档，https://docs.docker.com/engine/installation/linux/ubuntu/。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">在官方文档中详细说明了不同Linux系统的安装方法，安装流程根据文档一步步执行即可安装成功。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">但是为了使得安装更加方便，Docker官方还提供了一键安装脚本，使用它会使得安装更加便捷，不用再去一步步执行命令安装了，在此介绍一下一键脚本安装方式。</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">首先是Docker官方提供的安装脚本，相比其他脚本，官方提供的一定更靠谱，安装命令如下：</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">curl -sSL https://get.docker.com/ | sh<br/>
+只要执行如上一条命令，等待一会儿Docker便会安装完成，非常方便。</p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Install <a href="https://www.docker.com/" style="line-height: 160%; box-sizing: content-box; text-decoration: underline; color: #5286bc;">Docker</a></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Pull the image:</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">sudo docker pull scrapinghub/splash</p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Start the container:</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">sudo docker run -it -p 8050:8050 scrapinghub/splash</p>
+</blockquote>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">OS X + Docker</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">Install Docker for Mac (see https://docs.docker.com/docker-for-mac/).</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;">Pull the image:</p>
+</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">docker pull scrapinghub/splash</p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Start the container:</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">docker run -it -p 8050:8050 scrapinghub/splash</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">运行完毕后在浏览器中打开地址：http://0.0.0.0:8050 出现如下界面</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="45%20%20scrapy%E4%B8%AD%E5%85%B3%E4%BA%8ESplash%E7%9A%84%E4%BD%BF%E7%94%A8.resources/Snip20190407_6.png" height="677" width="1136"/></p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">安装scrapy-splash</h5>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip3 install scrapy-splash</p>
+</blockquote>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">使用对比</h5>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step1: 使用scrapy创建项目：</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">设置文件中修改如下：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># Obey robots.txt rules
+ROBOTSTXT_OBEY = False
+
+DEFAULT_REQUEST_HEADERS = {
+    'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
+}
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">爬虫文件中代码如下：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import scrapy
+
+class SplashspiderSpider(scrapy.Spider):
+    name = 'splashSpider'
+    allowed_domains = ['douban.com']
+    start_urls = ['https://movie.douban.com/subject_search?search_text=%E6%88%90%E9%BE%99&amp;cat=1002']
+
+    def parse(self, response):
+        print(response.status,response.url)
+        with open('page.html','w') as file:
+            file.write(response.text)
+
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">将响应结果存储到本地后并没有页面展示的元数据</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">step2: 使用scrapy-splash完成请求</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">在settings.py文件中，你需要额外的填写下面的一些内容：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 渲染服务的url（本地或者远端服务器ip）
+SPLASH_URL = 'http://127.0.0.1:8050'
+
+# 设置爬虫中间件
+SPIDER_MIDDLEWARES = {
+   #'splashpeoject.middlewares.SplashpeojectSpiderMiddleware': 543,
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}
+
+#设置相关下载器中间件
+#这里配置了三个下载中间件（ DownloadMiddleware），是scrapy-splash的核心部分，我们不需要
+#像对接selenium那样自己定制中间件，scrapy-splash已经为我们准备好了，直接配置即可
+DOWNLOADER_MIDDLEWARES = {
+    #'splashpeoject.middlewares.SplashpeojectDownloaderMiddleware': 543,
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+}
+
+# 配置去重组件类DUPEFILTER_CLASS
+DUPEFILTER_# 使用Splash的Http缓存
+HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">在爬虫代码文件中做如下修改：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># -*- coding: utf-8 -*-
+import scrapy
+from scrapy_splash import SplashRequest,SplashFormRequest
+
+class SplashspiderSpider(scrapy.Spider):
+    name = 'splashSpider'
+    allowed_domains = ['douban.com']
+    start_urls = ['https://movie.douban.com/subject_search?search_text=%E6%88%90%E9%BE%99&amp;cat=1002']
+
+    def start_requests(self):
+
+        for url in self.start_urls:
+	        #SplashRequest对象，前两个参数依然是请求的URL和回调函数。另外我们还可以
+	        #通过args传递一些渲染参数，例如等待时间wait等，还可以根据endpoint参数指定渲
+	        #染接口。更多参数可以参考文档说明：https://github.com/scrapy-plugins/scrapy-
+	        #splash#requests。
+            yield SplashRequest(
+                url=url,
+                callback=self.parse,
+                meta={'title':'xxxx'},
+                args={
+                    'wait':1,
+                }
+            )
+
+    def parse(self, response):
+        print(response.status,response.url,response.meta)
+        with open('page.html','w') as file:
+            file.write(response.text)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">完成以上基本代码我们就可以使用Splash来抓取页面了，这里我们使用创建<br/>
+SplashRequest对象构建请求，scrapy会将此请求转发给Splash，Splash对页面进行渲染，然后将渲染后的页面返回给spider进行解析即可。</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">在Spider里用SplashRequest对接Lua脚本，构建请求</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">比如我们需要在页面加载出来后，自动点击下一页,则需要执行响应的js代码</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># -*- coding: utf-8 -*-
+import scrapy
+from scrapy_splash import SplashRequest,SplashFormRequest
+
+class SplashspiderSpider(scrapy.Spider):
+    name = 'splashSpider'
+    allowed_domains = ['douban.com']
+    start_urls = ['https://movie.douban.com/subject_search?search_text=%E6%88%90%E9%BE%99&amp;cat=1002']
+
+    script = """
+    function main(splash,args)
+        splash.images_enabled = false
+        assert(splash:go(args.url))
+        assert(splash:wait(args.wait))
+        js = "document.querySelector('a.next').click()"
+        splash:evaljs(js)
+        assert(splash:wait(args.wait))
+        return splash:html()
+    end
+    """
+
+
+    def start_requests(self):
+
+        for url in self.start_urls:
+            yield SplashRequest(
+                url,
+                callback=self.parse,
+                endpoint='execute',
+                args={
+                    'wait':1,
+                    'lua_source':self.script
+                }
+            )
+
+    def parse(self, response):
+        print(response.status,response.url,response.meta,response.request.headers)
+        with open('page.html','w') as file:
+            file.write(response.text)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">关于scrapy-splash使用以及如何设置代理ip</h4>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">方式一：现在我们需要给我们的scrapy添加代理中间件middlewares</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class ProxyMiddleware(object):
+      def process_request(self, request, spider):
+	      request.meta['splash']['args']['proxy'] = proxyServer
+	      proxy_user_pass = "USERNAME:PASSWORD"
+	      encoded_user_pass = base64.encodestring(proxy_user_pass)
+	      request.headers["Proxy-Authorization"] = 'Basic ' + encoded_user_pass
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意：这里我们需要注意的是设置代理不再是</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">request.meta['proxy'] = proxyServer而是request.meta['splash'] ['args']['proxy'] = proxyServer</strong></p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">方式二：在构造请求的时候设置代理</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">def start_requests(self):
+    for url in self.start_urls:
+        yield SplashRequest(url,
+            url=url,
+            callback=self.parse,
+            args={
+            	   'wait': 5,
+                   'proxy': 'http://proxy_ip:proxy_port'
+            }
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">===============================================</h5>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">splash+requests get请求示例</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import requests
+def splash_render(url):
+    splash_url = "http://localhost:8050/render.html"
+    args = {
+        "url":url,
+        "timeout": 5,
+        "image": 0
+    }
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36',
+    }
+    response = requests.get(splash_url, params=args,headers=headers)
+    return response.text
+
+if __name__ == '__main__':
+    url = "https://movie.douban.com/subject_search?search_text=%E6%88%90%E9%BE%99&amp;cat=1002"
+    html = splash_render(url)
+    with open('page1.html', 'w') as file:
+        file.write(html)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">args参数说明：</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">url: 需要渲染的页面地址</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">timeout: 超时时间</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">proxy：代理</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">wait：等待渲染时间</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">images: 是否下载，默认1（下载）</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">js_source: 渲染页面前执行的js代码</li>
+</ul>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">Splash其他参考文献：</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://www.cnblogs.com/lmx123/p/9989915.html</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">splash+requests get请求示例</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://blog.csdn.net/mouday/article/details/82843401</p>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">curl%20-sSL%20https%3A%2F%2Fget.docker.com%2F%20%7C%20sh%0A%23%23%23%23%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AD%A6%E4%B9%A0Splash%EF%BC%9F%0A%E6%88%91%E4%BB%AC%E7%BB%8F%E5%B8%B8%E4%BD%BF%E7%94%A8scrapy%E6%A1%86%E6%9E%B6%E7%BC%96%E5%86%99%E7%88%AC%E8%99%AB%E4%BB%A3%E7%A0%81%EF%BC%8C%E7%AB%99%E5%9C%A8%E5%B7%A8%E4%BA%BA%E7%9A%84%E8%82%A9%E8%86%80%E4%B8%8A%E6%84%9F%E8%A7%89%E5%BE%88%E5%A5%BD%EF%BC%8C%E4%BD%86%E6%98%AF%E4%B8%80%E6%97%A6%E9%81%87%E5%88%B0%E7%BD%91%E7%AB%99%E7%94%A8JavaScript%E5%8A%A8%E6%80%81%E6%B8%B2%E6%9F%93%EF%BC%8Cscrapy%E5%B0%B1%E6%98%BE%E5%BE%97%E6%9C%89%E4%BA%9B%E5%8A%9B%E4%B8%8D%E4%BB%8E%E5%BF%83%E4%BA%86%EF%BC%8C%E6%88%91%E4%BB%AC%E4%BA%86%E8%A7%A3%E7%9A%84selenium%E5%8F%AF%E4%BB%A5%E5%AE%8C%E6%88%90%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%EF%BC%8C%E8%BF%94%E5%9B%9E%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E5%90%8E%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BB%8A%E5%A4%A9%E6%88%91%E4%BB%AC%E4%B8%8D%E8%AE%B2selenium%EF%BC%8CScrapy-Splash%EF%BC%88%E6%98%AF%E4%B8%80%E4%B8%AAScrapy%E4%B8%AD%E6%94%AF%E6%8C%81JavaScript%E6%B8%B2%E6%9F%93%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%89%E5%90%8C%E6%A0%B7%E5%8F%AF%E4%BB%A5%E5%AE%8C%E6%88%90%E8%BF%99%E4%BB%B6%E4%BA%8B%EF%BC%8C%E4%B8%8B%E9%9D%A2%E6%88%91%E4%BB%AC%E6%9D%A5%E8%AF%B4%E8%AF%B4Splash%E5%A6%82%E4%BD%95%E4%B8%8EScrapy%E8%BF%9B%E8%A1%8C%E5%AF%B9%E6%8E%A5%E3%80%82%0A%0A%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%EF%BC%9Ahttps%3A%2F%2Fsplash.readthedocs.io%2Fen%2Fstable%2F%0A%0A%23%23%23%23%23%20%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%0A-%20%E5%AE%89%E8%A3%85%3Ahttps%3A%2F%2Fsplash.readthedocs.io%2Fen%2Fstable%2Finstall.html%0AScrapy-Splash%20%E4%BC%9A%E4%BD%BF%E7%94%A8Splash%E7%9A%84HTTP%20API%20%E8%BF%9B%E8%A1%8C%E9%A1%B5%E9%9D%A2%E6%B8%B2%E6%9F%93%EF%BC%8C%E6%89%80%E4%BB%A5%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%AE%89%E8%A3%85Splash%EF%BC%8C%E8%BF%99%E9%87%8C%E9%9C%80%E8%A6%81%E9%80%9A%E8%BF%87Docker%E5%AE%89%E8%A3%85%0A%23%23%23%23%20Linux%20%2B%20Docker%0A%0ALinux%0A%E8%AF%A6%E7%BB%86%E7%9A%84%E5%88%86%E6%AD%A5%E9%AA%A4%E7%9A%84%E5%AE%89%E8%A3%85%E8%AF%B4%E6%98%8E%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%A7%81%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%EF%BC%8Chttps%3A%2F%2Fdocs.docker.com%2Fengine%2Finstallation%2Flinux%2Fubuntu%2F%E3%80%82%0A%0A%E5%9C%A8%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%E4%B8%AD%E8%AF%A6%E7%BB%86%E8%AF%B4%E6%98%8E%E4%BA%86%E4%B8%8D%E5%90%8CLinux%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95%EF%BC%8C%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B%E6%A0%B9%E6%8D%AE%E6%96%87%E6%A1%A3%E4%B8%80%E6%AD%A5%E6%AD%A5%E6%89%A7%E8%A1%8C%E5%8D%B3%E5%8F%AF%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F%E3%80%82%0A%0A%E4%BD%86%E6%98%AF%E4%B8%BA%E4%BA%86%E4%BD%BF%E5%BE%97%E5%AE%89%E8%A3%85%E6%9B%B4%E5%8A%A0%E6%96%B9%E4%BE%BF%EF%BC%8CDocker%E5%AE%98%E6%96%B9%E8%BF%98%E6%8F%90%E4%BE%9B%E4%BA%86%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%AE%83%E4%BC%9A%E4%BD%BF%E5%BE%97%E5%AE%89%E8%A3%85%E6%9B%B4%E5%8A%A0%E4%BE%BF%E6%8D%B7%EF%BC%8C%E4%B8%8D%E7%94%A8%E5%86%8D%E5%8E%BB%E4%B8%80%E6%AD%A5%E6%AD%A5%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E5%AE%89%E8%A3%85%E4%BA%86%EF%BC%8C%E5%9C%A8%E6%AD%A4%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B%E4%B8%80%E9%94%AE%E8%84%9A%E6%9C%AC%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F%E3%80%82%0A%0A%E9%A6%96%E5%85%88%E6%98%AFDocker%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC%EF%BC%8C%E7%9B%B8%E6%AF%94%E5%85%B6%E4%BB%96%E8%84%9A%E6%9C%AC%EF%BC%8C%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E4%B8%80%E5%AE%9A%E6%9B%B4%E9%9D%A0%E8%B0%B1%EF%BC%8C%E5%AE%89%E8%A3%85%E5%91%BD%E4%BB%A4%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%0A%3E%20curl%20-sSL%20https%3A%2F%2Fget.docker.com%2F%20%7C%20sh%0A%E5%8F%AA%E8%A6%81%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8A%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4%EF%BC%8C%E7%AD%89%E5%BE%85%E4%B8%80%E4%BC%9A%E5%84%BFDocker%E4%BE%BF%E4%BC%9A%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%EF%BC%8C%E9%9D%9E%E5%B8%B8%E6%96%B9%E4%BE%BF%E3%80%82%0A%0A%0A-%20Install%20%5BDocker%5D(https%3A%2F%2Fwww.docker.com%2F)%0A-%20Pull%20the%20image%3A%0A%3E%20sudo%20docker%20pull%20scrapinghub%2Fsplash%0A-%20Start%20the%20container%3A%0A%3E%20sudo%20docker%20run%20-it%20-p%208050%3A8050%20scrapinghub%2Fsplash%0A%0A%23%23%23%23%20OS%20X%20%2B%20Docker%0A-%20Install%20Docker%20for%20Mac%20(see%20https%3A%2F%2Fdocs.docker.com%2Fdocker-for-mac%2F).%0A%0A-%20Pull%20the%20image%3A%0A%3E%20docker%20pull%20scrapinghub%2Fsplash%0A%0A-%20Start%20the%20container%3A%0A%3E%20docker%20run%20-it%20-p%208050%3A8050%20scrapinghub%2Fsplash%0A%0A%E8%BF%90%E8%A1%8C%E5%AE%8C%E6%AF%95%E5%90%8E%E5%9C%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E4%B8%AD%E6%89%93%E5%BC%80%E5%9C%B0%E5%9D%80%EF%BC%9Ahttp%3A%2F%2F0.0.0.0%3A8050%20%E5%87%BA%E7%8E%B0%E5%A6%82%E4%B8%8B%E7%95%8C%E9%9D%A2%0A%0A!%5Be5286c342c9b2090143da1483fd1b289.png%5D(en-resource%3A%2F%2Fdatabase%2F3210%3A1)%0A%0A%23%23%23%23%23%20%E5%AE%89%E8%A3%85scrapy-splash%0A%3E%20pip3%20install%20scrapy-splash%0A%0A%23%23%23%23%23%20%E4%BD%BF%E7%94%A8%E5%AF%B9%E6%AF%94%0A%23%23%23%23%23%20step1%3A%20%E4%BD%BF%E7%94%A8scrapy%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE%EF%BC%9A%0A%0A-%20%E8%AE%BE%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BF%AE%E6%94%B9%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%0A%60%60%60%0A%23%20Obey%20robots.txt%20rules%0AROBOTSTXT_OBEY%20%3D%20False%0A%0ADEFAULT_REQUEST_HEADERS%20%3D%20%7B%0A%20%20%20%20'User-Agent'%3A'Mozilla%2F5.0%20(Macintosh%3B%20Intel%20Mac%20OS%20X%2010_13_6)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F73.0.3683.86%20Safari%2F537.36'%2C%0A%7D%0A%60%60%60%0A%0A-%20%E7%88%AC%E8%99%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%60%60%60%0Aimport%20scrapy%0A%0Aclass%20SplashspiderSpider(scrapy.Spider)%3A%0A%20%20%20%20name%20%3D%20'splashSpider'%0A%20%20%20%20allowed_domains%20%3D%20%5B'douban.com'%5D%0A%20%20%20%20start_urls%20%3D%20%5B'https%3A%2F%2Fmovie.douban.com%2Fsubject_search%3Fsearch_text%3D%25E6%2588%2590%25E9%25BE%2599%26cat%3D1002'%5D%0A%0A%20%20%20%20def%20parse(self%2C%20response)%3A%0A%20%20%20%20%20%20%20%20print(response.status%2Cresponse.url)%0A%20%20%20%20%20%20%20%20with%20open('page.html'%2C'w')%20as%20file%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20file.write(response.text)%0A%0A%60%60%60%0A%E5%B0%86%E5%93%8D%E5%BA%94%E7%BB%93%E6%9E%9C%E5%AD%98%E5%82%A8%E5%88%B0%E6%9C%AC%E5%9C%B0%E5%90%8E%E5%B9%B6%E6%B2%A1%E6%9C%89%E9%A1%B5%E9%9D%A2%E5%B1%95%E7%A4%BA%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AE%0A%0A%23%23%23%23%23%20step2%3A%20%E4%BD%BF%E7%94%A8scrapy-splash%E5%AE%8C%E6%88%90%E8%AF%B7%E6%B1%82%0A-%20%E5%9C%A8settings.py%E6%96%87%E4%BB%B6%E4%B8%AD%EF%BC%8C%E4%BD%A0%E9%9C%80%E8%A6%81%E9%A2%9D%E5%A4%96%E7%9A%84%E5%A1%AB%E5%86%99%E4%B8%8B%E9%9D%A2%E7%9A%84%E4%B8%80%E4%BA%9B%E5%86%85%E5%AE%B9%EF%BC%9A%0A%0A%60%60%60%0A%23%20%E6%B8%B2%E6%9F%93%E6%9C%8D%E5%8A%A1%E7%9A%84url%EF%BC%88%E6%9C%AC%E5%9C%B0%E6%88%96%E8%80%85%E8%BF%9C%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8ip%EF%BC%89%0ASPLASH_URL%20%3D%20'http%3A%2F%2F127.0.0.1%3A8050'%0A%0A%23%20%E8%AE%BE%E7%BD%AE%E7%88%AC%E8%99%AB%E4%B8%AD%E9%97%B4%E4%BB%B6%0ASPIDER_MIDDLEWARES%20%3D%20%7B%0A%20%20%20%23'splashpeoject.middlewares.SplashpeojectSpiderMiddleware'%3A%20543%2C%0A%20%20%20%20'scrapy_splash.SplashDeduplicateArgsMiddleware'%3A%20100%2C%0A%7D%0A%0A%23%E8%AE%BE%E7%BD%AE%E7%9B%B8%E5%85%B3%E4%B8%8B%E8%BD%BD%E5%99%A8%E4%B8%AD%E9%97%B4%E4%BB%B6%0A%23%E8%BF%99%E9%87%8C%E9%85%8D%E7%BD%AE%E4%BA%86%E4%B8%89%E4%B8%AA%E4%B8%8B%E8%BD%BD%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%20DownloadMiddleware%EF%BC%89%EF%BC%8C%E6%98%AFscrapy-splash%E7%9A%84%E6%A0%B8%E5%BF%83%E9%83%A8%E5%88%86%EF%BC%8C%E6%88%91%E4%BB%AC%E4%B8%8D%E9%9C%80%E8%A6%81%0A%23%E5%83%8F%E5%AF%B9%E6%8E%A5selenium%E9%82%A3%E6%A0%B7%E8%87%AA%E5%B7%B1%E5%AE%9A%E5%88%B6%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%8Cscrapy-splash%E5%B7%B2%E7%BB%8F%E4%B8%BA%E6%88%91%E4%BB%AC%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%EF%BC%8C%E7%9B%B4%E6%8E%A5%E9%85%8D%E7%BD%AE%E5%8D%B3%E5%8F%AF%0ADOWNLOADER_MIDDLEWARES%20%3D%20%7B%0A%20%20%20%20%23'splashpeoject.middlewares.SplashpeojectDownloaderMiddleware'%3A%20543%2C%0A%20%20%20%20'scrapy_splash.SplashCookiesMiddleware'%3A%20723%2C%0A%20%20%20%20'scrapy_splash.SplashMiddleware'%3A%20725%2C%0A%20%20%20%20'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware'%3A%20810%2C%0A%7D%0A%0A%23%20%E9%85%8D%E7%BD%AE%E5%8E%BB%E9%87%8D%E7%BB%84%E4%BB%B6%E7%B1%BBDUPEFILTER_CLASS%0ADUPEFILTER_CLASS%20%3D%20'scrapy_splash.SplashAwareDupeFilter'%0A%23%20%E4%BD%BF%E7%94%A8Splash%E7%9A%84Http%E7%BC%93%E5%AD%98%0AHTTPCACHE_STORAGE%20%3D%20'scrapy_splash.SplashAwareFSCacheStorage'%0A%60%60%60%0A%0A-%20%E5%9C%A8%E7%88%AC%E8%99%AB%E4%BB%A3%E7%A0%81%E6%96%87%E4%BB%B6%E4%B8%AD%E5%81%9A%E5%A6%82%E4%B8%8B%E4%BF%AE%E6%94%B9%EF%BC%9A%0A%0A%60%60%60%0A%23%20-*-%20coding%3A%20utf-8%20-*-%0Aimport%20scrapy%0Afrom%20scrapy_splash%20import%20SplashRequest%2CSplashFormRequest%0A%0Aclass%20SplashspiderSpider(scrapy.Spider)%3A%0A%20%20%20%20name%20%3D%20'splashSpider'%0A%20%20%20%20allowed_domains%20%3D%20%5B'douban.com'%5D%0A%20%20%20%20start_urls%20%3D%20%5B'https%3A%2F%2Fmovie.douban.com%2Fsubject_search%3Fsearch_text%3D%25E6%2588%2590%25E9%25BE%2599%26cat%3D1002'%5D%0A%0A%20%20%20%20def%20start_requests(self)%3A%0A%0A%20%20%20%20%20%20%20%20for%20url%20in%20self.start_urls%3A%0A%09%20%20%20%20%20%20%20%20%23SplashRequest%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%89%8D%E4%B8%A4%E4%B8%AA%E5%8F%82%E6%95%B0%E4%BE%9D%E7%84%B6%E6%98%AF%E8%AF%B7%E6%B1%82%E7%9A%84URL%E5%92%8C%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E3%80%82%E5%8F%A6%E5%A4%96%E6%88%91%E4%BB%AC%E8%BF%98%E5%8F%AF%E4%BB%A5%0A%09%20%20%20%20%20%20%20%20%23%E9%80%9A%E8%BF%87args%E4%BC%A0%E9%80%92%E4%B8%80%E4%BA%9B%E6%B8%B2%E6%9F%93%E5%8F%82%E6%95%B0%EF%BC%8C%E4%BE%8B%E5%A6%82%E7%AD%89%E5%BE%85%E6%97%B6%E9%97%B4wait%E7%AD%89%EF%BC%8C%E8%BF%98%E5%8F%AF%E4%BB%A5%E6%A0%B9%E6%8D%AEendpoint%E5%8F%82%E6%95%B0%E6%8C%87%E5%AE%9A%E6%B8%B2%0A%09%20%20%20%20%20%20%20%20%23%E6%9F%93%E6%8E%A5%E5%8F%A3%E3%80%82%E6%9B%B4%E5%A4%9A%E5%8F%82%E6%95%B0%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3%E8%AF%B4%E6%98%8E%EF%BC%9Ahttps%3A%2F%2Fgithub.com%2Fscrapy-plugins%2Fscrapy-%0A%09%20%20%20%20%20%20%20%20%23splash%23requests%E3%80%82%0A%20%20%20%20%20%20%20%20%20%20%20%20yield%20SplashRequest(%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20url%3Durl%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20callback%3Dself.parse%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20meta%3D%7B'title'%3A'xxxx'%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20args%3D%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'wait'%3A1%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20def%20parse(self%2C%20response)%3A%0A%20%20%20%20%20%20%20%20print(response.status%2Cresponse.url%2Cresponse.meta)%0A%20%20%20%20%20%20%20%20with%20open('page.html'%2C'w')%20as%20file%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20file.write(response.text)%0A%60%60%60%0A%0A%E5%AE%8C%E6%88%90%E4%BB%A5%E4%B8%8A%E5%9F%BA%E6%9C%AC%E4%BB%A3%E7%A0%81%E6%88%91%E4%BB%AC%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8Splash%E6%9D%A5%E6%8A%93%E5%8F%96%E9%A1%B5%E9%9D%A2%E4%BA%86%EF%BC%8C%E8%BF%99%E9%87%8C%E6%88%91%E4%BB%AC%E4%BD%BF%E7%94%A8%E5%88%9B%E5%BB%BA%0ASplashRequest%E5%AF%B9%E8%B1%A1%E6%9E%84%E5%BB%BA%E8%AF%B7%E6%B1%82%EF%BC%8Cscrapy%E4%BC%9A%E5%B0%86%E6%AD%A4%E8%AF%B7%E6%B1%82%E8%BD%AC%E5%8F%91%E7%BB%99Splash%EF%BC%8CSplash%E5%AF%B9%E9%A1%B5%E9%9D%A2%E8%BF%9B%E8%A1%8C%E6%B8%B2%E6%9F%93%EF%BC%8C%E7%84%B6%E5%90%8E%E5%B0%86%E6%B8%B2%E6%9F%93%E5%90%8E%E7%9A%84%E9%A1%B5%E9%9D%A2%E8%BF%94%E5%9B%9E%E7%BB%99spider%E8%BF%9B%E8%A1%8C%E8%A7%A3%E6%9E%90%E5%8D%B3%E5%8F%AF%E3%80%82%0A%0A%23%23%23%23%23%20%E5%9C%A8Spider%E9%87%8C%E7%94%A8SplashRequest%E5%AF%B9%E6%8E%A5Lua%E8%84%9A%E6%9C%AC%EF%BC%8C%E6%9E%84%E5%BB%BA%E8%AF%B7%E6%B1%82%0A-%20%E6%AF%94%E5%A6%82%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%9C%A8%E9%A1%B5%E9%9D%A2%E5%8A%A0%E8%BD%BD%E5%87%BA%E6%9D%A5%E5%90%8E%EF%BC%8C%E8%87%AA%E5%8A%A8%E7%82%B9%E5%87%BB%E4%B8%8B%E4%B8%80%E9%A1%B5%2C%E5%88%99%E9%9C%80%E8%A6%81%E6%89%A7%E8%A1%8C%E5%93%8D%E5%BA%94%E7%9A%84js%E4%BB%A3%E7%A0%81%0A%0A%60%60%60%0A%23%20-*-%20coding%3A%20utf-8%20-*-%0Aimport%20scrapy%0Afrom%20scrapy_splash%20import%20SplashRequest%2CSplashFormRequest%0A%0Aclass%20SplashspiderSpider(scrapy.Spider)%3A%0A%20%20%20%20name%20%3D%20'splashSpider'%0A%20%20%20%20allowed_domains%20%3D%20%5B'douban.com'%5D%0A%20%20%20%20start_urls%20%3D%20%5B'https%3A%2F%2Fmovie.douban.com%2Fsubject_search%3Fsearch_text%3D%25E6%2588%2590%25E9%25BE%2599%26cat%3D1002'%5D%0A%0A%20%20%20%20script%20%3D%20%22%22%22%0A%20%20%20%20function%20main(splash%2Cargs)%0A%20%20%20%20%20%20%20%20splash.images_enabled%20%3D%20false%0A%20%20%20%20%20%20%20%20assert(splash%3Ago(args.url))%0A%20%20%20%20%20%20%20%20assert(splash%3Await(args.wait))%0A%20%20%20%20%20%20%20%20js%20%3D%20%22document.querySelector('a.next').click()%22%0A%20%20%20%20%20%20%20%20splash%3Aevaljs(js)%0A%20%20%20%20%20%20%20%20assert(splash%3Await(args.wait))%0A%20%20%20%20%20%20%20%20return%20splash%3Ahtml()%0A%20%20%20%20end%0A%20%20%20%20%22%22%22%0A%0A%0A%20%20%20%20def%20start_requests(self)%3A%0A%0A%20%20%20%20%20%20%20%20for%20url%20in%20self.start_urls%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20yield%20SplashRequest(%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20url%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20callback%3Dself.parse%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20endpoint%3D'execute'%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20args%3D%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'wait'%3A1%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'lua_source'%3Aself.script%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20def%20parse(self%2C%20response)%3A%0A%20%20%20%20%20%20%20%20print(response.status%2Cresponse.url%2Cresponse.meta%2Cresponse.request.headers)%0A%20%20%20%20%20%20%20%20with%20open('page.html'%2C'w')%20as%20file%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20file.write(response.text)%0A%60%60%60%0A%0A%23%23%23%23%20%E5%85%B3%E4%BA%8Escrapy-splash%E4%BD%BF%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86ip%0A-%20%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E7%8E%B0%E5%9C%A8%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E7%BB%99%E6%88%91%E4%BB%AC%E7%9A%84scrapy%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%90%86%E4%B8%AD%E9%97%B4%E4%BB%B6middlewares%0A%0A%60%60%60%0Aclass%20ProxyMiddleware(object)%3A%0A%20%20%20%20%20%20def%20process_request(self%2C%20request%2C%20spider)%3A%0A%09%20%20%20%20%20%20request.meta%5B'splash'%5D%5B'args'%5D%5B'proxy'%5D%20%3D%20proxyServer%0A%09%20%20%20%20%20%20proxy_user_pass%20%3D%20%22USERNAME%3APASSWORD%22%0A%09%20%20%20%20%20%20encoded_user_pass%20%3D%20base64.encodestring(proxy_user_pass)%0A%09%20%20%20%20%20%20request.headers%5B%22Proxy-Authorization%22%5D%20%3D%20'Basic%20'%20%2B%20encoded_user_pass%0A%60%60%60%0A%E6%B3%A8%E6%84%8F%EF%BC%9A%E8%BF%99%E9%87%8C%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E6%98%AF%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%E4%B8%8D%E5%86%8D%E6%98%AF%0A%3E**request.meta%5B'proxy'%5D%20%3D%20proxyServer%E8%80%8C%E6%98%AFrequest.meta%5B'splash'%5D%20%5B'args'%5D%5B'proxy'%5D%20%3D%20proxyServer**%0A%0A-%20%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E5%9C%A8%E6%9E%84%E9%80%A0%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86%0A%0A%60%60%60%0Adef%20start_requests(self)%3A%0A%20%20%20%20for%20url%20in%20self.start_urls%3A%0A%20%20%20%20%20%20%20%20yield%20SplashRequest(url%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20url%3Durl%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20callback%3Dself.parse%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20args%3D%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%09%20%20%20'wait'%3A%205%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20'proxy'%3A%20'http%3A%2F%2Fproxy_ip%3Aproxy_port'%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%60%60%60%0A%23%23%23%23%23%20%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%3D%0A%23%23%23%23%23%20splash%2Brequests%20get%E8%AF%B7%E6%B1%82%E7%A4%BA%E4%BE%8B%0A%0A%60%60%60%0Aimport%20requests%0Adef%20splash_render(url)%3A%0A%20%20%20%20splash_url%20%3D%20%22http%3A%2F%2Flocalhost%3A8050%2Frender.html%22%0A%20%20%20%20args%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%22url%22%3Aurl%2C%0A%20%20%20%20%20%20%20%20%22timeout%22%3A%205%2C%0A%20%20%20%20%20%20%20%20%22image%22%3A%200%0A%20%20%20%20%7D%0A%20%20%20%20headers%20%3D%20%7B%0A%20%20%20%20%20%20%20%20'User-Agent'%3A'Mozilla%2F5.0%20(Macintosh%3B%20Intel%20Mac%20OS%20X%2010_13_6)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F73.0.3683.86%20Safari%2F537.36'%2C%0A%20%20%20%20%7D%0A%20%20%20%20response%20%3D%20requests.get(splash_url%2C%20params%3Dargs%2Cheaders%3Dheaders)%0A%20%20%20%20return%20response.text%0A%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%20%20%20%20url%20%3D%20%22https%3A%2F%2Fmovie.douban.com%2Fsubject_search%3Fsearch_text%3D%25E6%2588%2590%25E9%25BE%2599%26cat%3D1002%22%0A%20%20%20%20html%20%3D%20splash_render(url)%0A%20%20%20%20with%20open('page1.html'%2C%20'w')%20as%20file%3A%0A%20%20%20%20%20%20%20%20file.write(html)%0A%60%60%60%0A**args%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A**%0A-%20url%3A%20%E9%9C%80%E8%A6%81%E6%B8%B2%E6%9F%93%E7%9A%84%E9%A1%B5%E9%9D%A2%E5%9C%B0%E5%9D%80%0A-%20timeout%3A%20%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%0A-%20proxy%EF%BC%9A%E4%BB%A3%E7%90%86%0A-%20wait%EF%BC%9A%E7%AD%89%E5%BE%85%E6%B8%B2%E6%9F%93%E6%97%B6%E9%97%B4%0A-%20images%3A%20%E6%98%AF%E5%90%A6%E4%B8%8B%E8%BD%BD%EF%BC%8C%E9%BB%98%E8%AE%A41%EF%BC%88%E4%B8%8B%E8%BD%BD%EF%BC%89%0A-%20js_source%3A%20%E6%B8%B2%E6%9F%93%E9%A1%B5%E9%9D%A2%E5%89%8D%E6%89%A7%E8%A1%8C%E7%9A%84js%E4%BB%A3%E7%A0%81%0A%0A%0A%23%23%23%23%20Splash%E5%85%B6%E4%BB%96%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%EF%BC%9A%0Ahttps%3A%2F%2Fwww.cnblogs.com%2Flmx123%2Fp%2F9989915.html%0A%23%23%23%23%20splash%2Brequests%20get%E8%AF%B7%E6%B1%82%E7%A4%BA%E4%BE%8B%0Ahttps%3A%2F%2Fblog.csdn.net%2Fmouday%2Farticle%2Fdetails%2F82843401</center></body></html>

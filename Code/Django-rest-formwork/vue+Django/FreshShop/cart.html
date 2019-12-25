@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>购物车</title>
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/fonts/iconfont.css">
+  <link rel="stylesheet" type="text/css" href="css/shophead.css">
+  <link rel="stylesheet" type="text/css" href="css/cart.css">
+  <link rel="stylesheet" type="text/css" href="css/footer.css">
+</head>
+<body>
+  <!-- 页头 -->
+  <div>
+    <div id="header">
+      <div class="hd_bar" id="userinfo-bar">
+        <div class="bd">
+          <div class="hd_lbar" style="display: block;" id="ECS_MEMBERZONE">
+
+            <a href="index.html"> 网站首页</a>
+            <a href="userinfo.html">易烊千玺</a>
+            &nbsp;<a href="javascript:;">退出</a>
+
+            <!-- <a href="login.html"> 登录</a>
+            <a href="register.html"> 注册</a> -->
+
+          </div>
+          <ul class="hd-step">
+            <li class="first on"><em>1</em>我的购物车<i></i></li>
+            <li class="jt">&nbsp;</li>
+            <li class="on"><em>2</em>确认订单信息<i></i></li>
+            <li class="jt">&nbsp;</li>
+            <li><em>3</em>支付<i></i></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- 页面主体 -->
+  <div id="main">
+    <div class="top-next cle">
+      <div class="fl">
+        <a class="graybtn">继续购物</a>
+        <a href="order.html" class="btn" id="checkout-top">&nbsp;去结算&nbsp;</a>
+      </div>
+    </div>
+    <div class="cart-box" id="cart-box">
+      <div class="hd">
+        <span class="no2" id="itemsnum-top">2件商品</span>
+        <span class="no4">单价</span>
+        <span>数量</span>
+        <span>小计</span>
+      </div>
+      <div class="goods-list">
+        <ul>
+          <!-- 购物车项 -->
+          <li class="cle hover" style="border-bottom-style: none;">
+            <div class="pic">
+              <a target="_blank"> <img alt="澳洲进口牛尾巴300g新鲜肥牛肉" src="images/cart/images/2.jpg"></a>
+            </div>
+            <div class="name">
+              <a target="_blank">澳洲进口牛尾巴300g新鲜肥牛肉</a>
+              <p></p>
+            </div>
+            <div class="price-xj">
+              <p><em>￥255元</em></p>
+            </div>
+            <div class="nums">
+              <span class="minus" title="减少1个数量">-</span>
+              <input type="text"  value="2">
+              <span class="add" title="增加1个数量">+</span>
+            </div>
+            <div class="price-xj"><span></span>
+              <em>￥510元</em>
+            </div>
+            <div class="del">
+              <a class="btn-del">删除</a>
+            </div>
+          </li>
+
+          <li class="cle hover" style="border-bottom-style: none;">
+            <div class="pic">
+              <a target="_blank"> <img alt="白兰瓜" src="images/cart/images/1.jpg"></a>
+            </div>
+            <div class="name">
+              <a target="_blank">白兰瓜</a>
+              <p></p>
+            </div>
+            <div class="price-xj">
+              <p><em>￥19元</em></p>
+            </div>
+            <div class="nums">
+              <span class="minus" title="减少1个数量">-</span>
+              <input type="text"  value="1">
+              <span class="add" title="增加1个数量">+</span>
+            </div>
+            <div class="price-xj"><span></span>
+              <em>￥19元</em>
+            </div>
+            <div class="del">
+              <a class="btn-del">删除</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="fd cle">
+        <div>
+          <p class="no1"> <a id="del-all">清空购物车</a> </p>
+          <p><a class="graybtn">继续购物</a></p>
+        </div>
+        <div class="fr" id="price-total">
+          <p><span id="selectedCount">2</span>件商品，总价：<span class="red"><strong id="totalSkuPrice">￥529元</strong></span></p>
+        </div>
+        <div class="extr">
+          <div class="address">
+            <p class="title">配送地址</p>
+            <ul>
+              <li class="add">
+                <a href="receive.html" target = _blank> + 点击添加地址</a>
+              </li>
+              <!-- 收货人地址 -->
+              <li class="addressActive">
+                <p class="item">地址：北京市 房山区 窦店镇 百草洼现代管理大学</p>
+                <p class="item">电话：13812345678</p>
+                <p class="item">姓名：易烊千玺</p>
+              </li>
+              <li class="">
+                <p class="item">地址：北京市 市辖区 大兴区 庆丰路大兴二职</p>
+                <p class="item">电话：13887654321</p>
+                <p class="item">姓名：赵丽颖</p>
+              </li>
+            </ul>
+          </div>
+          <div class="pay">
+            <p class="title">选择支付方式</p>
+            <p class="payWrap">
+              <!-- 支付方式 -->
+              <img src="images/alipay.128a09b.jpg" class="payWrapActive">
+              <img src="images/alipay.128a09b.jpg" class="">
+            </p>
+          </div>
+        </div>
+        <textarea placeholder="请输入留言" style="margin-top: 10px; height:50px;width: 100%;"></textarea>
+        <p class="sumup"><a href="order.html" class="btn">去结算</a></p>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <div class="ft-bg">
+      <div class="w-ensure mb20">
+        <div class="w-main">
+          <ul>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr1.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr2.gif">
+            </a></li>
+            <li><a >
+              <img width="300" height="90" src="images/footer/ft-svr3.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr4.gif">
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="ft_main"></div>
+        <div class="ft_txt">
+          <p class="ft_contact"> <span>服务时间：09:00-23:00</span>
+            <span class="ft_phone">客服热线: <em>010-88888888</em></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

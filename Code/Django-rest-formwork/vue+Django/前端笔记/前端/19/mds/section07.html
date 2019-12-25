@@ -1,0 +1,1893 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>vue 源码分析 | 课程介绍</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.6.7">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-search/search.css">
+        
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-fontsettings/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="prev" href="../../19/mds/section06.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book"
+        data-level="12.7"
+        data-chapter-title="vue"
+        data-filepath="19/mds/section07.md"
+        data-basepath="../.."
+        data-revision="Thu Aug 30 2018 21:35:26 GMT+0800 (中国标准时间)"
+        data-innerlanguage="">
+    
+
+<div class="book-summary">
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        课程介绍
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="01/index.html">
+            
+                
+                    <a href="../../01/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        HTML
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="01/mds/section01.html">
+            
+                
+                    <a href="../../01/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        html概述和基本结构
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="01/mds/section02.html">
+            
+                
+                    <a href="../../01/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        html标题
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="01/mds/section03.html">
+            
+                
+                    <a href="../../01/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        html段落、换行与字符实体
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="01/mds/section04.html">
+            
+                
+                    <a href="../../01/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        html块、含样式的标签
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="01/mds/section05.html">
+            
+                
+                    <a href="../../01/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        html图像、绝对路径和相对路径
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="01/mds/section06.html">
+            
+                
+                    <a href="../../01/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.6.</b>
+                        
+                        html链接
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="01/mds/section07.html">
+            
+                
+                    <a href="../../01/mds/section07.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.7.</b>
+                        
+                        html列表
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="01/mds/section08.html">
+            
+                
+                    <a href="../../01/mds/section08.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.8.</b>
+                        
+                        html表格及传统布局
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="01/mds/section09.html">
+            
+                
+                    <a href="../../01/mds/section09.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.9.</b>
+                        
+                        html表单
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="01/mds/section10.html">
+            
+                
+                    <a href="../../01/mds/section10.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.10.</b>
+                        
+                        html内嵌框架
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="02/index.html">
+            
+                
+                    <a href="../../02/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        CSS
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="01/mds/section12.html">
+            
+                
+                    <a href="../../01/mds/section12.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        css基本语法及页面引用
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="01/mds/section13.html">
+            
+                
+                    <a href="../../01/mds/section13.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.</b>
+                        
+                        css文本设置
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="01/mds/section14.html">
+            
+                
+                    <a href="../../01/mds/section14.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.3.</b>
+                        
+                        css颜色表示法
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="02/mds/section003.html">
+            
+                
+                    <a href="../../02/mds/section003.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.4.</b>
+                        
+                        css选择器
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="02/mds/section01.html">
+            
+                
+                    <a href="../../02/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.5.</b>
+                        
+                        css盒模型
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" data-path="02/mds/section004.html">
+            
+                
+                    <a href="../../02/mds/section004.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.6.</b>
+                        
+                        css元素溢出
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" data-path="02/mds/section02.html">
+            
+                
+                    <a href="../../02/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.7.</b>
+                        
+                        块元素、内联元素、内联块元素
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" data-path="02/mds/section03.html">
+            
+                
+                    <a href="../../02/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.8.</b>
+                        
+                        浮动
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" data-path="02/mds/section04.html">
+            
+                
+                    <a href="../../02/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.9.</b>
+                        
+                        定位
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.10" data-path="02/mds/section05.html">
+            
+                
+                    <a href="../../02/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.10.</b>
+                        
+                        background属性
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.11" data-path="02/mds/section06.html">
+            
+                
+                    <a href="../../02/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.11.</b>
+                        
+                        特征布局实例讲习
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="03-04/index.html">
+            
+                
+                    <a href="../../03-04/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Photoshop
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1" data-path="03-04/mds/section01.html">
+            
+                
+                    <a href="../../03-04/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.1.</b>
+                        
+                        常用图片格式
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="03-04/mds/section02.html">
+            
+                
+                    <a href="../../03-04/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.2.</b>
+                        
+                        photoshop常用图片处理技巧
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="03-04/mds/section03.html">
+            
+                
+                    <a href="../../03-04/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.3.</b>
+                        
+                        ps效果图制作实例
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="05/mds/section02.html">
+            
+                
+                    <a href="../../05/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.4.</b>
+                        
+                        photoshop批量切图技巧
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5" data-path="05/mds/section03.html">
+            
+                
+                    <a href="../../05/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.5.</b>
+                        
+                        Photoshop制作雪碧图技巧
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="05/mds/section04.html">
+            
+                
+                    <a href="../../05/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        前端页面开发流程
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="06-07/index.html">
+            
+                
+                    <a href="../../06-07/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        HTML5与CSS3
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="5.1" data-path="06-07/mds/section00.html">
+            
+                
+                    <a href="../../06-07/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.1.</b>
+                        
+                        CSS权重
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.2" data-path="06-07/mds/section01.html">
+            
+                
+                    <a href="../../06-07/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.2.</b>
+                        
+                        CSS3新增选择器
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3" data-path="06-07/mds/section02.html">
+            
+                
+                    <a href="../../06-07/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.3.</b>
+                        
+                        CSS3圆角、阴影、rgba
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.4" data-path="06-07/mds/section03.html">
+            
+                
+                    <a href="../../06-07/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.4.</b>
+                        
+                        CSS3 transition动画
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.5" data-path="06-07/mds/section04.html">
+            
+                
+                    <a href="../../06-07/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.5.</b>
+                        
+                        CSS3 transform变换
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.6" data-path="06-07/mds/section05.html">
+            
+                
+                    <a href="../../06-07/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.6.</b>
+                        
+                        CSS3 animation动画
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.7" data-path="08/mds/section03.html">
+            
+                
+                    <a href="../../08/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.7.</b>
+                        
+                        CSS浏览器前缀
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.8" data-path="08/mds/section00.html">
+            
+                
+                    <a href="../../08/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.8.</b>
+                        
+                        HTML5新结构标签
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.9" data-path="08/mds/section01.html">
+            
+                
+                    <a href="../../08/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.9.</b>
+                        
+                        HTML5 新增表单控件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="5.10" data-path="08/mds/section02.html">
+            
+                
+                    <a href="../../08/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.10.</b>
+                        
+                        HTML5 音频和视频
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="6" data-path="08/mds/section04.html">
+            
+                
+                    <a href="../../08/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.</b>
+                        
+                        移动端页面开发流程
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="6.1" data-path="08/mds/section05.html">
+            
+                
+                    <a href="../../08/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>6.1.</b>
+                        
+                        移动端布局实例
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7" data-path="09/index.html">
+            
+                
+                    <a href="../../09/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.</b>
+                        
+                        JavaScript
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.1" data-path="09/mds/section00.html">
+            
+                
+                    <a href="../../09/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.1.</b>
+                        
+                        JavaScript介绍
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2" data-path="09/mds/section01.html">
+            
+                
+                    <a href="../../09/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.2.</b>
+                        
+                        JavaScript嵌入页面的方式
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.3" data-path="09/mds/section02.html">
+            
+                
+                    <a href="../../09/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.3.</b>
+                        
+                        变量
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.4" data-path="09/mds/section03.html">
+            
+                
+                    <a href="../../09/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.4.</b>
+                        
+                        获取元素方法一
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.5" data-path="09/mds/section04.html">
+            
+                
+                    <a href="../../09/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.5.</b>
+                        
+                        操作元素属性
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.6" data-path="09/mds/section05.html">
+            
+                
+                    <a href="../../09/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.6.</b>
+                        
+                        函数
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.7" data-path="10/mds/section00.html">
+            
+                
+                    <a href="../../10/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.7.</b>
+                        
+                        条件语句
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.8" data-path="10/mds/section01.html">
+            
+                
+                    <a href="../../10/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.8.</b>
+                        
+                        数组及操作方法
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.9" data-path="10/mds/section02.html">
+            
+                
+                    <a href="../../10/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.9.</b>
+                        
+                        循环语句
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.10" data-path="10/mds/section03.html">
+            
+                
+                    <a href="../../10/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.10.</b>
+                        
+                        Javascript组成
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.11" data-path="10/mds/section04.html">
+            
+                
+                    <a href="../../10/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.11.</b>
+                        
+                        字符串处理方法
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.12" data-path="10/mds/section05.html">
+            
+                
+                    <a href="../../10/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.12.</b>
+                        
+                        调试程序的方法
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.13" data-path="10/mds/section06.html">
+            
+                
+                    <a href="../../10/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.13.</b>
+                        
+                        定时器
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.14" data-path="11/mds/section00.html">
+            
+                
+                    <a href="../../11/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.14.</b>
+                        
+                        类型转换
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.15" data-path="11/mds/section01.html">
+            
+                
+                    <a href="../../11/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.15.</b>
+                        
+                        变量作用域
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.16" data-path="11/mds/section02.html">
+            
+                
+                    <a href="../../11/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.16.</b>
+                        
+                        封闭函数
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.17" data-path="11/mds/section03.html">
+            
+                
+                    <a href="../../11/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.17.</b>
+                        
+                        闭包
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.18" data-path="11/mds/section04.html">
+            
+                
+                    <a href="../../11/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.18.</b>
+                        
+                        内置对象
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.19" data-path="11/mds/section05.html">
+            
+                
+                    <a href="../../11/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.19.</b>
+                        
+                        面向对象
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="7.20" data-path="11/mds/section06.html">
+            
+                
+                    <a href="../../11/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>7.20.</b>
+                        
+                        新选择器
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="8" data-path="12/index.html">
+            
+                
+                    <a href="../../12/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.</b>
+                        
+                        JQuery
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.1" data-path="12/mds/section00.html">
+            
+                
+                    <a href="../../12/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.1.</b>
+                        
+                        jquery介绍
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2" data-path="12/mds/section01.html">
+            
+                
+                    <a href="../../12/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.2.</b>
+                        
+                        jquery加载
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.3" data-path="12/mds/section02.html">
+            
+                
+                    <a href="../../12/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.3.</b>
+                        
+                        jquery选择器
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.4" data-path="12/mds/section03.html">
+            
+                
+                    <a href="../../12/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.4.</b>
+                        
+                        jquery样式操作
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.5" data-path="12/mds/section04.html">
+            
+                
+                    <a href="../../12/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.5.</b>
+                        
+                        jquery属性操作
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.6" data-path="12/mds/section05.html">
+            
+                
+                    <a href="../../12/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.6.</b>
+                        
+                        绑定click事件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.7" data-path="12/mds/section06.html">
+            
+                
+                    <a href="../../12/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.7.</b>
+                        
+                        jquery特殊效果
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.8" data-path="12/mds/section07.html">
+            
+                
+                    <a href="../../12/mds/section07.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.8.</b>
+                        
+                        jquery链式调用
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.9" data-path="12/mds/section08.html">
+            
+                
+                    <a href="../../12/mds/section08.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.9.</b>
+                        
+                        jquery动画
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.10" data-path="12/mds/section09.html">
+            
+                
+                    <a href="../../12/mds/section09.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.10.</b>
+                        
+                        尺寸相关、滚动事件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.11" data-path="12/mds/section10.html">
+            
+                
+                    <a href="../../12/mds/section10.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.11.</b>
+                        
+                        实例
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.12" data-path="13/mds/section00.html">
+            
+                
+                    <a href="../../13/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.12.</b>
+                        
+                        jquery事件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.13" data-path="13/mds/section01.html">
+            
+                
+                    <a href="../../13/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.13.</b>
+                        
+                        主动触发与自定义事件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.14" data-path="13/mds/section02.html">
+            
+                
+                    <a href="../../13/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.14.</b>
+                        
+                        事件冒泡
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.15" data-path="13/mds/section03.html">
+            
+                
+                    <a href="../../13/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.15.</b>
+                        
+                        事件委托
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.16" data-path="13/mds/section04.html">
+            
+                
+                    <a href="../../13/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.16.</b>
+                        
+                        jquery元素节点操作
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.17" data-path="13/mds/section05.html">
+            
+                
+                    <a href="../../13/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.17.</b>
+                        
+                        滚轮事件与函数节流
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.18" data-path="13/mds/section06.html">
+            
+                
+                    <a href="../../13/mds/section06.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.18.</b>
+                        
+                        实例
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.19" data-path="14/mds/section00.html">
+            
+                
+                    <a href="../../14/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.19.</b>
+                        
+                        json
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.20" data-path="14/mds/section01.html">
+            
+                
+                    <a href="../../14/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.20.</b>
+                        
+                        ajax与jsonp
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.21" data-path="14/mds/section02.html">
+            
+                
+                    <a href="../../14/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.21.</b>
+                        
+                        正则表达式
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.22" data-path="14/mds/section03.html">
+            
+                
+                    <a href="../../14/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.22.</b>
+                        
+                        本地存储
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.23" data-path="14/mds/section04.html">
+            
+                
+                    <a href="../../14/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.23.</b>
+                        
+                        jqueryUI
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="8.24" data-path="14/mds/section05.html">
+            
+                
+                    <a href="../../14/mds/section05.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>8.24.</b>
+                        
+                        实例
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="9" data-path="15-16/index.html">
+            
+                
+                    <a href="../../15-16/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.</b>
+                        
+                        移动端库和框架
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="9.1" data-path="15-16/mds/section00.html">
+            
+                
+                    <a href="../../15-16/mds/section00.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.1.</b>
+                        
+                        移动端js事件
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="9.2" data-path="15-16/mds/section01.html">
+            
+                
+                    <a href="../../15-16/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.2.</b>
+                        
+                        zepto
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="9.3" data-path="15-16/mds/section02.html">
+            
+                
+                    <a href="../../15-16/mds/section02.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.3.</b>
+                        
+                        swiper
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="9.4" data-path="15-16/mds/section03.html">
+            
+                
+                    <a href="../../15-16/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>9.4.</b>
+                        
+                        bootstrap
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="10" data-path="17/index.html">
+            
+                
+                    <a href="../../17/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.</b>
+                        
+                        前端自动化及优化
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter" data-level="10.1" data-path="17/mds/section01.html">
+            
+                
+                    <a href="../../17/mds/section01.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.1.</b>
+                        
+                        less、sass、stylus
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.2" data-path="17/mds/section03.html">
+            
+                
+                    <a href="../../17/mds/section03.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.2.</b>
+                        
+                        grunt、gulp
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="10.3" data-path="17/mds/section04.html">
+            
+                
+                    <a href="../../17/mds/section04.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>10.3.</b>
+                        
+                        前端优化
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+
+            
+        <li class="chapter " data-level="11" data-path="18/index.html">
+			<a href="../../18/index.html">
+				<i class="fa fa-check"></i>
+				<b>11.</b> ES5_6_7
+			</a>
+            <ul class="articles">
+				<li class="chapter " data-level="11.1" data-path="18/mds/section01.html">
+					<a href="../../18/mds/section01.html">
+						<i class="fa fa-check"></i>
+						<b>11.1.</b> ES5
+					</a>
+				</li>
+				<li class="chapter " data-level="11.2" data-path="18/mds/section01.html">
+					<a href="../../18/mds/section02.html">
+						<i class="fa fa-check"></i>
+						<b>11.2.</b> ES6
+					</a>
+				</li>
+				<li class="chapter " data-level="11.3" data-path="18/mds/section01.html">
+					<a href="../../18/mds/section03.html">
+						<i class="fa fa-check"></i>
+						<b>11.3.</b> ES7
+					</a>
+				</li>
+            </ul>
+        </li>
+		
+        <li class="chapter" data-level="12" data-path="19/index.html">
+			<a href="../../19/index.html">
+				<i class="fa fa-check"></i>
+				<b>12.</b> Vue
+			</a>
+            <ul class="articles">
+				<li class="chapter " data-level="12.1" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section01.html">
+						<i class="fa fa-check"></i>
+						<b>12.1.</b> Vue 核心
+					</a>
+				</li>
+				<li class="chapter " data-level="12.2" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section02.html">
+						<i class="fa fa-check"></i>
+						<b>12.2.</b> vue 组件化编码
+					</a>
+				</li>
+				<li class="chapter " data-level="12.3" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section03.html">
+						<i class="fa fa-check"></i>
+						<b>12.3.</b> vue-ajax
+					</a>
+				</li>
+				<li class="chapter " data-level="12.4" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section04.html">
+						<i class="fa fa-check"></i>
+						<b>12.4.</b> vue UI 组件库
+					</a>
+				</li>
+				<li class="chapter " data-level="12.5" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section05.html">
+						<i class="fa fa-check"></i>
+						<b>12.5.</b> vue-router
+					</a>
+				</li>
+				<li class="chapter " data-level="12.6" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section06.html">
+						<i class="fa fa-check"></i>
+						<b>12.6.</b> vuex
+					</a>
+				</li>
+				<li class="chapter active" data-level="12.7" data-path="19/mds/section01.html">
+					<a href="../../19/mds/section07.html">
+						<i class="fa fa-check"></i>
+						<b>12.7.</b> vue 源码分析
+					</a>
+				</li>
+            </ul>
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://github.com/phoenixshow/FrontCode" target="blank" class="gitbook-link">
+                    Phoenix Github
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../../" >课程介绍</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+					
+                        <h2>7.1. 说明</h2>
+<p>1）分析 vue 作为一个 MVVM 框架的基本实现原理</p>
+<p style="text-indent:2em;">数据代理</p>
+<p style="text-indent:2em;">模板解析</p>
+<p style="text-indent:2em;">数据绑定</p>
+<p>2）不直接看 vue.js 的源码</p>
+<p>3）剖析 github 上某基友仿 vue 实现的 mvvm 库</p>
+<p>4）地址: <a href="https://github.com/DMQ/mvvm" target="_blank">https://github.com/DMQ/mvvm</a></p>
+
+
+                        <h2>7.2. 准备知识</h2>
+<p>1）[].slice.call(lis): 将伪数组转换为真数组</p>
+<p>2）node.nodeType: 得到节点类型</p>
+<p>3）Object.defineProperty(obj, propName, {}): 给对象添加/修改属性(指定描述符)</p>
+<p style="text-indent:2em;">configurable: true/false	是否可以重新 define</p>
+<p style="text-indent:2em;">enumerable: true/false  是否可以枚举(for..in / keys())</p>
+<p style="text-indent:2em;">value: 指定初始值</p>
+<p style="text-indent:2em;">writable: true/false value 是否可以修改</p>
+<p style="text-indent:2em;">get: 回调函数, 用来得到当前属性值</p>
+<p style="text-indent:2em;">set: 回调函数, 用来监视当前属性值的变化</p>
+<p>4）Object.keys(obj):   得到对象自身可枚举的属性名的数组</p>
+<p>5）DocumentFragment:   文档碎片(高效批量更新多个节点)</p>
+<p>6）obj.hasOwnProperty(prop): 判断 prop 是否是 obj 自身的属性</p>
+
+
+                        <h2>7.3. 数据代理</h2>
+<p>1）数据代理: 通过一个对象代理对另一个对象(在前一个对象内部)中属性的操作(读/写)</p>
+<p>2）vue 数据代理: 通过 vm 对象来代理 data 对象中所有属性的操作</p>
+<p>3）好处: 更方便的操作 data 中的数据</p>
+<p>4）基本实现流程</p>
+<p style="text-indent:2em;">a.通过 Object.defineProperty()给 vm 添加与 data 对象的属性对应的属性描述符</p>
+<p style="text-indent:2em;">b.所有添加的属性都包含 getter/setter</p>
+<p style="text-indent:2em;">c.getter/setter 内部去操作 data 中对应的属性数据</p>
+
+
+                        <h2>7.4. 模板解析</h2>
+                        <h3>7.4.1. 模板解析的基本流程</h3>
+<p>1）将 el 的所有子节点取出, 添加到一个新建的文档 fragment 对象中</p>
+<p>2）对 fragment 中的所有层次子节点递归进行编译解析处理</p>
+<p style="text-indent:2em;">a.对大括号表达式文本节点进行解析</p>
+<p style="text-indent:2em;">b.对元素节点的指令属性进行解析</p>
+<p style="text-indent:4em;">*事件指令解析</p>
+<p style="text-indent:4em;">*一般指令解析</p>
+<p>3）将解析后的 fragment 添加到 el 中显示</p>
+                        <h3>7.4.2. 模板解析(1): 大括号表达式解析</h3>
+<p>1）根据正则对象得到匹配出的表达式字符串: 子匹配/RegExp.$1	name</p>
+<p>2）从 data 中取出表达式对应的属性值</p>
+<p>3）将属性值设置为文本节点的 textContent</p>
+                        <h3>7.4.3. 模板解析(2): 事件指令解析</h3>
+<p>1）从指令名中取出事件名</p>
+<p>2）根据指令的值(表达式)从 methods 中得到对应的事件处理函数对象</p>
+<p>3）给当前元素节点绑定指定事件名和回调函数的 dom 事件监听</p>
+<p>4）指令解析完后, 移除此指令属性</p>
+                        <h3>7.4.4. 模板解析(3): 一般指令解析</h3>
+<p>1）得到指令名和指令值(表达式)	text/html/class	msg/myClass</p>
+<p>2）从 data 中根据表达式得到对应的值</p>
+<p>3）根据指令名确定需要操作元素节点的什么属性</p>
+<p style="text-indent:2em;">* v-text---textContent 属 性</p>
+<p style="text-indent:2em;">* v-html---innerHTML 属性</p>
+<p style="text-indent:2em;">* v-class--className 属性</p>
+<p>4）将得到的表达式的值设置到对应的属性上</p>
+<p>5）移除元素的指令属性</p>
+
+
+                        <h2>7.5. 数据绑定</h2>
+                        <h3>7.5.1. 数据绑定</h3>
+<p>一旦更新了 data 中的某个属性数据, 所有界面上直接使用或间接使用了此属性的节点都会更新</p>
+                        <h3>7.5.2. 数据劫持</h3>
+<p>1）数据劫持是 vue 中用来实现数据绑定的一种技术</p>
+<p>2）基本思想: 通过 defineProperty()来监视 data 中所有属性(任意层次)数据的变化, 一旦变化就去更新界面</p>
+                        <h3>7.5.3. 四个重要对象</h3>
+<p>1）Observer</p>
+<p style="text-indent:2em;">a.用来对 data 所有属性数据进行劫持的构造函数</p>
+<p style="text-indent:2em;">b.给 data 中所有属性重新定义属性描述(get/set)</p>
+<p style="text-indent:2em;">c.为 data 中的每个属性创建对应的 dep 对象</p>
+<p>2）Dep(Depend)</p>
+<p style="text-indent:2em;">a.data 中的每个属性(所有层次)都对应一个 dep 对象</p>
+<p style="text-indent:2em;">b.创建的时机:</p>
+<p style="text-indent:4em;">*在初始化 define data 中各个属性时创建对应的 dep 对象</p>
+<p style="text-indent:4em;">*在 data 中的某个属性值被设置为新的对象时</p>
+<p style="text-indent:2em;">c.对象的结构</p>
+<pre><code>{
+	id, // 每个 dep 都有一个唯一的 id
+	subs //包含 n 个对应 watcher 的数组(subscribes 的简写)
+}
+</code></pre>
+<p style="text-indent:2em;">d.subs 属性说明</p>
+<p style="text-indent:4em;">*当 watcher 被创建时, 内部将当前 watcher 对象添加到对应的 dep 对象的 subs 中</p>
+<p style="text-indent:4em;">*当此 data 属性的值发生改变时, subs 中所有的 watcher 都会收到更新的通知,从而最终更新对应的界面</p>
+<p>3）Compiler</p>
+<p style="text-indent:2em;">a.用来解析模板页面的对象的构造函数(一个实例)</p>
+<p style="text-indent:2em;">b.利用 compile 对象解析模板页面</p>
+<p style="text-indent:2em;">c.每解析一个表达式(非事件指令)都会创建一个对应的 watcher 对象, 并建立 watcher 与 dep 的关系</p>
+<p style="text-indent:2em;">d.complie 与 watcher 关系: 一对多的关系</p>
+<p>4）Watcher</p>
+<p style="text-indent:2em;">a.模板中每个非事件指令或表达式都对应一个 watcher 对象</p>
+<p style="text-indent:2em;">b.监视当前表达式数据的变化</p>
+<p style="text-indent:2em;">c.创建的时机: 在初始化编译模板时</p>
+<p style="text-indent:2em;">d.对象的组成</p>
+<pre><code>{
+	vm,	   //vm 对象
+	exp,   //对应指令的表达式
+	cb,    //当表达式所对应的数据发生改变的回调函数
+	value, //表达式当前的值
+	depIds //表达式中各级属性所对应的 dep 对象的集合对象
+	       //属性名为 dep 的 id, 属性值为 dep
+}
+</code></pre>
+<p>5）总结: dep 与 watcher 的关系——多对多</p>
+<p style="text-indent:2em;">a.data 中的一个属性对应一个 dep, 一个 dep 中可能包含多个 watcher(模板中有几个表达式使用到了同一个属性)</p>
+<p style="text-indent:2em;">b.模板中一个非事件表达式对应一个 watcher, 一个 watcher 中可能包含多个 dep(表达式是多层: a.b)</p>
+<p style="text-indent:2em;">c.数据绑定使用到 2 个核心技术</p>
+<p style="text-indent:4em;">* defineProperty()</p>
+<p style="text-indent:4em;">* 消息订阅与发布</p>
+
+
+                        <h2>7.6. MVVM 原理图分析</h2>
+<p><img src="../images/06_MVVM principle.png" alt="MVVM 原理图分析" /></p>
+
+
+                        <h2>7.7. 双向数据绑定</h2>
+<p>1）双向数据绑定是建立在单向数据绑定(model==>View)的基础之上的</p>
+<p>2）双向数据绑定的实现流程:</p>
+<p style="text-indent:2em;">a.在解析 v-model 指令时, 给当前元素添加 input 监听</p>
+<p style="text-indent:2em;">b.当 input 的 value 发生改变时, 将最新的值赋值给当前表达式所对应的 data 属性</p>
+
+
+
+						
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../../19/mds/section06.html" class="navigation navigation-prev  navigation-unique" aria-label="Previous page: vue UI 组件库"><i class="fa fa-angle-left"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../../gitbook/app.js"></script>
+
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-search/lunr.min.js"></script>
+    
+
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-search/search.js"></script>
+    
+
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-sharing/buttons.js"></script>
+    
+
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>

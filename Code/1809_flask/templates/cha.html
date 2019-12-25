@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h4>所有英雄</h4>
+    <h2><a href="/add">增加</a></h2>
+    {% for hero in gameheros %}
+        <li>{{ hero.name }}--{{ hero.sex }}--{{ hero.type}}<a href="/show/{{ hero.id }}">更新</a></li>
+    {% endfor %}
+
+根据类别分类英雄
+<ul>
+{% for foo in gametypes %}
+    <h4>{{ foo.name }}</h4>
+    {% for i in foo.heros %}
+        <li>{{ i.name }}</li>
+    {% endfor %}
+{% endfor %}
+</ul>
+
+根据性别查
+<ul>
+    {% for hero in g_heros %}
+        <li>{{ hero.name }}--{{ hero.sex }}--{{ hero.type}}</li>
+    {% endfor %}
+</ul>
+根据性别和类型查
+<ul>
+    {% for hero in d_heros %}
+        <li>{{ hero.name }}--{{ hero.sex }}--{{ hero.type}}</li>
+    {% endfor %}
+
+</ul>
+#类型为射手或着性别为男的英雄
+<ul>
+    {% for hero in f_heros %}
+        <li>{{ hero.name }}--{{ hero.sex }}--{{ hero.type}}</li>
+    {% endfor %}
+
+</ul>
+</body>
+</html>

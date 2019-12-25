@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="37.39571762084961"/><meta name="author" content="李居豪"/><meta name="created" content="2019-04-23 02:18:24 +0000"/><meta name="latitude" content="39.62996778867593"/><meta name="longitude" content="116.0482155605452"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-04 14:57:43 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>DRF进阶02</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000; margin-top: 14px;">rest framework框架</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">我们来看一段伪代码,MyClassView继承了APIView就有了APIView的功能</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">APIView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(View)</span>:</span>
+    <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">pass</span> 
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyClassView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(APIView)</span>:</span>
+    <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">pass</span>
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">基于Django的CBV</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> django.views <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> View
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> django.http <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> HttpResponse
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyClassView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(View)</span>:</span>
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">get</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        ret = {
+            <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"state_code"</span>: <span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;">1000</span>,
+            <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"msg"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"successful"</span>
+        }
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> json
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(json.dumps(ret), status=<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;">201</span>)
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">post</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"created successful"</span>)
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">delete</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"delete successful"</span>)
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">基于DRF的CBV</strong> ,DRF的APIView在Django的View基础上,增加和丰富了一些功能</p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">pip3 install djangorestframework==3.8.2</strong></p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">
+<p style="line-height: 160%; box-sizing: content-box; color: #333; margin: 0;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">RESTful规范（必须阅读,考试会考）：</strong></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333; margin-top: 0; margin-bottom: 0;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">https://blog.csdn.net/qq_33961117/article/details/84944632</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">http://www.mamicode.com/info-detail-2371881.html</li>
+</ul>
+</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> django.views <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> View
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> django.http <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> HttpResponse
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework.views <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> APIView
+
+
+<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyClassView</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(APIView)</span>:</span>
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">get</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        ret = {
+            <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"state_code"</span>: <span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;">1000</span>,
+            <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"msg"</span>: <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"successful"</span>
+        }
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> json
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(json.dumps(ret), status=<span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;">201</span>)
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">post</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"created successful"</span>)
+
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">delete</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> HttpResponse(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"delete successful"</span>)
+</code></pre>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">原理(流程)</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">当请求进来,先找CBV里面的dispatch方法</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+rest_framework\views.py 
+"""</span>
+
+ <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">dispatch</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+        <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+        `.dispatch()` is pretty much the same as Django's regular dispatch,
+        but with extra hooks for startup, finalize, and exception handling.
+        """</span>
+        self.args = args
+        self.kwargs = kwargs
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 对原生的request进行加工(丰富了一些功能)</span>
+        request = self.initialize_request(request, *args, **kwargs)
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 获取原生request,request._request</span>
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 获取认证类的对象,request.authenticators</span>
+        self.request = request
+        self.headers = self.default_response_headers  <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># deprecate?</span>
+
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">try</span>:
+            self.initial(request, *args, **kwargs)
+
+            <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># Get the appropriate handler method</span>
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">if</span> request.method.lower() <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">in</span> self.http_method_names:
+                handler = getattr(self, request.method.lower(),
+                                  self.http_method_not_allowed)
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">else</span>:
+                handler = self.http_method_not_allowed
+
+            response = handler(request, *args, **kwargs)
+
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">except</span> Exception <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">as</span> exc:
+            response = self.handle_exception(exc)
+
+        self.response = self.finalize_response(request, response, *args, **kwargs)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> self.response
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">反射</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108191829.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">request加强</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108200309.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">self.initialize_request方法做了什么?</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108200451.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">
+<span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">initialize_request</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+Returns the initial request object.
+"""</span>
+parser_context = self.get_parser_context(request)
+
+<span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 加工后新生成了Request对象</span>
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> Request(
+    request,  <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 原本的那个request</span>
+    parsers=self.get_parsers(),
+    authenticators=self.get_authenticators(), <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># 认证相关</span>
+    negotiator=self.get_content_negotiator(),
+    parser_context=parser_context
+)
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">self.get_authenticators()方法</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108201228.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">get_authenticators</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self)</span>:</span>
+<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+Instantiates and returns the list of authenticators that this view can use.
+"""</span>
+<span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># self.authentication_classes = [Dog,Cat]   auth()就是Dog和Cat对象,被装进列表里面 </span>
+<span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> [auth() <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">for</span> auth <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">in</span> self.authentication_classes]
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">get_authenticators()方法中的self.authentication_classes,先从当前类找,有就使用当前类的authentication_classes,没有就使用父类的authentication_classes,在这里使用的是APIView里面的</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108201739.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108202231.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">回到dispatch方法,我们可以看到其实request对象里面就有原生request和[BasicAuthentication,]</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108203020.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">拿到原生request方法</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108203935.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">获取认证类的对象,request.authenticators和原生request</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108204355.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">我们可以查看dispatch方法里面的反射前做了是什么，self.initial方法</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108204819.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">initial</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request, *args, **kwargs)</span>:</span>
+<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+Runs anything that needs to occur prior to calling the method handler.
+"""</span>
+    self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># Perform content negotiation and store the accepted info on the request</span>
+    neg = self.perform_content_negotiation(request)
+    request.accepted_renderer, request.accepted_media_type = neg
+
+        <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># Determine the API version, if versioning is in use.</span>
+    version, scheme = self.determine_version(request, *args, **kwargs)
+    request.version, request.versioning_scheme = version, scheme
+
+    <span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># Ensure that the incoming request is permitted</span>
+    self.perform_authentication(request)
+    self.check_permissions(request)
+    self.check_throttles(request)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205218.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">父类的perform_authentication()方法</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205348.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205626.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">找到user</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205727.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #57a64a; font-style: italic; line-height: 160%; box-sizing: content-box;"># _authenticate源码</span>
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">_authenticate</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self)</span>:</span>
+        <span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"""
+        Attempt to authenticate the request using each authentication instance
+        in turn.
+        """</span>
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">for</span> authenticator <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">in</span> self.authenticators:
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">try</span>:
+                user_auth_tuple = authenticator.authenticate(self)
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">except</span> exceptions.APIException:
+                self._not_authenticated()
+                <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">raise</span>
+
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">if</span> user_auth_tuple <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">is</span> <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">not</span> <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">None</span>:
+                self._authenticator = authenticator
+                self.user, self.auth = user_auth_tuple
+                <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span>
+
+        self._not_authenticated()
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108210210.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">登陆认证</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">我们可以编写一个自己的认证类</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"><span style="color: #b8d7a3; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">class</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">MyAuthentication</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(object)</span>:</span>
+    <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;"><span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">def</span> <span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">authenticate</span><span style="color: #dcdcdc; line-height: 160%; box-sizing: content-box;">(self, request)</span>:</span>
+        token = request._request.GET.get(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">'token'</span>)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">if</span> <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">not</span> token:
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">from</span> rest_framework <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">import</span> exceptions
+            <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">raise</span> exceptions.AuthenticationFailed(<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"对不起,用户认证失败"</span>)
+        <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">return</span> (<span style="color: #d69d85; line-height: 160%; box-sizing: content-box;">"zhangsan"</span>, <span style="color: #569cd6; line-height: 160%; box-sizing: content-box;">None</span>)
+
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">postman验证</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211046.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211238.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">解决报错</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211347.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">postman验证</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211418.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">解决方案2</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211524.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">以后我们比如有些API需要认证才能看,我们就可以在这里进行操作</li>
+</ul>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">DRF认证流程:</h1>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">请求进来先走dispatch方法</li>
+</ul>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">dispatch方法里面封装了request</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211939.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ol start="2" style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">调用initial</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212123.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ol start="3" style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">调用perform_authentication()<br/>
+<img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212249.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+</li>
+<li style="line-height: 160%; box-sizing: content-box;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">取user方法</p>
+</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212402.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ol start="5" style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">user方法里面调用了认证对象</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212533.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<ol start="6" style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">遍历认证</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212748.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<h1 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 41px; border-bottom: 3px double #999; color: #000;">使用</h1>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213110.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213327.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="http://md.100cxy.com/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213349.png" style="line-height: 160%; margin: 4px 0 10px; box-sizing: border-box; vertical-align: top; max-width: 100%;"/></p>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%20rest%20framework%E6%A1%86%E6%9E%B6%20%0A-%20%E6%88%91%E4%BB%AC%E6%9D%A5%E7%9C%8B%E4%B8%80%E6%AE%B5%E4%BC%AA%E4%BB%A3%E7%A0%81%2CMyClassView%E7%BB%A7%E6%89%BF%E4%BA%86APIView%E5%B0%B1%E6%9C%89%E4%BA%86APIView%E7%9A%84%E5%8A%9F%E8%83%BD%0A%60%60%60python%20%0Aclass%20APIView(View)%3A%0A%20%20%20%20pass%20%0A%0A%0Aclass%20MyClassView(APIView)%3A%0A%20%20%20%20pass%0A%60%60%60%0A%0A-%20%E5%9F%BA%E4%BA%8EDjango%E7%9A%84CBV%20%0A%0A%60%60%60python%0Afrom%20django.views%20import%20View%0Afrom%20django.http%20import%20HttpResponse%0A%0A%0Aclass%20MyClassView(View)%3A%0A%20%20%20%20def%20get(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20ret%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22state_code%22%3A%201000%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22msg%22%3A%20%22successful%22%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20import%20json%0A%20%20%20%20%20%20%20%20return%20HttpResponse(json.dumps(ret)%2C%20status%3D201)%0A%0A%20%20%20%20def%20post(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22created%20successful%22)%0A%0A%20%20%20%20def%20delete(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22delete%20successful%22)%0A%60%60%60%0A%0A%0A-%20**%E5%9F%BA%E4%BA%8EDRF%E7%9A%84CBV**%20%2CDRF%E7%9A%84APIView%E5%9C%A8Django%E7%9A%84View%E5%9F%BA%E7%A1%80%E4%B8%8A%2C%E5%A2%9E%E5%8A%A0%E5%92%8C%E4%B8%B0%E5%AF%8C%E4%BA%86%E4%B8%80%E4%BA%9B%E5%8A%9F%E8%83%BD%0A-%20**pip3%20install%20djangorestframework%3D%3D3.8.2**%0A%0A-%20**RESTful%E8%A7%84%E8%8C%83%EF%BC%88%E5%BF%85%E9%A1%BB%E9%98%85%E8%AF%BB%2C%E8%80%83%E8%AF%95%E4%BC%9A%E8%80%83%EF%BC%89%EF%BC%9A**%0A%20%20%20-%20https%3A%2F%2Fblog.csdn.net%2Fqq_33961117%2Farticle%2Fdetails%2F84944632%0A%20%20%20-%20http%3A%2F%2Fwww.mamicode.com%2Finfo-detail-2371881.html%0A%20%20%20%0A%60%60%60python%0Afrom%20django.views%20import%20View%0Afrom%20django.http%20import%20HttpResponse%0Afrom%20rest_framework.views%20import%20APIView%0A%0A%0Aclass%20MyClassView(APIView)%3A%0A%20%20%20%20def%20get(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20ret%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22state_code%22%3A%201000%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22msg%22%3A%20%22successful%22%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20import%20json%0A%20%20%20%20%20%20%20%20return%20HttpResponse(json.dumps(ret)%2C%20status%3D201)%0A%0A%20%20%20%20def%20post(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22created%20successful%22)%0A%0A%20%20%20%20def%20delete(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20return%20HttpResponse(%22delete%20successful%22)%0A%60%60%60%0A%23%20%E5%8E%9F%E7%90%86(%E6%B5%81%E7%A8%8B)%0A-%20%E5%BD%93%E8%AF%B7%E6%B1%82%E8%BF%9B%E6%9D%A5%2C%E5%85%88%E6%89%BECBV%E9%87%8C%E9%9D%A2%E7%9A%84dispatch%E6%96%B9%E6%B3%95%0A%0A%60%60%60python%0A%22%22%22%0Arest_framework%5Cviews.py%20%0A%22%22%22%0A%0A%20def%20dispatch(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%60.dispatch()%60%20is%20pretty%20much%20the%20same%20as%20Django's%20regular%20dispatch%2C%0A%20%20%20%20%20%20%20%20but%20with%20extra%20hooks%20for%20startup%2C%20finalize%2C%20and%20exception%20handling.%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20self.args%20%3D%20args%0A%20%20%20%20%20%20%20%20self.kwargs%20%3D%20kwargs%0A%20%20%20%20%20%20%20%20%23%20%E5%AF%B9%E5%8E%9F%E7%94%9F%E7%9A%84request%E8%BF%9B%E8%A1%8C%E5%8A%A0%E5%B7%A5(%E4%B8%B0%E5%AF%8C%E4%BA%86%E4%B8%80%E4%BA%9B%E5%8A%9F%E8%83%BD)%0A%20%20%20%20%20%20%20%20request%20%3D%20self.initialize_request(request%2C%20*args%2C%20**kwargs)%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E5%8E%9F%E7%94%9Frequest%2Crequest._request%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%8F%96%E8%AE%A4%E8%AF%81%E7%B1%BB%E7%9A%84%E5%AF%B9%E8%B1%A1%2Crequest.authenticators%0A%20%20%20%20%20%20%20%20self.request%20%3D%20request%0A%20%20%20%20%20%20%20%20self.headers%20%3D%20self.default_response_headers%20%20%23%20deprecate%3F%0A%0A%20%20%20%20%20%20%20%20try%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.initial(request%2C%20*args%2C%20**kwargs)%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%20Get%20the%20appropriate%20handler%20method%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20request.method.lower()%20in%20self.http_method_names%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20handler%20%3D%20getattr(self%2C%20request.method.lower()%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.http_method_not_allowed)%0A%20%20%20%20%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20handler%20%3D%20self.http_method_not_allowed%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20response%20%3D%20handler(request%2C%20*args%2C%20**kwargs)%0A%0A%20%20%20%20%20%20%20%20except%20Exception%20as%20exc%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20response%20%3D%20self.handle_exception(exc)%0A%0A%20%20%20%20%20%20%20%20self.response%20%3D%20self.finalize_response(request%2C%20response%2C%20*args%2C%20**kwargs)%0A%20%20%20%20%20%20%20%20return%20self.response%0A%60%60%60%0A%0A-%20%E5%8F%8D%E5%B0%84%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108191829%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108191829.png)%0A%0A-%20request%E5%8A%A0%E5%BC%BA%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108200309%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108200309.png)%0A%0A%0A-%20self.initialize_request%E6%96%B9%E6%B3%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%3F%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108200451%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108200451.png)%0A%0A%60%60%60python%0A%0Adef%20initialize_request(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%22%22%22%0AReturns%20the%20initial%20request%20object.%0A%22%22%22%0Aparser_context%20%3D%20self.get_parser_context(request)%0A%0A%23%20%E5%8A%A0%E5%B7%A5%E5%90%8E%E6%96%B0%E7%94%9F%E6%88%90%E4%BA%86Request%E5%AF%B9%E8%B1%A1%0Areturn%20Request(%0A%20%20%20%20request%2C%20%20%23%20%E5%8E%9F%E6%9C%AC%E7%9A%84%E9%82%A3%E4%B8%AArequest%0A%20%20%20%20parsers%3Dself.get_parsers()%2C%0A%20%20%20%20authenticators%3Dself.get_authenticators()%2C%20%23%20%E8%AE%A4%E8%AF%81%E7%9B%B8%E5%85%B3%0A%20%20%20%20negotiator%3Dself.get_content_negotiator()%2C%0A%20%20%20%20parser_context%3Dparser_context%0A)%0A%60%60%60%0A-%20self.get_authenticators()%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108201228%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108201228.png)%0A%0A%60%60%60python%0Adef%20get_authenticators(self)%3A%0A%22%22%22%0AInstantiates%20and%20returns%20the%20list%20of%20authenticators%20that%20this%20view%20can%20use.%0A%22%22%22%0A%23%20self.authentication_classes%20%3D%20%5BDog%2CCat%5D%20%20%20auth()%E5%B0%B1%E6%98%AFDog%E5%92%8CCat%E5%AF%B9%E8%B1%A1%2C%E8%A2%AB%E8%A3%85%E8%BF%9B%E5%88%97%E8%A1%A8%E9%87%8C%E9%9D%A2%20%0Areturn%20%5Bauth()%20for%20auth%20in%20self.authentication_classes%5D%0A%60%60%60%0A%0A-%20get_authenticators()%E6%96%B9%E6%B3%95%E4%B8%AD%E7%9A%84self.authentication_classes%2C%E5%85%88%E4%BB%8E%E5%BD%93%E5%89%8D%E7%B1%BB%E6%89%BE%2C%E6%9C%89%E5%B0%B1%E4%BD%BF%E7%94%A8%E5%BD%93%E5%89%8D%E7%B1%BB%E7%9A%84authentication_classes%2C%E6%B2%A1%E6%9C%89%E5%B0%B1%E4%BD%BF%E7%94%A8%E7%88%B6%E7%B1%BB%E7%9A%84authentication_classes%2C%E5%9C%A8%E8%BF%99%E9%87%8C%E4%BD%BF%E7%94%A8%E7%9A%84%E6%98%AFAPIView%E9%87%8C%E9%9D%A2%E7%9A%84%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108201739%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108201739.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108202231%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108202231.png)%0A%0A-%20%E5%9B%9E%E5%88%B0dispatch%E6%96%B9%E6%B3%95%2C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E5%85%B6%E5%AE%9Erequest%E5%AF%B9%E8%B1%A1%E9%87%8C%E9%9D%A2%E5%B0%B1%E6%9C%89%E5%8E%9F%E7%94%9Frequest%E5%92%8C%5BBasicAuthentication%2C%5D%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108203020%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108203020.png)%0A%0A-%20%E6%8B%BF%E5%88%B0%E5%8E%9F%E7%94%9Frequest%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108203935%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108203935.png)%0A%0A-%20%E8%8E%B7%E5%8F%96%E8%AE%A4%E8%AF%81%E7%B1%BB%E7%9A%84%E5%AF%B9%E8%B1%A1%2Crequest.authenticators%E5%92%8C%E5%8E%9F%E7%94%9Frequest%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108204355%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108204355.png)%0A%0A-%20%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E6%9F%A5%E7%9C%8Bdispatch%E6%96%B9%E6%B3%95%E9%87%8C%E9%9D%A2%E7%9A%84%E5%8F%8D%E5%B0%84%E5%89%8D%E5%81%9A%E4%BA%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%8Cself.initial%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108204819%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108204819.png)%0A%0A%60%60%60python%0Adef%20initial(self%2C%20request%2C%20*args%2C%20**kwargs)%3A%0A%22%22%22%0ARuns%20anything%20that%20needs%20to%20occur%20prior%20to%20calling%20the%20method%20handler.%0A%22%22%22%0A%20%20%20%20self.format_kwarg%20%3D%20self.get_format_suffix(**kwargs)%0A%0A%20%20%20%20%20%20%20%20%23%20Perform%20content%20negotiation%20and%20store%20the%20accepted%20info%20on%20the%20request%0A%20%20%20%20neg%20%3D%20self.perform_content_negotiation(request)%0A%20%20%20%20request.accepted_renderer%2C%20request.accepted_media_type%20%3D%20neg%0A%0A%20%20%20%20%20%20%20%20%23%20Determine%20the%20API%20version%2C%20if%20versioning%20is%20in%20use.%0A%20%20%20%20version%2C%20scheme%20%3D%20self.determine_version(request%2C%20*args%2C%20**kwargs)%0A%20%20%20%20request.version%2C%20request.versioning_scheme%20%3D%20version%2C%20scheme%0A%0A%20%20%20%20%23%20Ensure%20that%20the%20incoming%20request%20is%20permitted%0A%20%20%20%20self.perform_authentication(request)%0A%20%20%20%20self.check_permissions(request)%0A%20%20%20%20self.check_throttles(request)%0A%60%60%60%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205218%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108205218.png)%0A%0A-%20%E7%88%B6%E7%B1%BB%E7%9A%84perform_authentication()%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205348%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108205348.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205626%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108205626.png)%0A%0A-%20%E6%89%BE%E5%88%B0user%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108205727%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108205727.png)%0A%0A%60%60%60python%0A%23%20_authenticate%E6%BA%90%E7%A0%81%0A%20%20%20%20def%20_authenticate(self)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20Attempt%20to%20authenticate%20the%20request%20using%20each%20authentication%20instance%0A%20%20%20%20%20%20%20%20in%20turn.%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20for%20authenticator%20in%20self.authenticators%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20try%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20user_auth_tuple%20%3D%20authenticator.authenticate(self)%0A%20%20%20%20%20%20%20%20%20%20%20%20except%20exceptions.APIException%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self._not_authenticated()%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20raise%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20user_auth_tuple%20is%20not%20None%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self._authenticator%20%3D%20authenticator%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self.user%2C%20self.auth%20%3D%20user_auth_tuple%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0A%0A%20%20%20%20%20%20%20%20self._not_authenticated()%0A%60%60%60%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108210210%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108210210.png)%0A%0A%23%20%E7%99%BB%E9%99%86%E8%AE%A4%E8%AF%81%0A%0A-%20%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%BC%96%E5%86%99%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E8%AE%A4%E8%AF%81%E7%B1%BB%20%20%0A%0A%60%60%60python%0Aclass%20MyAuthentication(object)%3A%0A%20%20%20%20def%20authenticate(self%2C%20request)%3A%0A%20%20%20%20%20%20%20%20token%20%3D%20request._request.GET.get('token')%0A%20%20%20%20%20%20%20%20if%20not%20token%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20from%20rest_framework%20import%20exceptions%0A%20%20%20%20%20%20%20%20%20%20%20%20raise%20exceptions.AuthenticationFailed(%22%E5%AF%B9%E4%B8%8D%E8%B5%B7%2C%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E5%A4%B1%E8%B4%A5%22)%0A%20%20%20%20%20%20%20%20return%20(%22zhangsan%22%2C%20None)%0A%0A%60%60%60%0A%0A-%20postman%E9%AA%8C%E8%AF%81%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211046%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211046.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211238%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211238.png)%0A%0A-%20%E8%A7%A3%E5%86%B3%E6%8A%A5%E9%94%99%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211347%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211347.png)%0A%0A-%20postman%E9%AA%8C%E8%AF%81%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211418%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211418.png)%0A%0A-%20%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%882%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211524%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211524.png)%0A%0A-%20%E4%BB%A5%E5%90%8E%E6%88%91%E4%BB%AC%E6%AF%94%E5%A6%82%E6%9C%89%E4%BA%9BAPI%E9%9C%80%E8%A6%81%E8%AE%A4%E8%AF%81%E6%89%8D%E8%83%BD%E7%9C%8B%2C%E6%88%91%E4%BB%AC%E5%B0%B1%E5%8F%AF%E4%BB%A5%E5%9C%A8%E8%BF%99%E9%87%8C%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C%0A%0A%23%20DRF%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%3A%20%0A-%20%E8%AF%B7%E6%B1%82%E8%BF%9B%E6%9D%A5%E5%85%88%E8%B5%B0dispatch%E6%96%B9%E6%B3%95%0A%0A1.%20dispatch%E6%96%B9%E6%B3%95%E9%87%8C%E9%9D%A2%E5%B0%81%E8%A3%85%E4%BA%86request%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108211939%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108211939.png)%0A%0A2.%20%E8%B0%83%E7%94%A8initial%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212123%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108212123.png)%0A%0A3.%20%E8%B0%83%E7%94%A8perform_authentication()%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212249%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108212249.png)%0A%0A4.%20%E5%8F%96user%E6%96%B9%E6%B3%95%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212402%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108212402.png)%0A%0A5.%20user%E6%96%B9%E6%B3%95%E9%87%8C%E9%9D%A2%E8%B0%83%E7%94%A8%E4%BA%86%E8%AE%A4%E8%AF%81%E5%AF%B9%E8%B1%A1%20%20%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212533%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108212533.png)%0A%0A6.%20%E9%81%8D%E5%8E%86%E8%AE%A4%E8%AF%81%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108212748%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108212748.png)%0A%0A%23%20%E4%BD%BF%E7%94%A8%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213110%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108213110.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213327%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108213327.png)%0A%0A!%5B%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190108213349%5D(http%3A%2F%2Fmd.100cxy.com%2F%25E5%25BE%25AE%25E4%25BF%25A1%25E6%2588%25AA%25E5%259B%25BE_20190108213349.png)%0A</center></body></html>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="altitude" content="36"/><meta name="author" content="李居豪"/><meta name="created" content="2019-06-11 14:52:09 +0000"/><meta name="latitude" content="39.63155009027234"/><meta name="longitude" content="116.0504994186355"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-06-12 13:58:04 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>乐农客012 支付宝 相关代码（理解思路）</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">支付宝官网：</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://open.alipay.com/platform/home.htm</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">阅读支付宝开发平台文档，对接支付功能:</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">开发文档：<br/>
+https://docs.open.alipay.com/catalog</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">支付API接口文档：<br/>
+https://docs.open.alipay.com/api</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">沙箱（测试环境对接步骤）<br/>
+https://docs.open.alipay.com/200/105311#s0</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">生成 RSA 密钥 （公钥、私钥） https://docs.open.alipay.com/291/105971</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">沙箱应用地址：<br/>
+https://openhome.alipay.com/platform/appDaily.htm?tab=info</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">获取APPID</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">获取支付宝公钥</li>
+</ul>
+<hr style="line-height: 160%; box-sizing: content-box; border-top: 1px solid #eee; margin: 16px 0;"/>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">支付模块封装代码</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意：使用时需要安装pycryptodome</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip install pycryptodome</p>
+</blockquote>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from datetime import datetime
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
+from base64 import b64encode, b64decode
+from urllib.parse import quote_plus
+from urllib.parse import urlparse, parse_qs
+from urllib.request import urlopen
+from base64 import decodebytes, encodebytes
+
+import json
+
+
+class AliPay(object):
+    """
+    支付宝支付接口
+    """
+    def __init__(self, appid, app_notify_url, app_private_key_path,
+                 alipay_public_key_path, return_url, debug=False):
+        self.appid = appid
+        self.app_notify_url = app_notify_url
+        self.app_private_key_path = app_private_key_path
+        self.app_private_key = None
+        self.return_url = return_url
+        with open(self.app_private_key_path) as fp:
+            self.app_private_key = RSA.importKey(fp.read())
+
+        self.alipay_public_key_path = alipay_public_key_path
+        with open(self.alipay_public_key_path) as fp:
+            self.alipay_public_key = RSA.import_key(fp.read())
+
+
+        if debug is True:
+            self.__gateway = "https://openapi.alipaydev.com/gateway.do"
+        else:
+            self.__gateway = "https://openapi.alipay.com/gateway.do"
+
+    def direct_pay(self, subject, out_trade_no, total_amount, return_url=None, **kwargs):
+        biz_content = {
+            "subject": subject,
+            "out_trade_no": out_trade_no,
+            "total_amount": total_amount,
+            "product_code": "FAST_INSTANT_TRADE_PAY",
+            # "qr_pay_mode":4
+        }
+
+        biz_content.update(kwargs)
+        data = self.build_body("alipay.trade.page.pay", biz_content, self.return_url)
+        return self.sign_data(data)
+
+    def build_body(self, method, biz_content, return_url=None):
+        data = {
+            "app_id": self.appid,
+            "method": method,
+            "charset": "utf-8",
+            "sign_type": "RSA2",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "version": "1.0",
+            "biz_content": biz_content
+        }
+
+        if return_url is not None:
+            data["notify_url"] = self.app_notify_url
+            data["return_url"] = self.return_url
+
+        return data
+
+    def sign_data(self, data):
+        data.pop("sign", None)
+        # 排序后的字符串
+        unsigned_items = self.ordered_data(data)
+        unsigned_string = "&amp;".join("{0}={1}".format(k, v) for k, v in unsigned_items)
+        sign = self.sign(unsigned_string.encode("utf-8"))
+        ordered_items = self.ordered_data(data)
+        quoted_string = "&amp;".join("{0}={1}".format(k, quote_plus(v)) for k, v in ordered_items)
+
+        # 获得最终的订单信息字符串
+        signed_string = quoted_string + "&amp;sign=" + quote_plus(sign)
+        return signed_string
+
+    def ordered_data(self, data):
+        complex_keys = []
+        for key, value in data.items():
+            if isinstance(value, dict):
+                complex_keys.append(key)
+
+        # 将字典类型的数据dump出来
+        for key in complex_keys:
+            data[key] = json.dumps(data[key], separators=(',', ':'))
+
+        return sorted([(k, v) for k, v in data.items()])
+
+    def sign(self, unsigned_string):
+        # 开始计算签名
+        key = self.app_private_key
+        signer = PKCS1_v1_5.new(key)
+        signature = signer.sign(SHA256.new(unsigned_string))
+        # base64 编码，转换为unicode表示并移除回车
+        sign = encodebytes(signature).decode("utf8").replace("\n", "")
+        return sign
+
+    def _verify(self, raw_content, signature):
+        # 开始计算签名
+        key = self.alipay_public_key
+        signer = PKCS1_v1_5.new(key)
+        digest = SHA256.new()
+        digest.update(raw_content.encode("utf8"))
+        if signer.verify(digest, decodebytes(signature.encode("utf8"))):
+            return True
+        return False
+
+    def verify(self, data, signature):
+        if "sign_type" in data:
+            sign_type = data.pop("sign_type")
+        # 排序后的字符串
+        unsigned_items = self.ordered_data(data)
+        message = "&amp;".join(u"{}={}".format(k, v) for k, v in unsigned_items)
+        return self._verify(message, signature)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">调用示例（生成支付的url地址）：</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">alipay = AliPay(
+        app,
+        app_notify_url="http://projectsedus.com/",
+        app_private_key_path="/Users/ljh/Desktop/电商/storeonline/RSA密钥/app_privatekey_2048.txt",
+        alipay_public_key_path="/Users/ljh/Desktop/电商/storeonline/RSA密钥/alipay_pub_key.txt",  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+        debug=True,  # 默认False,
+        return_url="http://127.0.0.1:8000/"
+    )
+    
+   url = alipay.direct_pay(
+        subject="测试订单",
+        out_trade_no="201902021222",
+        total_amount=0.01
+    )
+    re_url = "https://openapi.alipaydev.com/gateway.do?{data}".format(data=url)
+    print(re_url)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">支付完成后验证</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">return_url = 'http://47.92.87.172:8000/?total_amount=0.01&amp;timestamp=2017-08-15+17%3A15%3A13&amp;sign=jnnA1dGO2iu2ltMpxrF4MBKE20Akyn%2FLdYrFDkQ6ckY3Qz24P3DTxIvt%2BBTnR6nRk%2BPAiLjdS4sa%2BC9JomsdNGlrc2Flg6v6qtNzTWI%2FEM5WL0Ver9OqIJSTwamxT6dW9uYF5sc2Ivk1fHYvPuMfysd90lOAP%2FdwnCA12VoiHnflsLBAsdhJazbvquFP%2Bs1QWts29C2%2BXEtIlHxNgIgt3gHXpnYgsidHqfUYwZkasiDGAJt0EgkJ17Dzcljhzccb1oYPSbt%2FS5lnf9IMi%2BN0ZYo9%2FDa2HfvR6HG3WW1K%2FlJfdbLMBk4owomyu0sMY1l%2Fj0iTJniW%2BH4ftIfMOtADHA%3D%3D&amp;trade_no=2017081521001004340200204114&amp;sign_type=RSA2&amp;auth_app_id=2016080600180695&amp;charset=utf-8&amp;seller_id=2088102170208070&amp;method=alipay.trade.page.pay.return&amp;app_id=2016080600180695&amp;out_trade_no=201702021222&amp;version=1.0'
+
+alipay = AliPay(
+        app,
+        app_notify_url="http://projectsedus.com/",
+        app_private_key_path="/Users/ljh/Desktop/电商/storeonline/RSA密钥/app_privatekey_2048.txt",
+        alipay_public_key_path="/Users/ljh/Desktop/电商/storeonline/RSA密钥/alipay_pub_key.txt",  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+        debug=True,  # 默认False,
+        return_url="http://127.0.0.1:8000/"
+    )
+
+ o = urlparse(return_url)
+    query = parse_qs(o.query)
+    processed_query = {}
+    ali_sign = query.pop("sign")[0]
+    for key, value in query.items():
+        processed_query[key] = value[0]
+    print(alipay.verify(processed_query, ali_sign))
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">settings.py中配置秘钥字段</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">PRIVATE_KEY_PATH = "/Users/ljh/Desktop/电商/storeonline/RSA密钥/app_privatekey_2048.txt"
+ALI_PUB_KER_PATH = "/Users/ljh/Desktop/电商/storeonline/RSA密钥/alipay_pub_key.txt"
+
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">序列化部分</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class OrderDetailSerializer(serializers.ModelSerializer):
+    ....原有基础上添加
+    alipay_url = serializers.SerializerMethodField(read_only=True)
+
+    def get_alipay_url(self, obj):
+        alipay = AliPay(
+            app,
+            app_notify_url="http://127.0.0.1:8000/alipay/return/",
+            app_private_key_path=PRIVATE_KEY_PATH,
+            alipay_public_key_path=ALI_PUB_KER_PATH,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://127.0.0.1:8000/alipay/return/"
+        )
+
+        url = alipay.direct_pay(
+            subject=obj.order_sn,
+            out_trade_no=obj.order_sn,
+            total_amount=obj.order_mount,
+        )
+        re_url = "https://openapi.alipaydev.com/gateway.do?{data}".format(data=url)
+
+        return re_url
+
+</code></pre>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">class OrderSerializer(serializers.ModelSerializer):
+    ....原有基础上添加
+    alipay_url = serializers.SerializerMethodField(read_only=True)
+
+    def get_alipay_url(self, obj):
+        alipay = AliPay(
+            app,
+            app_notify_url="http://127.0.0.1:8000/alipay/return/",
+            app_private_key_path=PRIVATE_KEY_PATH,
+            alipay_public_key_path=ALI_PUB_KER_PATH,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://127.0.0.1:8000/alipay/return/"
+        )
+
+        url = alipay.direct_pay(
+            subject=obj.order_sn,
+            out_trade_no=obj.order_sn,
+            total_amount=obj.order_mount,
+        )
+        re_url = "https://openapi.alipaydev.com/gateway.do?{data}".format(data=url)
+
+        return re_url
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">视图部分</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from rest_framework.views import APIView
+from utils.alipay import AliPay
+from storeonline.settings import ALI_PUB_KER_PATH, PRIVATE_KEY_PATH
+from rest_framework.response import Response
+from datetime import datetime
+from django.shortcuts import redirect
+
+class AlipayView(APIView):
+    def get(self, request):
+        """
+        处理支付宝的return_url返回
+        :param request:
+        :return:
+        """
+        processed_dict = {}
+        for key, value in request.GET.items():
+            processed_dict[key] = value
+
+        sign = processed_dict.pop("sign", None)
+
+        print('======',processed_dict)
+
+        alipay = AliPay(
+            app,
+            app_notify_url="http://127.0.0.1:8000/alipay/return/",
+            app_private_key_path=PRIVATE_KEY_PATH,
+            alipay_public_key_path=ALI_PUB_KER_PATH,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://127.0.0.1:8000/alipay/return/"
+        )
+
+        verify_re = alipay.verify(processed_dict, sign)
+
+        if verify_re is True:
+            order_sn = processed_dict.get('out_trade_no', None)
+            trade_no = processed_dict.get('trade_no', None)
+            trade_status = processed_dict.get('trade_status', 'TRADE_SUCCESS')
+
+            existed_orders = OrderInfo.objects.filter(order_sn=order_sn)
+            for existed_order in existed_orders:
+                existed_order.pay_status = trade_status
+                existed_order.trade_no = trade_no
+                existed_order.pay_time = datetime.now()
+                existed_order.save()
+
+            response = redirect("http://127.0.0.1:8080/#/app/home/index")
+            response.set_cookie("nextPath","pay", max_age=3)
+            return response
+        else:
+            response = redirect("http://127.0.0.1:8080/#/app/home/index")
+            return response
+
+    def post(self, request):
+        """
+        处理支付宝的notify_url
+        :param request:
+        :return:
+        """
+        processed_dict = {}
+        for key, value in request.POST.items():
+            processed_dict[key] = value
+
+        sign = processed_dict.pop("sign", None)
+
+        alipay = AliPay(
+            app,
+            app_notify_url="http://127.0.0.1:8000/alipay/return/",
+            app_private_key_path=PRIVATE_KEY_PATH,
+            alipay_public_key_path=ALI_PUB_KER_PATH,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            debug=True,  # 默认False,
+            return_url="http://127.0.0.1:8000/alipay/return/"
+        )
+
+        verify_re = alipay.verify(processed_dict, sign)
+
+        if verify_re is True:
+            order_sn = processed_dict.get('out_trade_no', None)
+            trade_no = processed_dict.get('trade_no', None)
+            trade_status = processed_dict.get('trade_status', TRADE_SUCCESS)
+
+            existed_orders = OrderInfo.objects.filter(order_sn=order_sn)
+            for existed_order in existed_orders:
+                order_goods = existed_order.goods.all()
+                for order_good in order_goods:
+                    goods = order_good.goods
+                    goods.sold_num += order_good.goods_num
+                    goods.save()
+
+                existed_order.pay_status = trade_status
+                existed_order.trade_no = trade_no
+                existed_order.pay_time = datetime.now()
+                existed_order.save()
+
+            return Response("success")
+
+</code></pre>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">路由部分</h3>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">url(r'^alipay/return/', AlipayView.as_view(), name="alipay"),
+</code></pre>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E5%AE%98%E7%BD%91%EF%BC%9A%0A%0Ahttps%3A%2F%2Fopen.alipay.com%2Fplatform%2Fhome.htm%0A%0A%E9%98%85%E8%AF%BB%E6%94%AF%E4%BB%98%E5%AE%9D%E5%BC%80%E5%8F%91%E5%B9%B3%E5%8F%B0%E6%96%87%E6%A1%A3%EF%BC%8C%E5%AF%B9%E6%8E%A5%E6%94%AF%E4%BB%98%E5%8A%9F%E8%83%BD%3A%0A%0A%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3%EF%BC%9A%0Ahttps%3A%2F%2Fdocs.open.alipay.com%2Fcatalog%0A%0A%E6%94%AF%E4%BB%98API%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3%EF%BC%9A%0Ahttps%3A%2F%2Fdocs.open.alipay.com%2Fapi%0A%0A%0A%E6%B2%99%E7%AE%B1%EF%BC%88%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E5%AF%B9%E6%8E%A5%E6%AD%A5%E9%AA%A4%EF%BC%89%0Ahttps%3A%2F%2Fdocs.open.alipay.com%2F200%2F105311%23s0%0A%0A-%20%E7%94%9F%E6%88%90%20RSA%20%E5%AF%86%E9%92%A5%20%EF%BC%88%E5%85%AC%E9%92%A5%E3%80%81%E7%A7%81%E9%92%A5%EF%BC%89%20https%3A%2F%2Fdocs.open.alipay.com%2F291%2F105971%0A%0A%0A%E6%B2%99%E7%AE%B1%E5%BA%94%E7%94%A8%E5%9C%B0%E5%9D%80%EF%BC%9A%0Ahttps%3A%2F%2Fopenhome.alipay.com%2Fplatform%2FappDaily.htm%3Ftab%3Dinfo%0A%0A-%20%E8%8E%B7%E5%8F%96APPID%0A-%20%E8%8E%B7%E5%8F%96%E6%94%AF%E4%BB%98%E5%AE%9D%E5%85%AC%E9%92%A5%0A%0A--------------------------%0A%23%23%23%20%E6%94%AF%E4%BB%98%E6%A8%A1%E5%9D%97%E5%B0%81%E8%A3%85%E4%BB%A3%E7%A0%81%0A%0A%E6%B3%A8%E6%84%8F%EF%BC%9A%E4%BD%BF%E7%94%A8%E6%97%B6%E9%9C%80%E8%A6%81%E5%AE%89%E8%A3%85pycryptodome%0A%3E%20pip%20install%20pycryptodome%0A%60%60%60%0Afrom%20datetime%20import%20datetime%0Afrom%20Crypto.PublicKey%20import%20RSA%0Afrom%20Crypto.Signature%20import%20PKCS1_v1_5%0Afrom%20Crypto.Hash%20import%20SHA256%0Afrom%20base64%20import%20b64encode%2C%20b64decode%0Afrom%20urllib.parse%20import%20quote_plus%0Afrom%20urllib.parse%20import%20urlparse%2C%20parse_qs%0Afrom%20urllib.request%20import%20urlopen%0Afrom%20base64%20import%20decodebytes%2C%20encodebytes%0A%0Aimport%20json%0A%0A%0Aclass%20AliPay(object)%3A%0A%20%20%20%20%22%22%22%0A%20%20%20%20%E6%94%AF%E4%BB%98%E5%AE%9D%E6%94%AF%E4%BB%98%E6%8E%A5%E5%8F%A3%0A%20%20%20%20%22%22%22%0A%20%20%20%20def%20__init__(self%2C%20appid%2C%20app_notify_url%2C%20app_private_key_path%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20alipay_public_key_path%2C%20return_url%2C%20debug%3DFalse)%3A%0A%20%20%20%20%20%20%20%20self.appid%20%3D%20appid%0A%20%20%20%20%20%20%20%20self.app_notify_url%20%3D%20app_notify_url%0A%20%20%20%20%20%20%20%20self.app_private_key_path%20%3D%20app_private_key_path%0A%20%20%20%20%20%20%20%20self.app_private_key%20%3D%20None%0A%20%20%20%20%20%20%20%20self.return_url%20%3D%20return_url%0A%20%20%20%20%20%20%20%20with%20open(self.app_private_key_path)%20as%20fp%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.app_private_key%20%3D%20RSA.importKey(fp.read())%0A%0A%20%20%20%20%20%20%20%20self.alipay_public_key_path%20%3D%20alipay_public_key_path%0A%20%20%20%20%20%20%20%20with%20open(self.alipay_public_key_path)%20as%20fp%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.alipay_public_key%20%3D%20RSA.import_key(fp.read())%0A%0A%0A%20%20%20%20%20%20%20%20if%20debug%20is%20True%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.__gateway%20%3D%20%22https%3A%2F%2Fopenapi.alipaydev.com%2Fgateway.do%22%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20self.__gateway%20%3D%20%22https%3A%2F%2Fopenapi.alipay.com%2Fgateway.do%22%0A%0A%20%20%20%20def%20direct_pay(self%2C%20subject%2C%20out_trade_no%2C%20total_amount%2C%20return_url%3DNone%2C%20**kwargs)%3A%0A%20%20%20%20%20%20%20%20biz_content%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22subject%22%3A%20subject%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22out_trade_no%22%3A%20out_trade_no%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22total_amount%22%3A%20total_amount%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22product_code%22%3A%20%22FAST_INSTANT_TRADE_PAY%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%23%20%22qr_pay_mode%22%3A4%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20biz_content.update(kwargs)%0A%20%20%20%20%20%20%20%20data%20%3D%20self.build_body(%22alipay.trade.page.pay%22%2C%20biz_content%2C%20self.return_url)%0A%20%20%20%20%20%20%20%20return%20self.sign_data(data)%0A%0A%20%20%20%20def%20build_body(self%2C%20method%2C%20biz_content%2C%20return_url%3DNone)%3A%0A%20%20%20%20%20%20%20%20data%20%3D%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22app_id%22%3A%20self.appid%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22method%22%3A%20method%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22charset%22%3A%20%22utf-8%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22sign_type%22%3A%20%22RSA2%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22timestamp%22%3A%20datetime.now().strftime(%22%25Y-%25m-%25d%20%25H%3A%25M%3A%25S%22)%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22version%22%3A%20%221.0%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22biz_content%22%3A%20biz_content%0A%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20if%20return_url%20is%20not%20None%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20data%5B%22notify_url%22%5D%20%3D%20self.app_notify_url%0A%20%20%20%20%20%20%20%20%20%20%20%20data%5B%22return_url%22%5D%20%3D%20self.return_url%0A%0A%20%20%20%20%20%20%20%20return%20data%0A%0A%20%20%20%20def%20sign_data(self%2C%20data)%3A%0A%20%20%20%20%20%20%20%20data.pop(%22sign%22%2C%20None)%0A%20%20%20%20%20%20%20%20%23%20%E6%8E%92%E5%BA%8F%E5%90%8E%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%0A%20%20%20%20%20%20%20%20unsigned_items%20%3D%20self.ordered_data(data)%0A%20%20%20%20%20%20%20%20unsigned_string%20%3D%20%22%26%22.join(%22%7B0%7D%3D%7B1%7D%22.format(k%2C%20v)%20for%20k%2C%20v%20in%20unsigned_items)%0A%20%20%20%20%20%20%20%20sign%20%3D%20self.sign(unsigned_string.encode(%22utf-8%22))%0A%20%20%20%20%20%20%20%20ordered_items%20%3D%20self.ordered_data(data)%0A%20%20%20%20%20%20%20%20quoted_string%20%3D%20%22%26%22.join(%22%7B0%7D%3D%7B1%7D%22.format(k%2C%20quote_plus(v))%20for%20k%2C%20v%20in%20ordered_items)%0A%0A%20%20%20%20%20%20%20%20%23%20%E8%8E%B7%E5%BE%97%E6%9C%80%E7%BB%88%E7%9A%84%E8%AE%A2%E5%8D%95%E4%BF%A1%E6%81%AF%E5%AD%97%E7%AC%A6%E4%B8%B2%0A%20%20%20%20%20%20%20%20signed_string%20%3D%20quoted_string%20%2B%20%22%26sign%3D%22%20%2B%20quote_plus(sign)%0A%20%20%20%20%20%20%20%20return%20signed_string%0A%0A%20%20%20%20def%20ordered_data(self%2C%20data)%3A%0A%20%20%20%20%20%20%20%20complex_keys%20%3D%20%5B%5D%0A%20%20%20%20%20%20%20%20for%20key%2C%20value%20in%20data.items()%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20isinstance(value%2C%20dict)%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20complex_keys.append(key)%0A%0A%20%20%20%20%20%20%20%20%23%20%E5%B0%86%E5%AD%97%E5%85%B8%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%95%B0%E6%8D%AEdump%E5%87%BA%E6%9D%A5%0A%20%20%20%20%20%20%20%20for%20key%20in%20complex_keys%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20data%5Bkey%5D%20%3D%20json.dumps(data%5Bkey%5D%2C%20separators%3D('%2C'%2C%20'%3A'))%0A%0A%20%20%20%20%20%20%20%20return%20sorted(%5B(k%2C%20v)%20for%20k%2C%20v%20in%20data.items()%5D)%0A%0A%20%20%20%20def%20sign(self%2C%20unsigned_string)%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%BC%80%E5%A7%8B%E8%AE%A1%E7%AE%97%E7%AD%BE%E5%90%8D%0A%20%20%20%20%20%20%20%20key%20%3D%20self.app_private_key%0A%20%20%20%20%20%20%20%20signer%20%3D%20PKCS1_v1_5.new(key)%0A%20%20%20%20%20%20%20%20signature%20%3D%20signer.sign(SHA256.new(unsigned_string))%0A%20%20%20%20%20%20%20%20%23%20base64%20%E7%BC%96%E7%A0%81%EF%BC%8C%E8%BD%AC%E6%8D%A2%E4%B8%BAunicode%E8%A1%A8%E7%A4%BA%E5%B9%B6%E7%A7%BB%E9%99%A4%E5%9B%9E%E8%BD%A6%0A%20%20%20%20%20%20%20%20sign%20%3D%20encodebytes(signature).decode(%22utf8%22).replace(%22%5Cn%22%2C%20%22%22)%0A%20%20%20%20%20%20%20%20return%20sign%0A%0A%20%20%20%20def%20_verify(self%2C%20raw_content%2C%20signature)%3A%0A%20%20%20%20%20%20%20%20%23%20%E5%BC%80%E5%A7%8B%E8%AE%A1%E7%AE%97%E7%AD%BE%E5%90%8D%0A%20%20%20%20%20%20%20%20key%20%3D%20self.alipay_public_key%0A%20%20%20%20%20%20%20%20signer%20%3D%20PKCS1_v1_5.new(key)%0A%20%20%20%20%20%20%20%20digest%20%3D%20SHA256.new()%0A%20%20%20%20%20%20%20%20digest.update(raw_content.encode(%22utf8%22))%0A%20%20%20%20%20%20%20%20if%20signer.verify(digest%2C%20decodebytes(signature.encode(%22utf8%22)))%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20True%0A%20%20%20%20%20%20%20%20return%20False%0A%0A%20%20%20%20def%20verify(self%2C%20data%2C%20signature)%3A%0A%20%20%20%20%20%20%20%20if%20%22sign_type%22%20in%20data%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20sign_type%20%3D%20data.pop(%22sign_type%22)%0A%20%20%20%20%20%20%20%20%23%20%E6%8E%92%E5%BA%8F%E5%90%8E%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%0A%20%20%20%20%20%20%20%20unsigned_items%20%3D%20self.ordered_data(data)%0A%20%20%20%20%20%20%20%20message%20%3D%20%22%26%22.join(u%22%7B%7D%3D%7B%7D%22.format(k%2C%20v)%20for%20k%2C%20v%20in%20unsigned_items)%0A%20%20%20%20%20%20%20%20return%20self._verify(message%2C%20signature)%0A%60%60%60%0A%0A%0A%23%23%23%23%20%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B%EF%BC%88%E7%94%9F%E6%88%90%E6%94%AF%E4%BB%98%E7%9A%84url%E5%9C%B0%E5%9D%80%EF%BC%89%EF%BC%9A%0A%60%60%60%0Aalipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20appid%3D%222016093000633326%22%2C%0A%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2Fprojectsedus.com%2F%22%2C%0A%20%20%20%20%20%20%20%20app_private_key_path%3D%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Fapp_privatekey_2048.txt%22%2C%0A%20%20%20%20%20%20%20%20alipay_public_key_path%3D%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Falipay_pub_key.txt%22%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2F%22%0A%20%20%20%20)%0A%20%20%20%20%0A%20%20%20url%20%3D%20alipay.direct_pay(%0A%20%20%20%20%20%20%20%20subject%3D%22%E6%B5%8B%E8%AF%95%E8%AE%A2%E5%8D%95%22%2C%0A%20%20%20%20%20%20%20%20out_trade_no%3D%22201902021222%22%2C%0A%20%20%20%20%20%20%20%20total_amount%3D0.01%0A%20%20%20%20)%0A%20%20%20%20re_url%20%3D%20%22https%3A%2F%2Fopenapi.alipaydev.com%2Fgateway.do%3F%7Bdata%7D%22.format(data%3Durl)%0A%20%20%20%20print(re_url)%0A%60%60%60%0A%0A%23%23%23%23%20%E6%94%AF%E4%BB%98%E5%AE%8C%E6%88%90%E5%90%8E%E9%AA%8C%E8%AF%81%0A%60%60%60%0Areturn_url%20%3D%20'http%3A%2F%2F47.92.87.172%3A8000%2F%3Ftotal_amount%3D0.01%26timestamp%3D2017-08-15%2B17%253A15%253A13%26sign%3DjnnA1dGO2iu2ltMpxrF4MBKE20Akyn%252FLdYrFDkQ6ckY3Qz24P3DTxIvt%252BBTnR6nRk%252BPAiLjdS4sa%252BC9JomsdNGlrc2Flg6v6qtNzTWI%252FEM5WL0Ver9OqIJSTwamxT6dW9uYF5sc2Ivk1fHYvPuMfysd90lOAP%252FdwnCA12VoiHnflsLBAsdhJazbvquFP%252Bs1QWts29C2%252BXEtIlHxNgIgt3gHXpnYgsidHqfUYwZkasiDGAJt0EgkJ17Dzcljhzccb1oYPSbt%252FS5lnf9IMi%252BN0ZYo9%252FDa2HfvR6HG3WW1K%252FlJfdbLMBk4owomyu0sMY1l%252Fj0iTJniW%252BH4ftIfMOtADHA%253D%253D%26trade_no%3D2017081521001004340200204114%26sign_type%3DRSA2%26auth_app_id%3D2016080600180695%26charset%3Dutf-8%26seller_id%3D2088102170208070%26method%3Dalipay.trade.page.pay.return%26app_id%3D2016080600180695%26out_trade_no%3D201702021222%26version%3D1.0'%0A%0Aalipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20appid%3D%222016093000633326%22%2C%0A%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2Fprojectsedus.com%2F%22%2C%0A%20%20%20%20%20%20%20%20app_private_key_path%3D%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Fapp_privatekey_2048.txt%22%2C%0A%20%20%20%20%20%20%20%20alipay_public_key_path%3D%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Falipay_pub_key.txt%22%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2F%22%0A%20%20%20%20)%0A%0A%20o%20%3D%20urlparse(return_url)%0A%20%20%20%20query%20%3D%20parse_qs(o.query)%0A%20%20%20%20processed_query%20%3D%20%7B%7D%0A%20%20%20%20ali_sign%20%3D%20query.pop(%22sign%22)%5B0%5D%0A%20%20%20%20for%20key%2C%20value%20in%20query.items()%3A%0A%20%20%20%20%20%20%20%20processed_query%5Bkey%5D%20%3D%20value%5B0%5D%0A%20%20%20%20print(alipay.verify(processed_query%2C%20ali_sign))%0A%60%60%60%0A%23%23%23%23%20settings.py%E4%B8%AD%E9%85%8D%E7%BD%AE%E7%A7%98%E9%92%A5%E5%AD%97%E6%AE%B5%0A%60%60%60%0APRIVATE_KEY_PATH%20%3D%20%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Fapp_privatekey_2048.txt%22%0AALI_PUB_KER_PATH%20%3D%20%22%2FUsers%2Fljh%2FDesktop%2F%E7%94%B5%E5%95%86%2Fstoreonline%2FRSA%E5%AF%86%E9%92%A5%2Falipay_pub_key.txt%22%0A%0A%60%60%60%0A%0A%23%23%23%23%20%E5%BA%8F%E5%88%97%E5%8C%96%E9%83%A8%E5%88%86%0A%60%60%60%0Aclass%20OrderDetailSerializer(serializers.ModelSerializer)%3A%0A%20%20%20%20....%E5%8E%9F%E6%9C%89%E5%9F%BA%E7%A1%80%E4%B8%8A%E6%B7%BB%E5%8A%A0%0A%20%20%20%20alipay_url%20%3D%20serializers.SerializerMethodField(read_only%3DTrue)%0A%0A%20%20%20%20def%20get_alipay_url(self%2C%20obj)%3A%0A%20%20%20%20%20%20%20%20alipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20%20%20%20%20appid%3D%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_private_key_path%3DPRIVATE_KEY_PATH%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20alipay_public_key_path%3DALI_PUB_KER_PATH%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%20%20%20%20url%20%3D%20alipay.direct_pay(%0A%20%20%20%20%20%20%20%20%20%20%20%20subject%3Dobj.order_sn%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20out_trade_no%3Dobj.order_sn%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20total_amount%3Dobj.order_mount%2C%0A%20%20%20%20%20%20%20%20)%0A%20%20%20%20%20%20%20%20re_url%20%3D%20%22https%3A%2F%2Fopenapi.alipaydev.com%2Fgateway.do%3F%7Bdata%7D%22.format(data%3Durl)%0A%0A%20%20%20%20%20%20%20%20return%20re_url%0A%0A%60%60%60%0A%0A%60%60%60%0Aclass%20OrderSerializer(serializers.ModelSerializer)%3A%0A%20%20%20%20....%E5%8E%9F%E6%9C%89%E5%9F%BA%E7%A1%80%E4%B8%8A%E6%B7%BB%E5%8A%A0%0A%20%20%20%20alipay_url%20%3D%20serializers.SerializerMethodField(read_only%3DTrue)%0A%0A%20%20%20%20def%20get_alipay_url(self%2C%20obj)%3A%0A%20%20%20%20%20%20%20%20alipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20%20%20%20%20appid%3D%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_private_key_path%3DPRIVATE_KEY_PATH%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20alipay_public_key_path%3DALI_PUB_KER_PATH%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%20%20%20%20url%20%3D%20alipay.direct_pay(%0A%20%20%20%20%20%20%20%20%20%20%20%20subject%3Dobj.order_sn%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20out_trade_no%3Dobj.order_sn%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20total_amount%3Dobj.order_mount%2C%0A%20%20%20%20%20%20%20%20)%0A%20%20%20%20%20%20%20%20re_url%20%3D%20%22https%3A%2F%2Fopenapi.alipaydev.com%2Fgateway.do%3F%7Bdata%7D%22.format(data%3Durl)%0A%0A%20%20%20%20%20%20%20%20return%20re_url%0A%60%60%60%0A%0A%0A%23%23%23%23%20%E8%A7%86%E5%9B%BE%E9%83%A8%E5%88%86%0A%60%60%60%0Afrom%20rest_framework.views%20import%20APIView%0Afrom%20utils.alipay%20import%20AliPay%0Afrom%20storeonline.settings%20import%20ALI_PUB_KER_PATH%2C%20PRIVATE_KEY_PATH%0Afrom%20rest_framework.response%20import%20Response%0Afrom%20datetime%20import%20datetime%0Afrom%20django.shortcuts%20import%20redirect%0A%0Aclass%20AlipayView(APIView)%3A%0A%20%20%20%20def%20get(self%2C%20request)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%E5%A4%84%E7%90%86%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84return_url%E8%BF%94%E5%9B%9E%0A%20%20%20%20%20%20%20%20%3Aparam%20request%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20processed_dict%20%3D%20%7B%7D%0A%20%20%20%20%20%20%20%20for%20key%2C%20value%20in%20request.GET.items()%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20processed_dict%5Bkey%5D%20%3D%20value%0A%0A%20%20%20%20%20%20%20%20sign%20%3D%20processed_dict.pop(%22sign%22%2C%20None)%0A%0A%20%20%20%20%20%20%20%20print('%3D%3D%3D%3D%3D%3D'%2Cprocessed_dict)%0A%0A%20%20%20%20%20%20%20%20alipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20%20%20%20%20appid%3D%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_private_key_path%3DPRIVATE_KEY_PATH%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20alipay_public_key_path%3DALI_PUB_KER_PATH%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%20%20%20%20verify_re%20%3D%20alipay.verify(processed_dict%2C%20sign)%0A%0A%20%20%20%20%20%20%20%20if%20verify_re%20is%20True%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20order_sn%20%3D%20processed_dict.get('out_trade_no'%2C%20None)%0A%20%20%20%20%20%20%20%20%20%20%20%20trade_no%20%3D%20processed_dict.get('trade_no'%2C%20None)%0A%20%20%20%20%20%20%20%20%20%20%20%20trade_status%20%3D%20processed_dict.get('trade_status'%2C%20'TRADE_SUCCESS')%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20existed_orders%20%3D%20OrderInfo.objects.filter(order_sn%3Dorder_sn)%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20existed_order%20in%20existed_orders%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.pay_status%20%3D%20trade_status%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.trade_no%20%3D%20trade_no%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.pay_time%20%3D%20datetime.now()%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.save()%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20response%20%3D%20redirect(%22http%3A%2F%2F127.0.0.1%3A8080%2F%23%2Fapp%2Fhome%2Findex%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20response.set_cookie(%22nextPath%22%2C%22pay%22%2C%20max_age%3D3)%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20response%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20response%20%3D%20redirect(%22http%3A%2F%2F127.0.0.1%3A8080%2F%23%2Fapp%2Fhome%2Findex%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20response%0A%0A%20%20%20%20def%20post(self%2C%20request)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%E5%A4%84%E7%90%86%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84notify_url%0A%20%20%20%20%20%20%20%20%3Aparam%20request%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20processed_dict%20%3D%20%7B%7D%0A%20%20%20%20%20%20%20%20for%20key%2C%20value%20in%20request.POST.items()%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20processed_dict%5Bkey%5D%20%3D%20value%0A%0A%20%20%20%20%20%20%20%20sign%20%3D%20processed_dict.pop(%22sign%22%2C%20None)%0A%0A%20%20%20%20%20%20%20%20alipay%20%3D%20AliPay(%0A%20%20%20%20%20%20%20%20%20%20%20%20appid%3D%22%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_notify_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20app_private_key_path%3DPRIVATE_KEY_PATH%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20alipay_public_key_path%3DALI_PUB_KER_PATH%2C%20%20%23%20%E6%94%AF%E4%BB%98%E5%AE%9D%E7%9A%84%E5%85%AC%E9%92%A5%EF%BC%8C%E9%AA%8C%E8%AF%81%E6%94%AF%E4%BB%98%E5%AE%9D%E5%9B%9E%E4%BC%A0%E6%B6%88%E6%81%AF%E4%BD%BF%E7%94%A8%EF%BC%8C%E4%B8%8D%E6%98%AF%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%85%AC%E9%92%A5%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20debug%3DTrue%2C%20%20%23%20%E9%BB%98%E8%AE%A4False%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20return_url%3D%22http%3A%2F%2F127.0.0.1%3A8000%2Falipay%2Freturn%2F%22%0A%20%20%20%20%20%20%20%20)%0A%0A%20%20%20%20%20%20%20%20verify_re%20%3D%20alipay.verify(processed_dict%2C%20sign)%0A%0A%20%20%20%20%20%20%20%20if%20verify_re%20is%20True%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20order_sn%20%3D%20processed_dict.get('out_trade_no'%2C%20None)%0A%20%20%20%20%20%20%20%20%20%20%20%20trade_no%20%3D%20processed_dict.get('trade_no'%2C%20None)%0A%20%20%20%20%20%20%20%20%20%20%20%20trade_status%20%3D%20processed_dict.get('trade_status'%2C%20TRADE_SUCCESS)%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20existed_orders%20%3D%20OrderInfo.objects.filter(order_sn%3Dorder_sn)%0A%20%20%20%20%20%20%20%20%20%20%20%20for%20existed_order%20in%20existed_orders%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20order_goods%20%3D%20existed_order.goods.all()%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20for%20order_good%20in%20order_goods%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20goods%20%3D%20order_good.goods%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20goods.sold_num%20%2B%3D%20order_good.goods_num%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20goods.save()%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.pay_status%20%3D%20trade_status%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.trade_no%20%3D%20trade_no%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.pay_time%20%3D%20datetime.now()%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20existed_order.save()%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20Response(%22success%22)%0A%0A%60%60%60%0A%0A%0A%23%23%23%20%E8%B7%AF%E7%94%B1%E9%83%A8%E5%88%86%0A%60%60%60%0Aurl(r'%5Ealipay%2Freturn%2F'%2C%20AlipayView.as_view()%2C%20name%3D%22alipay%22)%2C%0A%60%60%60</center></body></html>

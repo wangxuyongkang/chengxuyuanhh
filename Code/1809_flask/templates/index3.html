@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="" method="post">
+    {{ form.csrf_token() }}
+    {{ form.name.label }}
+    {{ form.name }}<br>
+    {% for msg in form.name.errors %}
+        <p>{{ msg }}</p>
+    {% endfor %}
+
+    {{ form.pwd.label }}
+    {{ form.pwd }}<br>
+    {% for msg in form.pwd.errors %}
+        <p>{{ msg }}</p>
+    {% endfor %}
+
+    {{ form.pwd1.label }}
+    {{ form.pwd1 }}<br>
+    {% for msg in form.pwd1.errors %}
+        <p>{{ msg }}</p>
+    {% endfor %}
+
+    <p>{{ form.submit() }}</p>
+    {% for x in get_flashed_messages() %}
+        {{ x }}
+    {% endfor %}
+
+</form>
+</body>
+</html>

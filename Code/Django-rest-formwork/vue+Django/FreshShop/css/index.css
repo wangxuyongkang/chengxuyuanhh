@@ -1,0 +1,469 @@
+/*--------------------------------------------------------------首页--------------------------------------------------------------*/
+
+/***********************************************************主体***********************************************************/
+html {
+    /*background:#fafafa;*/
+    color:#333;
+    _background-attachment:fixed
+}
+
+body,h1,h2,h3,h4,h5,h6,p,ul,ol,li,button,input {
+    margin:0;
+    padding:0
+}
+body,button,input {
+    font:12px/1.5 "Microsoft YaHei",Tahoma,Helvetica,Arial,simsun
+}
+em,i {
+    font-style:normal
+}
+ul{
+    list-style:none
+}
+img {
+    border:0
+}
+h1 {
+    font-size:18px
+}
+h2 {
+    font-size:14px;
+    font-weight:bold
+}
+h3 {
+    font-size:14px;
+    font-weight:400
+}
+h4,h5 {
+    font-size:12px;
+    font-weight:400
+}
+input,button {
+    font-size:12px;
+    outline:0;
+    resize:none;
+    color:#333
+}
+button {
+    cursor:pointer
+}
+a {
+    text-decoration:none;
+    color:#333;
+    -webkit-transition:color .2s;
+    -moz-transition:color .2s;
+    -o-transition:color .2s;
+    -ms-transition:color .2s;
+    transition:color .2s
+}
+a:hover {
+    color:#09c762
+}
+a:focus,area:focus {
+    outline:0
+}
+::selection {
+    background:#09c762;
+    color:#fff
+}
+canvas {
+    -ms-touch-action:double-tap-zoom
+}
+/*@font-face {
+    font-family:'lizi';
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot');
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot?#iefix') format('embedded-opentype'),url('http://at.alicdn.com/t/font_1412819191_5742776.woff') format('woff'),url('http://at.alicdn.com/t/font_1412819191_5742776.ttf') format('truetype'),url('http://at.alicdn.com/t/font_1412819191_5742776.svg#iconfont') format('svg')
+}*/
+.red,a.red,a.red:hover,.pink,a.pink,a.pink:hover {
+    color:#09c762
+}
+.gray999,.gray,a.gray,a.gray:hover {
+    color:#999
+}
+
+
+
+
+
+/***********************************************************Banners***********************************************************/
+.banner-warp{
+  height:300px;
+}
+
+
+
+
+
+/***********************************************************新品***********************************************************/
+html {
+    /*background:#fafafa;*/
+    color:#333;
+    _background-attachment:fixed
+}
+
+body,h1,h2,h3,h4,h5,h6,p,ul,ol,li,button,input {
+    margin:0;
+    padding:0
+}
+body,button,input {
+    font:12px/1.5 "Microsoft YaHei",Tahoma,Helvetica,Arial,simsun
+}
+em,i {
+    font-style:normal
+}
+ul{
+    list-style:none
+}
+img {
+    border:0
+}
+h1 {
+    font-size:18px
+}
+h2 {
+    font-size:14px;
+    font-weight:bold
+}
+h3 {
+    font-size:14px;
+    font-weight:400
+}
+h4,h5 {
+    font-size:12px;
+    font-weight:400
+}
+input,button {
+    font-size:12px;
+    outline:0;
+    resize:none;
+    color:#333
+}
+button {
+    cursor:pointer
+}
+a {
+    text-decoration:none;
+    color:#333;
+    -webkit-transition:color .2s;
+    -moz-transition:color .2s;
+    -o-transition:color .2s;
+    -ms-transition:color .2s;
+    transition:color .2s
+}
+a:hover {
+    color:#09c762
+}
+a:focus,area:focus {
+    outline:0
+}
+::selection {
+    background:#09c762;
+    color:#fff
+}
+canvas {
+    -ms-touch-action:double-tap-zoom
+}
+/*@font-face {
+    font-family:'lizi';
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot');
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot?#iefix') format('embedded-opentype'),url('http://at.alicdn.com/t/font_1412819191_5742776.woff') format('woff'),url('http://at.alicdn.com/t/font_1412819191_5742776.ttf') format('truetype'),url('http://at.alicdn.com/t/font_1412819191_5742776.svg#iconfont') format('svg')
+}*/
+.red,a.red,a.red:hover,.pink,a.pink,a.pink:hover {
+    color:#09c762;
+}
+.gray999,.gray,a.gray,a.gray:hover {
+    color:#999;
+}
+
+
+
+.w-max{
+    background:#fff;
+    width:1200px;
+}
+.ct{margin:0 auto;}
+.mb30{margin-bottom:30px;}
+.ovh{overflow: hidden;}
+.border-eee{border: 1px solid #eee;}
+.newopro-l{ width: 224px;height: 478px;}
+.newopro-l { width: 224px;height: 478px;}
+.newopro-l img{ width: 224px;height: 478px;}
+.fl {
+    float:left
+}
+.fr {
+    float:right
+}
+.index-tt{ line-height: 60px;}
+.ft18{font-size: 18px;}
+.c000{color: #000;}
+.c333{ color: #333;}
+.prolist-cent{ padding: 15px 0 30px; border-bottom: 1px solid #eee;}
+.prolist-cent:last-child{border-bottom:none;}
+.clearfix:after,.clear_f:after{
+    visibility:hidden;
+    display:block;
+    font-size:0;
+    content:'\20';
+    clear:both;
+    height:0;
+}
+.clearfix{
+    *zoom:1;
+}
+.prolist-l{ padding: 0 50px;}
+.prolist-l .imgBox{ width: 158px; height: 158px;}
+
+.prolist-r{ padding-left: 15px; width: 655px;}
+.prolist-r h3{ line-height: 34px;}
+.prolist-r p{ line-height: 20px; max-height: 40px; overflow: hidden; color: #999;}
+.prolist-r div{line-height: 56px; padding-top: 12px;}
+.ft14{font-size: 14px;}
+.bold{font-weight:bold;}
+.p-price{ color: #f40;}
+.p-price i{font-size: 20px; }
+.p-price em{font-size: 28px;margin-right: 10px;}
+.p-time .ibg{ width: 17px; height: 17px; background-position: 0 -17px; margin-right: 5px;}
+.ibg{
+/* background: url(images/indexico.png) no-repeat;*/
+  display: inline-block;}
+.p-buy{width: 188px; height: 56px; line-height: 56px; font-weight:bold; font-size: 18px; text-indent: 78px; background-position: 0 -36px; margin-left: 25px;}
+.p-buy:hover{text-decoration: none;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***********************************************************类别商品***********************************************************/
+html {
+    /*background:#fafafa;*/
+    color:#333;
+    _background-attachment:fixed
+}
+
+body,h1,h2,h3,h4,h5,h6,p,ul,ol,li,button,input {
+    margin:0;
+    padding:0
+}
+body,button,input {
+    font:12px/1.5 "Microsoft YaHei",Tahoma,Helvetica,Arial,simsun
+}
+em,i {
+    font-style:normal
+}
+ul{
+    list-style:none
+}
+img {
+    border:0
+}
+h1 {
+    font-size:18px
+}
+h2 {
+    font-size:14px;
+    font-weight:bold
+}
+h3 {
+    font-size:14px;
+    font-weight:400
+}
+h4,h5 {
+    font-size:12px;
+    font-weight:400
+}
+input,button {
+    font-size:12px;
+    outline:0;
+    resize:none;
+    color:#333
+}
+button {
+    cursor:pointer
+}
+a {
+    text-decoration:none;
+    color:#333;
+    -webkit-transition:color .2s;
+    -moz-transition:color .2s;
+    -o-transition:color .2s;
+    -ms-transition:color .2s;
+    transition:color .2s
+}
+a:hover {
+    color:#09c762
+}
+a:focus,area:focus {
+    outline:0
+}
+::selection {
+    background:#09c762;
+    color:#fff
+}
+canvas {
+    -ms-touch-action:double-tap-zoom
+}
+/*@font-face {
+    font-family:'lizi';
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot');
+    src:url('http://at.alicdn.com/t/font_1412819191_5742776.eot?#iefix') format('embedded-opentype'),url('http://at.alicdn.com/t/font_1412819191_5742776.woff') format('woff'),url('http://at.alicdn.com/t/font_1412819191_5742776.ttf') format('truetype'),url('http://at.alicdn.com/t/font_1412819191_5742776.svg#iconfont') format('svg')
+}*/
+.red,a.red,a.red:hover,.pink,a.pink,a.pink:hover {
+    color:#09c762;
+}
+.gray999,.gray,a.gray,a.gray:hover {
+    color:#999;
+}
+
+
+
+.series_list {
+    width:1196px;
+    margin:0 auto;
+    overflow:hidden;
+}
+.series_list .series_pic {
+    width:340px;
+    float:left;
+    overflow:hidden;
+    margin-right:-10px
+}
+.series_list .series_pic img {
+    width:340px;
+    height:400px;
+    vertical-align:top;
+    -webkit-transition:all 4s;
+    -moz-transition:all 4s;
+    -ms-transition:all 4s;
+    -o-transition:all 4s;
+    transition:all 4s;
+    -webkit-transform:scale(1)
+}
+.series_list .series_pic img:hover {
+    -webkit-transform:scale(1.08)
+}
+.series_list .pro_list {
+    width:654px;
+    height:398px;
+    overflow:hidden;
+    float:right;
+    border:1px solid #ccc
+}
+.series_list .pro_list ul {
+    margin-right:-30px;
+    zoom:1
+}
+.series_list .pro_list li {
+    float:left;
+    _display:inline;
+    width:179px;
+    height:179px;
+    border-right:1px solid #ccc;
+    border-bottom:1px solid #ccc;
+    padding:10px 20px;
+    overflow:hidden
+}
+.series_list .pro_list li .pic {
+    text-align:center
+}
+.series_list .pro_list li .pic img {
+    width:120px;
+    height:120px;
+    vertical-align:top
+}
+.series_list .pro_list li h3 {
+    color:#666;
+    height:18px;
+    overflow:hidden;
+    font-size:12px;
+    margin:10px 0 5px
+}
+.series_list .pro_list li .price {
+    color:#09c762;
+    font-size:14px
+}
+.series_list .pro_list li a {
+    display:block;
+    text-decoration:none
+}
+.series_list .pro_list li a:hover img {
+    opacity:.7;
+    filter:Alpha(opacity=70)
+}
+.series_box {
+    margin-bottom:30px;
+    background-color:#fff
+}
+.series_info {
+    width:200px;
+    height:399px;
+    border-bottom:1px solid #ccc;
+    float:left;
+    overflow:hidden
+}
+.series_info .brand {
+    border-left:1px solid #ccc;
+    padding:8px 0;
+    border-right:1px solid #ccc
+}
+.series_info .brand li {
+    padding:10px 0;
+    height:50px;
+    overflow:hidden;
+    text-align:center
+}
+.series_info .brand li img {
+    width:100px;
+    height:50px;
+    vertical-align:top
+}
+.series_info .brand li img:hover {
+    -webkit-animation:imgShark 1s
+}
+.series_info .brand_cata {
+    padding:12px 0 12px 12px;
+    height:73px;
+    overflow:hidden;
+    background-color:#f5f5f5;
+    border-left:1px solid #ccc;
+    border-right:1px solid #ccc
+}
+.series_info .brand_cata a {
+    display:inline-block;
+    font-size:13px;
+    height:24px;
+    line-height:24px;
+    color:#666;
+    width:80px;
+    margin-right:10px;
+    overflow:hidden;
+}
+.series_info .series_name {
+    padding:20px 0
+}
+.series_info .series_name h2 {
+    font-size:24px;
+    color:#fff;
+    text-align:center;
+    font-weight:normal
+}
+.series_info .name_hufu {
+    background-color:#09c762
+}
+.series_info .name_caizhuang {
+    background-color:#f3646a
+}
+.series_info .name_rihua {
+    background-color:#f9b548
+}
+.series_info .name_gongju {
+    background-color:#09c762
+}

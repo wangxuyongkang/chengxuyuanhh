@@ -1,0 +1,23 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+.jiayuan.com	TRUE	/	FALSE		COMMON_HASH	7594ff36d50b0e564fe66ea49f82efe2
+.jiayuan.com	TRUE	/	FALSE		PROFILE	196235559%3A%25E6%259F%2590%25E6%259F%2590%25E7%2594%25B7%3Af%3Aimages1.jyimg.com%2Fw4%2Fglobal%2Fi%3A0%3A%3A1%3Azwzp_f.jpg%3A1%3A1%3A50%3A10%3A3
+.jiayuan.com	TRUE	/	FALSE		RAW_HASH	s2nkp-9-3XsJ0b1FrAKPJ%2ADCKtZ44ktziH8tErjcggzI0dlMpZgg3GeTJBa-nym8iLtyUdrEwrnQgTqv-V6E3lmljZ-q-dbZVitIL83yPi%2AqMhY.
+.jiayuan.com	TRUE	/	FALSE	1550842718	SESSION_HASH	ac1e330d2e83e9fe78132aaa5a3f49ed6c3cb9d4
+.jiayuan.com	TRUE	/	FALSE	1550893118	last_login_time	1550806718
+.jiayuan.com	TRUE	/	FALSE	1582342718	myage	27
+.jiayuan.com	TRUE	/	FALSE	1582342718	myincome	30
+.jiayuan.com	TRUE	/	FALSE	1582342718	myloc	11%7C1101
+.jiayuan.com	TRUE	/	FALSE	1582342718	mysex	f
+.jiayuan.com	TRUE	/	FALSE	1582342718	myuid	195235559
+.jiayuan.com	TRUE	/	FALSE	1552016318	pop_avatar	1
+.jiayuan.com	TRUE	/	FALSE	1582342718	save_jy_login_name	18518753265
+.jiayuan.com	TRUE	/	FALSE	1550808518	sl_jumper	%26cou%3D17%26omsg%3D0%26dia%3D0%26lst%3D2019-02-22
+.jiayuan.com	TRUE	/	FALSE	1558582718	stadate1	195235559
+.jiayuan.com	TRUE	/	FALSE	1552016318	upt	0PKXaT8thJc9BbnA-uYDtToBJRIQYuY46APrdXpsR2fBoMakp0WKsFAYujlhqnroUN3VssjE8SsJ7Vs3%2AbGU7A..
+.jiayuan.com	TRUE	/	FALSE	1613878718	user_attr	000000
+passport.jiayuan.com	FALSE	/	FALSE		PHPSESSID	f9c074ee7cbd3950d1afee41a311ef2b
+passport.jiayuan.com	FALSE	/	FALSE		main_search:196235559	%7C%7C%7C00
+passport.jiayuan.com	FALSE	/	FALSE	1551454718	registeruid	196235559

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>我的订单</title>
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/fonts/iconfont.css">
+  <link rel="stylesheet" type="text/css" href="css/head.css">
+  <link rel="stylesheet" type="text/css" href="css/member.css">
+  <link rel="stylesheet" type="text/css" href="css/order.css">
+  <link rel="stylesheet" type="text/css" href="css/footer.css">
+</head>
+<body>
+  <!-- 页头 -->
+  <div id="header" class="new_header">
+    <div class="hd_bar">
+      <div class="bd_bar_bd cle">
+        <ul class="welcome">
+          <li id="ECS_MEMBERZONE">
+            <a href="userinfo.html">易烊千玺</a>
+            &nbsp;[
+            <a href="#">退出</a>
+            ]
+          </li>
+          <li id="ECS_MEMBERZONE">
+            <a href="login.html">请登录</a>
+            <s>|</s>
+            <a href="register.html">免费注册</a>
+          </li>
+        </ul>
+        <ul id="userinfo-bar">
+          <li class="more-menu"> <a>会员中心</a><i class="iconfont arrow">&#xe645;</i>
+            <!-- 加“show”显示会员中心子菜单 -->
+            <!-- <div class="more-bd show"> -->
+            <div class="more-bd">
+              <div class="list">
+                <a href="order.html">我的订单</a>
+                <a href="collection.html">我的收藏</a>
+                <a href="receive.html">修改收货地址</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_main cle">
+      <div class="logo">
+        <a href="href="cart.html".html" class="lizi_logo">
+            <img src="images/head/logo.jpg" alt="生鲜商城">
+        </a>
+      </div>
+      <div class="search_box">
+        <input class="sea_input" type="text" name="keywords" id="keyword">
+        <button class="sea_submit">搜索</button>
+      </div>
+      <div class="head_search_hot">
+        <span>热搜榜：</span>
+        <a href="#">啤酒</a>
+        <a href="#">蔬菜</a>
+        <a href="#">牛奶</a>
+        <a href="#">水果</a>
+      </div>
+      <div class="intro">
+        <ul>
+          <li class="no1">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>正品保障</h4>
+              <p>100%正品低价</p>
+            </a>
+          </li>
+          <li class="no2">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>30天退换货</h4>
+              <p>购物有保障</p>
+            </a>
+          </li>
+          <li class="no3">
+            <a href="javascript:void(0);" target="_blank">
+              <h4>满99就包邮</h4>
+              <p>闪电发货</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="hd_nav">
+      <div class="hd_nav_bd cle">
+        <div class="main_nav main_nav_hover" id="main_nav">
+          <div class="main_nav_link">
+            <a class="meunAll">全部商品分类
+              <i class="iconfont">&#xe643;</i>
+            </a>
+            <!-- display控制一级类别菜单显示隐藏 -->
+            <div class="main_cata" id="J_mainCata" style="display: none;">
+            <!-- <div class="main_cata" id="J_mainCata"> -->
+              <ul>
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">生鲜食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">精品肉类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">羊肉</a>
+                            <a href="list.html">禽类</a>
+                            <a href="list.html">猪肉</a>
+                            <a href="list.html">牛肉</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">海鲜水产</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">参鲍</a>
+                            <a href="list.html">鱼</a>
+                            <a href="list.html">虾</a>
+                            <a href="list.html">蟹/贝</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">蛋制品</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">松花蛋/咸鸭蛋</a>
+                            <a href="list.html">鸡蛋</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">叶菜类</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">生菜</a>
+                            <a href="list.html">菠菜</a>
+                            <a href="list.html">圆椒</a>
+                            <a href="list.html">西兰花</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">根茎类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">茄果类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">菌菇类</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+                      
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">进口生鲜</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">酒水饮料</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">白酒</a>
+                          </dt>
+                          <dd>
+                            <a href="list.html">五粮液</a>
+                            <a href="list.html">泸州老窖</a>
+                            <a href="list.html">茅台</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">葡萄酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">洋酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">啤酒</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">其他酒品</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">其他品牌</a>
+                            <a href="list.html">黄酒</a>
+                            <a href="list.html">养生酒</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">饮料/水</a>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                      <div>
+                        <dl>
+                          <dt>
+                            <a href="list.html">红酒</a>
+                          </dt>
+
+                          <dd>
+                            <a href="list.html">白兰地</a>
+                            <a href="list.html">威士忌</a>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">粮油副食</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">蔬菜水果</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">休闲食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">奶类食品</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">天然干货</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+
+                <li class="first">
+                  <h3 style="background:url(images/1449088788518670880.png) 20px center no-repeat;">
+                    <a href="list.html">精选茗茶</a> 
+                  </h3>
+                  <!-- display控制二、三级类别菜单显示隐藏 -->
+                  <div class="J_subCata" id="J_subCata" style="display: none; left: 215px; top: 0px;">
+                  <!-- <div class="J_subCata" id="J_subCata" style=" left: 215px; top: 0px;"> -->
+                    <div class="J_subView" >
+                      <div>
+                        <dl>
+                          <dt>
+                          </dt>
+                          <dd>
+                          </dd>
+                        </dl>
+                        <div class="clear"></div>
+                      </div>
+
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <ul class="sub_nav cle" id="sub_nav">
+            <li>
+                <a href="href="cart.html".html">首页</a>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >生鲜食品</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >酒水饮料</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >粮油副食</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >蔬菜水果</a>
+              </div>
+            </li>
+            <li>
+              <div>
+                <a href="list.html" >休闲食品</a>
+              </div>
+            </li>
+        </ul>
+        <div class="hd_cart" id="ECS_CARTINFO">
+          <a class="tit" href="cart.html'" target="_blank">
+            <b class="iconfont">&#xe600;</b>去购物车结算<span><i class="iconfont">&#xe645;</i></span>
+            <em class="num" id="hd_cartnum" style="visibility: visible;">2</em>
+          </a>
+          <!-- display控制购物车显示隐藏 -->
+          <div class="list" style="display: none;">
+          <!-- <div class="list"> -->
+            <div class="data">
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/1.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">白兰瓜</a></h4>
+                  <p><span class="red">5</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt><a href="productDetail.html" target="_blank"><img src="images/cart/images/2.jpg"></a></dt>
+                <dd>
+                  <h4><a href="productDetail.html" target="_blank">田然牛肉大黄瓜条生鲜牛肉</a></h4>
+                  <p><span class="red">88</span>&nbsp;<i>X</i>&nbsp;1</p>
+                  <a title="删除" class="iconfont del">×</a>
+                </dd>
+              </dl>
+
+            </div>
+            <div class="count">共<span class="red" id="hd_cart_count">2</span>件商品哦~
+              <p>
+                总价:<span class="red"><em id="hd_cart_total">93</em></span>
+                <a class="btn" href="cart.html'" target="_blank">去结算</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <!-- 页面主体 -->
+  <div id="wrapper" class="cle">
+    <div class="here cle">
+      <a href="index.html">首页</a>
+      <code>></code>
+      用户中心
+    </div>
+    <div class="my_nala_main">
+      <!-- 用户中心菜单 -->
+      <div class="slidebar">
+        <h3 class="my_nala">
+          <a href="#">会员中心</a>
+        </h3>
+        <ul class="slide_item">
+          <li class="item">
+            <div class="root_node"><i class="iconfont">&#xe645;</i>订单中心</div>
+            <ul>
+              <li>
+                <a href="order.html" class="on">我的订单</a>
+                <a href="receive.html" class="">收货地址</a>
+              </li>
+            </ul>
+          </li>
+          <li class="item">
+            <div class="root_node"><i class="iconfont">&#xe645;</i>会员中心</div>
+            <ul>
+              <li>
+                <a href="userinfo.html">用户信息</a>
+                <a href="collection.html">我的收藏</a>
+                <a href="message.html">我的留言</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 我的订单 -->
+      <div class="my_nala_centre ilizi_centre">
+        <div class="ilizi cle">
+          <div class="box">
+            <div class="box_1">
+              <div class="userCenterBox boxCenterList clearfix" style="_height:1%;">
+                <h5><span>我的订单</span></h5>
+                <div class="blank"></div>
+                <table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#dddddd">
+                  <tbody>
+                    <tr align="center">
+                      <td bgcolor="#ffffff">订单号</td>
+                      <td bgcolor="#ffffff">下单时间</td>
+                      <td bgcolor="#ffffff">订单总金额</td>
+                      <td bgcolor="#ffffff">订单状态</td>
+                      <td bgcolor="#ffffff">操作</td>
+                    </tr>
+                    <!-- 订单项 -->
+                    <tr>
+                      <td align="center" bgcolor="#ffffff"><a href="orderDetail.html" class="f6">201902080056591586</a></td>
+                      <td align="center" bgcolor="#ffffff">2019-02-08T00:56:59</td>
+                      <td align="right" bgcolor="#ffffff">￥510元</td>
+                      <!-- <td align="center" bgcolor="#ffffff">待支付</td> -->
+                      <td align="center" bgcolor="#ffffff">已支付</td>
+                      <td align="center" bgcolor="#ffffff"><font class="f6"><a>取消订单</a></font></td>
+                    </tr>
+                    
+                    <tr>
+                      <td align="center" bgcolor="#ffffff"><a href="orderDetail.html" class="f6">201902080056591586</a></td>
+                      <td align="center" bgcolor="#ffffff">2019-02-08T00:56:59</td>
+                      <td align="right" bgcolor="#ffffff">￥510元</td>
+                      <td align="center" bgcolor="#ffffff">待支付</td>
+                      <td align="center" bgcolor="#ffffff"><font class="f6"><a>取消订单</a></font></td>
+                    </tr>
+
+                  </tbody>
+                </table>
+                <div class="blank5"></div>
+                <form name="selectPageForm" action="" method="get">
+                  <div class="pagenav" id="pagenav">
+                    <ul>
+                      <li>
+                      </li>
+                    </ul>
+                    <div class="clear"></div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <div class="ft-bg">
+      <div class="w-ensure mb20">
+        <div class="w-main">
+          <ul>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr1.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr2.gif">
+            </a></li>
+            <li><a >
+              <img width="300" height="90" src="images/footer/ft-svr3.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr4.gif">
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="ft_main"></div>
+        <div class="ft_txt">
+          <p class="ft_contact"> <span>服务时间：09:00-23:00</span>
+            <span class="ft_phone">客服热线: <em>010-88888888</em></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

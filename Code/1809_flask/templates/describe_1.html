@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h2>列表页</h2>
+<h1>{{ article.title }}</h1>
+<p>分类:<a href="/?category={{ article.categroy.id  }}">{{ article.categroy.name }}</a></p><br>
+
+<p>{{ article.content }}</p>
+<p>
+    {% for tag in article.tags %}
+    <a href="/?tag={{ tag.id }}">{{ tag.name }}</a>
+    {% endfor %}
+    
+</p>
+
+</body>
+</html>

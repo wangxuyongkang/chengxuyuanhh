@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 15:04:43 +0000"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-29 15:06:37 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>44  爬虫之URL去重实现方案</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">URL去重</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">我们在写爬虫时为什么需要进行URL去重？</p>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">在爬虫启动工作的过程中，我们不希望同一个url地址被多次请求，因为重复请求不仅会浪费CPU，还会降低爬虫的效率，加大对方服务器的压力。而想要控制这种重复请求的问题，就要考虑请求所依据的url，只要能够控制待下载的URL不重复，基本可以解决同一个网页重复请求的问题。</li>
+<li style="line-height: 160%; box-sizing: content-box;">对于已经抓取过的url，进行持久化，并且在启动的时候加载进入去重队列，是一个比较强的需求。 它主要应对爬虫故障重跑，不需要重新请求所有链接</li>
+</ol>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">URL去重及策略简介</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">从表面上看，url去重策略就是消除url重复的方法，常见的url去重策略有五种，如下：</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 1.将访问过的ur保存到数据库中
+# 2.将访问过的ur保存到set(集合)中,只需要o(1)的代价就可以查询url
+#       10000000*2byte*50个字符/1024/1024/1024=9G
+# 3.url经过md5等方法哈希后保存到set（或者Redis中）中
+# 4. bloomfilter方法对 bitmap进行改进,多重hash函数降低冲突
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">方式一：将访问过的ur保存到数据库中</h5>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">实现起来最简单，但效率最低。<br/>
+其核心思想是，把页面上爬取到的每个url存储到数据库，为了避免重复，每次存储前都要遍历查询数据库中当前url是否存在（即是否已经爬取过了）,若存在，则不保存，否则，保存当前url,继续保存下一条，直至结束。</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">方式二：将访问过的ur保存到set内存中</h5>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">实现简单，原理和方式一类似，使用这种方式存取方便，基本不用查询，但是如果url过多，则会占用极大的内存，浪费空间。</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 简单计算：假设有1亿条url,每个url平均长度为50个字符，python里unicode编码，每个字符16位，占2
+# 个字节（byte）
+# 计算式：10^8 x 50个字符 x 2个byte / 1024 / 1024 / 1024 = 9G
+#                                    B      M      G
+如果是2亿个url,那么占用内存将达18G，也不是特别方便，适合小型爬虫。
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">方式三.url经过md5等方法哈希后保存到set（或者Redis中）中（实现方法如下）</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">简单计算：一个url经MD5转换，变成一个128bit(位)的字符串，占16byte(字节)，方法二中一个url保守估
+计占50个字符 x 2 = 100byte(字节)，
+计算式： 这样一比较，MD5的空间节省率为：（100-16）/100 = 84%（相比于方法二）
+(Scrapy框架url去重就是采用的类似方法)
+
+    def request_fingerprint(self, url):
+        """Returns a fingerprint for a given url
+        Parameters
+        ----------
+        url : 待请求的url地址
+        Returns： str
+        """
+        #根据url生成指纹
+        print('未加密之前:',url)
+        md5_obj = hashlib.md5()
+        # 进行MD5加密前必须 encode(编码)，python里默认是unicode编码，必须转换成utf-8
+        # 否则报错：TypeError: Unicode-objects must be encoded before hashing
+        md5_obj.update(url.encode(encoding='utf-8'))
+        md5_url = md5_obj.hexdigest()
+        print('MD5加密后:',md5_url)
+        return md5_url
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">方式四： bloomfilter方法对 bitmap进行改进,多重hash函数降低冲突</h5>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">原理概述</h6>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">布隆过滤器的原理是，当一个元素被加入集合时，通过K个散列函数将这个元素映射成一个位数组中的K个<br/>
+点，把它们置为1。检索时，我们只要看看这些点是不是都是1就（大约）知道集合中有没有它了：如果这些点<br/>
+有任何一个0，则被检元素一定不在；如果都是1，则被检元素很可能在。这就是布隆过滤器的基本思想。</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="44%20%20%E7%88%AC%E8%99%AB%E4%B9%8BURL%E5%8E%BB%E9%87%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88.resources/Snip20190407_1.png" height="209" width="614"/></p>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">优缺点</h6>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">布隆过滤器可以用于检索一个元素是否在一个集合中。</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">优点是空间效率和查询时间都远远超过一般的算法。</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">缺点是有一定的误识别率(随着数据的变大，误识概率变大)和不允许删除。</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 设置散列函数的个数
+BLOOMFILTER_HASH_NUMBER = 6
+# 布隆过滤器设置bit参数，默认30，占用128M空间，去重量在1亿左右
+此参数决定了位数组的位数，如果BLOOMFILTER_BIT为30，则位数组
+位2的30次方，这将暂用Redis 128MB的存储空间，url去重数量在1亿左右，
+如果爬取的量在10亿，20亿或则更高，则需要将此参数调高
+BLOOMFILTER_BIT = 30
+
+class HashMap(object):
+    def __init__(self, m, seed):
+        self.m = m
+        self.seed = seed
+    
+    def hash(self, value):
+        """
+        Hash Algorithm
+        :param value: Value
+        :return: Hash Value
+        """
+        ret = 0
+        for i in range(len(value)):
+            ret += self.seed * ret + ord(value[i])
+        return (self.m - 1) &amp; ret
+
+
+class BloomFilter(object):
+    def __init__(self, server, key, bit=BLOOMFILTER_BIT, hash_number=BLOOMFILTER_HASH_NUMBER):
+        """
+        Initialize BloomFilter
+        :param server: Redis Server
+        :param key: BloomFilter Key
+        :param bit: m = 2 ^ bit
+        :param hash_number: the number of hash function
+        """
+        # default to 1 &lt;&lt; 30 = 10,7374,1824 = 2^30 = 128MB, max filter 2^30/hash_number = 1,7895,6970 fingerprints
+        self.m = 1 &lt;&lt; bit
+        self.seeds = range(hash_number)
+        self.server = server
+        self.key = key
+        self.maps = [HashMap(self.m, seed) for seed in self.seeds]
+    
+    def exists(self, value):
+        """
+        if value exists
+        :param value:
+        :return:
+        """
+        if not value:
+            return False
+        exist = True
+        for map in self.maps:
+            offset = map.hash(value)
+            exist = exist &amp; self.server.getbit(self.key, offset)
+        return exist == 1
+    
+    def insert(self, value):
+        """
+        add value to bloom
+        :param value:
+        :return:
+        """
+        for f in self.maps:
+            offset = f.hash(value)
+            self.server.setbit(self.key, offset, 1)
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">单独使用如下</h5>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">    client = redis.StrictRedis(host='118.24.255.219',port=6380)
+    bl = BloomFilter(client,'bl:url')
+    url = 'http://www.wanfangdata.com.cn/details/detaype=conference&amp;id=7363410'
+    bl.insert(url)
+    result = bl.exists(url)
+    print(result)
+    url1 = 'http://www.wanfangdata.com.cn/details/detaype=conference&amp;id=73634101'
+    result = bl.exists(url1)
+    print(result)
+</code></pre>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">为了方便使用我们还可以和scrpay-redis对接，这里不需要重复造轮子，我们可以直接使用pip3 来安装ScrapyRedisBloomFilter：</h5>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">Installation</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip3 install scrapy-redis-bloomfilter</p>
+</blockquote>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">Usage 使用方式如下，需要在settings.py文件中做如下设置</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># Ensure use this Scheduler(使用自定义的调度器组件)
+SCHEDULER = "scrapy_redis_bloomfilter.scheduler.Scheduler"
+
+# Ensure all spiders share same duplicates filter through redis(使用自定义的去重组件)
+DUPEFILTER_# Redis URL（设置去重指纹需要保存的redis数据库信息）
+REDIS_URL = 'redis://:foobared@localhost:6379'
+
+# Number of Hash Functions to use, defaults to 6
+#设置散列函数的个数
+BLOOMFILTER_HASH_NUMBER = 6
+
+# Redis Memory Bit of Bloomfilter Usage, 30 means 2^30 = 128MB, defaults to 30
+# 布隆过滤器设置bit参数，默认30，占用128M空间，去重量在1亿左右
+此参数决定了位数组的位数，如果BLOOMFILTER_BIT为30，则位数组
+位2的30次方，这将暂用Redis 128MB的存储空间，url去重数量在1亿左右，
+如果爬取的量在10亿，20亿或则更高，则需要将此参数调高
+BLOOMFILTER_BIT = 30
+
+# Persist
+#是否支持断点爬取
+SCHEDULER_PERSIST = True
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">其实ScrapyRedisBloomFilter就是在scrapy-redis的基础上将DUPEFILTER去重组件中的去重部分代码判断修改了，如下图所示：</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="44%20%20%E7%88%AC%E8%99%AB%E4%B9%8BURL%E5%8E%BB%E9%87%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88.resources/Snip20190407_2.png" height="433" width="1206"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="44%20%20%E7%88%AC%E8%99%AB%E4%B9%8BURL%E5%8E%BB%E9%87%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88.resources/Snip20190407_5.png" height="442" width="928"/></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">如果对布隆过滤器想要深入了解可以参考B站地址</strong></p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://www.bilibili.com/video/av46025261?from=search&amp;seid=16747276005068206363</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">学习了本小结之后，再也不用担心url的去重了，感谢阅读。</p>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%20URL%E5%8E%BB%E9%87%8D%0A%E6%88%91%E4%BB%AC%E5%9C%A8%E5%86%99%E7%88%AC%E8%99%AB%E6%97%B6%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%9B%E8%A1%8CURL%E5%8E%BB%E9%87%8D%EF%BC%9F%0A1.%20%E5%9C%A8%E7%88%AC%E8%99%AB%E5%90%AF%E5%8A%A8%E5%B7%A5%E4%BD%9C%E7%9A%84%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E6%88%91%E4%BB%AC%E4%B8%8D%E5%B8%8C%E6%9C%9B%E5%90%8C%E4%B8%80%E4%B8%AAurl%E5%9C%B0%E5%9D%80%E8%A2%AB%E5%A4%9A%E6%AC%A1%E8%AF%B7%E6%B1%82%EF%BC%8C%E5%9B%A0%E4%B8%BA%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82%E4%B8%8D%E4%BB%85%E4%BC%9A%E6%B5%AA%E8%B4%B9CPU%EF%BC%8C%E8%BF%98%E4%BC%9A%E9%99%8D%E4%BD%8E%E7%88%AC%E8%99%AB%E7%9A%84%E6%95%88%E7%8E%87%EF%BC%8C%E5%8A%A0%E5%A4%A7%E5%AF%B9%E6%96%B9%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E5%8E%8B%E5%8A%9B%E3%80%82%E8%80%8C%E6%83%B3%E8%A6%81%E6%8E%A7%E5%88%B6%E8%BF%99%E7%A7%8D%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%8C%E5%B0%B1%E8%A6%81%E8%80%83%E8%99%91%E8%AF%B7%E6%B1%82%E6%89%80%E4%BE%9D%E6%8D%AE%E7%9A%84url%EF%BC%8C%E5%8F%AA%E8%A6%81%E8%83%BD%E5%A4%9F%E6%8E%A7%E5%88%B6%E5%BE%85%E4%B8%8B%E8%BD%BD%E7%9A%84URL%E4%B8%8D%E9%87%8D%E5%A4%8D%EF%BC%8C%E5%9F%BA%E6%9C%AC%E5%8F%AF%E4%BB%A5%E8%A7%A3%E5%86%B3%E5%90%8C%E4%B8%80%E4%B8%AA%E7%BD%91%E9%A1%B5%E9%87%8D%E5%A4%8D%E8%AF%B7%E6%B1%82%E7%9A%84%E9%97%AE%E9%A2%98%E3%80%82%0A2.%20%E5%AF%B9%E4%BA%8E%E5%B7%B2%E7%BB%8F%E6%8A%93%E5%8F%96%E8%BF%87%E7%9A%84url%EF%BC%8C%E8%BF%9B%E8%A1%8C%E6%8C%81%E4%B9%85%E5%8C%96%EF%BC%8C%E5%B9%B6%E4%B8%94%E5%9C%A8%E5%90%AF%E5%8A%A8%E7%9A%84%E6%97%B6%E5%80%99%E5%8A%A0%E8%BD%BD%E8%BF%9B%E5%85%A5%E5%8E%BB%E9%87%8D%E9%98%9F%E5%88%97%EF%BC%8C%E6%98%AF%E4%B8%80%E4%B8%AA%E6%AF%94%E8%BE%83%E5%BC%BA%E7%9A%84%E9%9C%80%E6%B1%82%E3%80%82%20%E5%AE%83%E4%B8%BB%E8%A6%81%E5%BA%94%E5%AF%B9%E7%88%AC%E8%99%AB%E6%95%85%E9%9A%9C%E9%87%8D%E8%B7%91%EF%BC%8C%E4%B8%8D%E9%9C%80%E8%A6%81%E9%87%8D%E6%96%B0%E8%AF%B7%E6%B1%82%E6%89%80%E6%9C%89%E9%93%BE%E6%8E%A5%0A%0A%23%23%23%20URL%E5%8E%BB%E9%87%8D%E5%8F%8A%E7%AD%96%E7%95%A5%E7%AE%80%E4%BB%8B%0A%0A%E4%BB%8E%E8%A1%A8%E9%9D%A2%E4%B8%8A%E7%9C%8B%EF%BC%8Curl%E5%8E%BB%E9%87%8D%E7%AD%96%E7%95%A5%E5%B0%B1%E6%98%AF%E6%B6%88%E9%99%A4url%E9%87%8D%E5%A4%8D%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%8C%E5%B8%B8%E8%A7%81%E7%9A%84url%E5%8E%BB%E9%87%8D%E7%AD%96%E7%95%A5%E6%9C%89%E4%BA%94%E7%A7%8D%EF%BC%8C%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%0A%60%60%60%0A%23%201.%E5%B0%86%E8%AE%BF%E9%97%AE%E8%BF%87%E7%9A%84ur%E4%BF%9D%E5%AD%98%E5%88%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%0A%23%202.%E5%B0%86%E8%AE%BF%E9%97%AE%E8%BF%87%E7%9A%84ur%E4%BF%9D%E5%AD%98%E5%88%B0set(%E9%9B%86%E5%90%88)%E4%B8%AD%2C%E5%8F%AA%E9%9C%80%E8%A6%81o(1)%E7%9A%84%E4%BB%A3%E4%BB%B7%E5%B0%B1%E5%8F%AF%E4%BB%A5%E6%9F%A5%E8%AF%A2url%0A%23%20%20%20%20%20%20%2010000000*2byte*50%E4%B8%AA%E5%AD%97%E7%AC%A6%2F1024%2F1024%2F1024%3D9G%0A%23%203.url%E7%BB%8F%E8%BF%87md5%E7%AD%89%E6%96%B9%E6%B3%95%E5%93%88%E5%B8%8C%E5%90%8E%E4%BF%9D%E5%AD%98%E5%88%B0set%EF%BC%88%E6%88%96%E8%80%85Redis%E4%B8%AD%EF%BC%89%E4%B8%AD%0A%23%204.%20bloomfilter%E6%96%B9%E6%B3%95%E5%AF%B9%20bitmap%E8%BF%9B%E8%A1%8C%E6%94%B9%E8%BF%9B%2C%E5%A4%9A%E9%87%8Dhash%E5%87%BD%E6%95%B0%E9%99%8D%E4%BD%8E%E5%86%B2%E7%AA%81%0A%60%60%60%0A%23%23%23%23%23%20%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E5%B0%86%E8%AE%BF%E9%97%AE%E8%BF%87%E7%9A%84ur%E4%BF%9D%E5%AD%98%E5%88%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%0A%E5%AE%9E%E7%8E%B0%E8%B5%B7%E6%9D%A5%E6%9C%80%E7%AE%80%E5%8D%95%EF%BC%8C%E4%BD%86%E6%95%88%E7%8E%87%E6%9C%80%E4%BD%8E%E3%80%82%20%0A%E5%85%B6%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%E6%98%AF%EF%BC%8C%E6%8A%8A%E9%A1%B5%E9%9D%A2%E4%B8%8A%E7%88%AC%E5%8F%96%E5%88%B0%E7%9A%84%E6%AF%8F%E4%B8%AAurl%E5%AD%98%E5%82%A8%E5%88%B0%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%8C%E4%B8%BA%E4%BA%86%E9%81%BF%E5%85%8D%E9%87%8D%E5%A4%8D%EF%BC%8C%E6%AF%8F%E6%AC%A1%E5%AD%98%E5%82%A8%E5%89%8D%E9%83%BD%E8%A6%81%E9%81%8D%E5%8E%86%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E5%BD%93%E5%89%8Durl%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%EF%BC%88%E5%8D%B3%E6%98%AF%E5%90%A6%E5%B7%B2%E7%BB%8F%E7%88%AC%E5%8F%96%E8%BF%87%E4%BA%86%EF%BC%89%2C%E8%8B%A5%E5%AD%98%E5%9C%A8%EF%BC%8C%E5%88%99%E4%B8%8D%E4%BF%9D%E5%AD%98%EF%BC%8C%E5%90%A6%E5%88%99%EF%BC%8C%E4%BF%9D%E5%AD%98%E5%BD%93%E5%89%8Durl%2C%E7%BB%A7%E7%BB%AD%E4%BF%9D%E5%AD%98%E4%B8%8B%E4%B8%80%E6%9D%A1%EF%BC%8C%E7%9B%B4%E8%87%B3%E7%BB%93%E6%9D%9F%E3%80%82%0A%0A%23%23%23%23%23%20%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E5%B0%86%E8%AE%BF%E9%97%AE%E8%BF%87%E7%9A%84ur%E4%BF%9D%E5%AD%98%E5%88%B0set%E5%86%85%E5%AD%98%E4%B8%AD%0A%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%EF%BC%8C%E5%8E%9F%E7%90%86%E5%92%8C%E6%96%B9%E5%BC%8F%E4%B8%80%E7%B1%BB%E4%BC%BC%EF%BC%8C%E4%BD%BF%E7%94%A8%E8%BF%99%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AD%98%E5%8F%96%E6%96%B9%E4%BE%BF%EF%BC%8C%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%94%A8%E6%9F%A5%E8%AF%A2%EF%BC%8C%E4%BD%86%E6%98%AF%E5%A6%82%E6%9E%9Curl%E8%BF%87%E5%A4%9A%EF%BC%8C%E5%88%99%E4%BC%9A%E5%8D%A0%E7%94%A8%E6%9E%81%E5%A4%A7%E7%9A%84%E5%86%85%E5%AD%98%EF%BC%8C%E6%B5%AA%E8%B4%B9%E7%A9%BA%E9%97%B4%E3%80%82%0A%0A%60%60%60%0A%23%20%E7%AE%80%E5%8D%95%E8%AE%A1%E7%AE%97%EF%BC%9A%E5%81%87%E8%AE%BE%E6%9C%891%E4%BA%BF%E6%9D%A1url%2C%E6%AF%8F%E4%B8%AAurl%E5%B9%B3%E5%9D%87%E9%95%BF%E5%BA%A6%E4%B8%BA50%E4%B8%AA%E5%AD%97%E7%AC%A6%EF%BC%8Cpython%E9%87%8Cunicode%E7%BC%96%E7%A0%81%EF%BC%8C%E6%AF%8F%E4%B8%AA%E5%AD%97%E7%AC%A616%E4%BD%8D%EF%BC%8C%E5%8D%A02%0A%23%20%E4%B8%AA%E5%AD%97%E8%8A%82%EF%BC%88byte%EF%BC%89%0A%23%20%E8%AE%A1%E7%AE%97%E5%BC%8F%EF%BC%9A10%5E8%20x%2050%E4%B8%AA%E5%AD%97%E7%AC%A6%20x%202%E4%B8%AAbyte%20%2F%201024%20%2F%201024%20%2F%201024%20%3D%209G%0A%23%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20B%20%20%20%20%20%20M%20%20%20%20%20%20G%0A%E5%A6%82%E6%9E%9C%E6%98%AF2%E4%BA%BF%E4%B8%AAurl%2C%E9%82%A3%E4%B9%88%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98%E5%B0%86%E8%BE%BE18G%EF%BC%8C%E4%B9%9F%E4%B8%8D%E6%98%AF%E7%89%B9%E5%88%AB%E6%96%B9%E4%BE%BF%EF%BC%8C%E9%80%82%E5%90%88%E5%B0%8F%E5%9E%8B%E7%88%AC%E8%99%AB%E3%80%82%0A%60%60%60%0A%23%23%23%23%20%E6%96%B9%E5%BC%8F%E4%B8%89.url%E7%BB%8F%E8%BF%87md5%E7%AD%89%E6%96%B9%E6%B3%95%E5%93%88%E5%B8%8C%E5%90%8E%E4%BF%9D%E5%AD%98%E5%88%B0set%EF%BC%88%E6%88%96%E8%80%85Redis%E4%B8%AD%EF%BC%89%E4%B8%AD%EF%BC%88%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95%E5%A6%82%E4%B8%8B%EF%BC%89%0A%60%60%60%0A%E7%AE%80%E5%8D%95%E8%AE%A1%E7%AE%97%EF%BC%9A%E4%B8%80%E4%B8%AAurl%E7%BB%8FMD5%E8%BD%AC%E6%8D%A2%EF%BC%8C%E5%8F%98%E6%88%90%E4%B8%80%E4%B8%AA128bit(%E4%BD%8D)%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E5%8D%A016byte(%E5%AD%97%E8%8A%82)%EF%BC%8C%E6%96%B9%E6%B3%95%E4%BA%8C%E4%B8%AD%E4%B8%80%E4%B8%AAurl%E4%BF%9D%E5%AE%88%E4%BC%B0%0A%E8%AE%A1%E5%8D%A050%E4%B8%AA%E5%AD%97%E7%AC%A6%20x%202%20%3D%20100byte(%E5%AD%97%E8%8A%82)%EF%BC%8C%0A%E8%AE%A1%E7%AE%97%E5%BC%8F%EF%BC%9A%20%E8%BF%99%E6%A0%B7%E4%B8%80%E6%AF%94%E8%BE%83%EF%BC%8CMD5%E7%9A%84%E7%A9%BA%E9%97%B4%E8%8A%82%E7%9C%81%E7%8E%87%E4%B8%BA%EF%BC%9A%EF%BC%88100-16%EF%BC%89%2F100%20%3D%2084%25%EF%BC%88%E7%9B%B8%E6%AF%94%E4%BA%8E%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%89%0A(Scrapy%E6%A1%86%E6%9E%B6url%E5%8E%BB%E9%87%8D%E5%B0%B1%E6%98%AF%E9%87%87%E7%94%A8%E7%9A%84%E7%B1%BB%E4%BC%BC%E6%96%B9%E6%B3%95)%0A%0A%20%20%20%20def%20request_fingerprint(self%2C%20url)%3A%0A%20%20%20%20%20%20%20%20%22%22%22Returns%20a%20fingerprint%20for%20a%20given%20url%0A%20%20%20%20%20%20%20%20Parameters%0A%20%20%20%20%20%20%20%20----------%0A%20%20%20%20%20%20%20%20url%20%3A%20%E5%BE%85%E8%AF%B7%E6%B1%82%E7%9A%84url%E5%9C%B0%E5%9D%80%0A%20%20%20%20%20%20%20%20Returns%EF%BC%9A%20str%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%23%E6%A0%B9%E6%8D%AEurl%E7%94%9F%E6%88%90%E6%8C%87%E7%BA%B9%0A%20%20%20%20%20%20%20%20print('%E6%9C%AA%E5%8A%A0%E5%AF%86%E4%B9%8B%E5%89%8D%3A'%2Curl)%0A%20%20%20%20%20%20%20%20md5_obj%20%3D%20hashlib.md5()%0A%20%20%20%20%20%20%20%20%23%20%E8%BF%9B%E8%A1%8CMD5%E5%8A%A0%E5%AF%86%E5%89%8D%E5%BF%85%E9%A1%BB%20encode(%E7%BC%96%E7%A0%81)%EF%BC%8Cpython%E9%87%8C%E9%BB%98%E8%AE%A4%E6%98%AFunicode%E7%BC%96%E7%A0%81%EF%BC%8C%E5%BF%85%E9%A1%BB%E8%BD%AC%E6%8D%A2%E6%88%90utf-8%0A%20%20%20%20%20%20%20%20%23%20%E5%90%A6%E5%88%99%E6%8A%A5%E9%94%99%EF%BC%9ATypeError%3A%20Unicode-objects%20must%20be%20encoded%20before%20hashing%0A%20%20%20%20%20%20%20%20md5_obj.update(url.encode(encoding%3D'utf-8'))%0A%20%20%20%20%20%20%20%20md5_url%20%3D%20md5_obj.hexdigest()%0A%20%20%20%20%20%20%20%20print('MD5%E5%8A%A0%E5%AF%86%E5%90%8E%3A'%2Cmd5_url)%0A%20%20%20%20%20%20%20%20return%20md5_url%0A%60%60%60%0A%23%23%23%23%23%20%E6%96%B9%E5%BC%8F%E5%9B%9B%EF%BC%9A%20bloomfilter%E6%96%B9%E6%B3%95%E5%AF%B9%20bitmap%E8%BF%9B%E8%A1%8C%E6%94%B9%E8%BF%9B%2C%E5%A4%9A%E9%87%8Dhash%E5%87%BD%E6%95%B0%E9%99%8D%E4%BD%8E%E5%86%B2%E7%AA%81%0A%23%23%23%23%23%23%20%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0%0A**%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%EF%BC%8C%E5%BD%93%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E8%A2%AB%E5%8A%A0%E5%85%A5%E9%9B%86%E5%90%88%E6%97%B6%EF%BC%8C%E9%80%9A%E8%BF%87K%E4%B8%AA%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0%E5%B0%86%E8%BF%99%E4%B8%AA%E5%85%83%E7%B4%A0%E6%98%A0%E5%B0%84%E6%88%90%E4%B8%80%E4%B8%AA%E4%BD%8D%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84K%E4%B8%AA%0A%E7%82%B9%EF%BC%8C%E6%8A%8A%E5%AE%83%E4%BB%AC%E7%BD%AE%E4%B8%BA1%E3%80%82%E6%A3%80%E7%B4%A2%E6%97%B6%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AA%E8%A6%81%E7%9C%8B%E7%9C%8B%E8%BF%99%E4%BA%9B%E7%82%B9%E6%98%AF%E4%B8%8D%E6%98%AF%E9%83%BD%E6%98%AF1%E5%B0%B1%EF%BC%88%E5%A4%A7%E7%BA%A6%EF%BC%89%E7%9F%A5%E9%81%93%E9%9B%86%E5%90%88%E4%B8%AD%E6%9C%89%E6%B2%A1%E6%9C%89%E5%AE%83%E4%BA%86%EF%BC%9A%E5%A6%82%E6%9E%9C%E8%BF%99%E4%BA%9B%E7%82%B9%0A%E6%9C%89%E4%BB%BB%E4%BD%95%E4%B8%80%E4%B8%AA0%EF%BC%8C%E5%88%99%E8%A2%AB%E6%A3%80%E5%85%83%E7%B4%A0%E4%B8%80%E5%AE%9A%E4%B8%8D%E5%9C%A8%EF%BC%9B%E5%A6%82%E6%9E%9C%E9%83%BD%E6%98%AF1%EF%BC%8C%E5%88%99%E8%A2%AB%E6%A3%80%E5%85%83%E7%B4%A0%E5%BE%88%E5%8F%AF%E8%83%BD%E5%9C%A8%E3%80%82%E8%BF%99%E5%B0%B1%E6%98%AF%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3%E3%80%82**%0A%0A%0A!%5B7d95ac94c963772cbd06cfff7d533028.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2255)%0A%0A%23%23%23%23%23%23%20%E4%BC%98%E7%BC%BA%E7%82%B9%0A%20-%20%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%8F%AF%E4%BB%A5%E7%94%A8%E4%BA%8E%E6%A3%80%E7%B4%A2%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0%E6%98%AF%E5%90%A6%E5%9C%A8%E4%B8%80%E4%B8%AA%E9%9B%86%E5%90%88%E4%B8%AD%E3%80%82%0A%20-%20%E4%BC%98%E7%82%B9%E6%98%AF%E7%A9%BA%E9%97%B4%E6%95%88%E7%8E%87%E5%92%8C%E6%9F%A5%E8%AF%A2%E6%97%B6%E9%97%B4%E9%83%BD%E8%BF%9C%E8%BF%9C%E8%B6%85%E8%BF%87%E4%B8%80%E8%88%AC%E7%9A%84%E7%AE%97%E6%B3%95%E3%80%82%0A%20-%20%E7%BC%BA%E7%82%B9%E6%98%AF%E6%9C%89%E4%B8%80%E5%AE%9A%E7%9A%84%E8%AF%AF%E8%AF%86%E5%88%AB%E7%8E%87(%E9%9A%8F%E7%9D%80%E6%95%B0%E6%8D%AE%E7%9A%84%E5%8F%98%E5%A4%A7%EF%BC%8C%E8%AF%AF%E8%AF%86%E6%A6%82%E7%8E%87%E5%8F%98%E5%A4%A7)%E5%92%8C%E4%B8%8D%E5%85%81%E8%AE%B8%E5%88%A0%E9%99%A4%E3%80%82%0A%0A%60%60%60%0A%23%20%E8%AE%BE%E7%BD%AE%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0%E7%9A%84%E4%B8%AA%E6%95%B0%0ABLOOMFILTER_HASH_NUMBER%20%3D%206%0A%23%20%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AE%BE%E7%BD%AEbit%E5%8F%82%E6%95%B0%EF%BC%8C%E9%BB%98%E8%AE%A430%EF%BC%8C%E5%8D%A0%E7%94%A8128M%E7%A9%BA%E9%97%B4%EF%BC%8C%E5%8E%BB%E9%87%8D%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%0A%E6%AD%A4%E5%8F%82%E6%95%B0%E5%86%B3%E5%AE%9A%E4%BA%86%E4%BD%8D%E6%95%B0%E7%BB%84%E7%9A%84%E4%BD%8D%E6%95%B0%EF%BC%8C%E5%A6%82%E6%9E%9CBLOOMFILTER_BIT%E4%B8%BA30%EF%BC%8C%E5%88%99%E4%BD%8D%E6%95%B0%E7%BB%84%0A%E4%BD%8D2%E7%9A%8430%E6%AC%A1%E6%96%B9%EF%BC%8C%E8%BF%99%E5%B0%86%E6%9A%82%E7%94%A8Redis%20128MB%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%EF%BC%8Curl%E5%8E%BB%E9%87%8D%E6%95%B0%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%EF%BC%8C%0A%E5%A6%82%E6%9E%9C%E7%88%AC%E5%8F%96%E7%9A%84%E9%87%8F%E5%9C%A810%E4%BA%BF%EF%BC%8C20%E4%BA%BF%E6%88%96%E5%88%99%E6%9B%B4%E9%AB%98%EF%BC%8C%E5%88%99%E9%9C%80%E8%A6%81%E5%B0%86%E6%AD%A4%E5%8F%82%E6%95%B0%E8%B0%83%E9%AB%98%0ABLOOMFILTER_BIT%20%3D%2030%0A%0Aclass%20HashMap(object)%3A%0A%20%20%20%20def%20__init__(self%2C%20m%2C%20seed)%3A%0A%20%20%20%20%20%20%20%20self.m%20%3D%20m%0A%20%20%20%20%20%20%20%20self.seed%20%3D%20seed%0A%20%20%20%20%0A%20%20%20%20def%20hash(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20Hash%20Algorithm%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%20Value%0A%20%20%20%20%20%20%20%20%3Areturn%3A%20Hash%20Value%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20ret%20%3D%200%0A%20%20%20%20%20%20%20%20for%20i%20in%20range(len(value))%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20ret%20%2B%3D%20self.seed%20*%20ret%20%2B%20ord(value%5Bi%5D)%0A%20%20%20%20%20%20%20%20return%20(self.m%20-%201)%20%26%20ret%0A%0A%0Aclass%20BloomFilter(object)%3A%0A%20%20%20%20def%20__init__(self%2C%20server%2C%20key%2C%20bit%3DBLOOMFILTER_BIT%2C%20hash_number%3DBLOOMFILTER_HASH_NUMBER)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20Initialize%20BloomFilter%0A%20%20%20%20%20%20%20%20%3Aparam%20server%3A%20Redis%20Server%0A%20%20%20%20%20%20%20%20%3Aparam%20key%3A%20BloomFilter%20Key%0A%20%20%20%20%20%20%20%20%3Aparam%20bit%3A%20m%20%3D%202%20%5E%20bit%0A%20%20%20%20%20%20%20%20%3Aparam%20hash_number%3A%20the%20number%20of%20hash%20function%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20%23%20default%20to%201%20%3C%3C%2030%20%3D%2010%2C7374%2C1824%20%3D%202%5E30%20%3D%20128MB%2C%20max%20filter%202%5E30%2Fhash_number%20%3D%201%2C7895%2C6970%20fingerprints%0A%20%20%20%20%20%20%20%20self.m%20%3D%201%20%3C%3C%20bit%0A%20%20%20%20%20%20%20%20self.seeds%20%3D%20range(hash_number)%0A%20%20%20%20%20%20%20%20self.server%20%3D%20server%0A%20%20%20%20%20%20%20%20self.key%20%3D%20key%0A%20%20%20%20%20%20%20%20self.maps%20%3D%20%5BHashMap(self.m%2C%20seed)%20for%20seed%20in%20self.seeds%5D%0A%20%20%20%20%0A%20%20%20%20def%20exists(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20if%20value%20exists%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20if%20not%20value%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20False%0A%20%20%20%20%20%20%20%20exist%20%3D%20True%0A%20%20%20%20%20%20%20%20for%20map%20in%20self.maps%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20offset%20%3D%20map.hash(value)%0A%20%20%20%20%20%20%20%20%20%20%20%20exist%20%3D%20exist%20%26%20self.server.getbit(self.key%2C%20offset)%0A%20%20%20%20%20%20%20%20return%20exist%20%3D%3D%201%0A%20%20%20%20%0A%20%20%20%20def%20insert(self%2C%20value)%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20add%20value%20to%20bloom%0A%20%20%20%20%20%20%20%20%3Aparam%20value%3A%0A%20%20%20%20%20%20%20%20%3Areturn%3A%0A%20%20%20%20%20%20%20%20%22%22%22%0A%20%20%20%20%20%20%20%20for%20f%20in%20self.maps%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20offset%20%3D%20f.hash(value)%0A%20%20%20%20%20%20%20%20%20%20%20%20self.server.setbit(self.key%2C%20offset%2C%201)%0A%60%60%60%0A%23%23%23%23%23%20%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8%E5%A6%82%E4%B8%8B%0A%60%60%60%0A%20%20%20%20client%20%3D%20redis.StrictRedis(host%3D'118.24.255.219'%2Cport%3D6380)%0A%20%20%20%20bl%20%3D%20BloomFilter(client%2C'bl%3Aurl')%0A%20%20%20%20url%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetaype%3Dconference%26id%3D7363410'%0A%20%20%20%20bl.insert(url)%0A%20%20%20%20result%20%3D%20bl.exists(url)%0A%20%20%20%20print(result)%0A%20%20%20%20url1%20%3D%20'http%3A%2F%2Fwww.wanfangdata.com.cn%2Fdetails%2Fdetaype%3Dconference%26id%3D73634101'%0A%20%20%20%20result%20%3D%20bl.exists(url1)%0A%20%20%20%20print(result)%0A%60%60%60%0A%0A%23%23%23%23%23%20%E4%B8%BA%E4%BA%86%E6%96%B9%E4%BE%BF%E4%BD%BF%E7%94%A8%E6%88%91%E4%BB%AC%E8%BF%98%E5%8F%AF%E4%BB%A5%E5%92%8Cscrpay-redis%E5%AF%B9%E6%8E%A5%EF%BC%8C%E8%BF%99%E9%87%8C%E4%B8%8D%E9%9C%80%E8%A6%81%E9%87%8D%E5%A4%8D%E9%80%A0%E8%BD%AE%E5%AD%90%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8pip3%20%E6%9D%A5%E5%AE%89%E8%A3%85ScrapyRedisBloomFilter%EF%BC%9A%0A-%20Installation%0A%3E%20pip3%20install%20scrapy-redis-bloomfilter%0A%0A-%20**Usage%20%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%E5%A6%82%E4%B8%8B%EF%BC%8C%E9%9C%80%E8%A6%81%E5%9C%A8settings.py%E6%96%87%E4%BB%B6%E4%B8%AD%E5%81%9A%E5%A6%82%E4%B8%8B%E8%AE%BE%E7%BD%AE**%0A%0A%60%60%60%0A%23%20Ensure%20use%20this%20Scheduler(%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E8%B0%83%E5%BA%A6%E5%99%A8%E7%BB%84%E4%BB%B6)%0ASCHEDULER%20%3D%20%22scrapy_redis_bloomfilter.scheduler.Scheduler%22%0A%0A%23%20Ensure%20all%20spiders%20share%20same%20duplicates%20filter%20through%20redis(%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E5%8E%BB%E9%87%8D%E7%BB%84%E4%BB%B6)%0ADUPEFILTER_CLASS%20%3D%20%22scrapy_redis_bloomfilter.dupefilter.RFPDupeFilter%22%0A%0A%23%20Redis%20URL%EF%BC%88%E8%AE%BE%E7%BD%AE%E5%8E%BB%E9%87%8D%E6%8C%87%E7%BA%B9%E9%9C%80%E8%A6%81%E4%BF%9D%E5%AD%98%E7%9A%84redis%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BF%A1%E6%81%AF%EF%BC%89%0AREDIS_URL%20%3D%20'redis%3A%2F%2F%3Afoobared%40localhost%3A6379'%0A%0A%23%20Number%20of%20Hash%20Functions%20to%20use%2C%20defaults%20to%206%0A%23%E8%AE%BE%E7%BD%AE%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0%E7%9A%84%E4%B8%AA%E6%95%B0%0ABLOOMFILTER_HASH_NUMBER%20%3D%206%0A%0A%23%20Redis%20Memory%20Bit%20of%20Bloomfilter%20Usage%2C%2030%20means%202%5E30%20%3D%20128MB%2C%20defaults%20to%2030%0A%23%20%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AE%BE%E7%BD%AEbit%E5%8F%82%E6%95%B0%EF%BC%8C%E9%BB%98%E8%AE%A430%EF%BC%8C%E5%8D%A0%E7%94%A8128M%E7%A9%BA%E9%97%B4%EF%BC%8C%E5%8E%BB%E9%87%8D%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%0A%E6%AD%A4%E5%8F%82%E6%95%B0%E5%86%B3%E5%AE%9A%E4%BA%86%E4%BD%8D%E6%95%B0%E7%BB%84%E7%9A%84%E4%BD%8D%E6%95%B0%EF%BC%8C%E5%A6%82%E6%9E%9CBLOOMFILTER_BIT%E4%B8%BA30%EF%BC%8C%E5%88%99%E4%BD%8D%E6%95%B0%E7%BB%84%0A%E4%BD%8D2%E7%9A%8430%E6%AC%A1%E6%96%B9%EF%BC%8C%E8%BF%99%E5%B0%86%E6%9A%82%E7%94%A8Redis%20128MB%E7%9A%84%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%EF%BC%8Curl%E5%8E%BB%E9%87%8D%E6%95%B0%E9%87%8F%E5%9C%A81%E4%BA%BF%E5%B7%A6%E5%8F%B3%EF%BC%8C%0A%E5%A6%82%E6%9E%9C%E7%88%AC%E5%8F%96%E7%9A%84%E9%87%8F%E5%9C%A810%E4%BA%BF%EF%BC%8C20%E4%BA%BF%E6%88%96%E5%88%99%E6%9B%B4%E9%AB%98%EF%BC%8C%E5%88%99%E9%9C%80%E8%A6%81%E5%B0%86%E6%AD%A4%E5%8F%82%E6%95%B0%E8%B0%83%E9%AB%98%0ABLOOMFILTER_BIT%20%3D%2030%0A%0A%23%20Persist%0A%23%E6%98%AF%E5%90%A6%E6%94%AF%E6%8C%81%E6%96%AD%E7%82%B9%E7%88%AC%E5%8F%96%0ASCHEDULER_PERSIST%20%3D%20True%0A%60%60%60%0A%0A%E5%85%B6%E5%AE%9EScrapyRedisBloomFilter%E5%B0%B1%E6%98%AF%E5%9C%A8scrapy-redis%E7%9A%84%E5%9F%BA%E7%A1%80%E4%B8%8A%E5%B0%86DUPEFILTER%E5%8E%BB%E9%87%8D%E7%BB%84%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%8E%BB%E9%87%8D%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E5%88%A4%E6%96%AD%E4%BF%AE%E6%94%B9%E4%BA%86%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%9A%0A%0A%0A!%5B2c75ea3fc10b3313aca008e6274f0c89.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2256)%0A%0A!%5B1164159e52be8f184d21413545cd7f8e.png%5D(evernotecid%3A%2F%2FDE21829F-6D00-46F2-8456-1D207C38642D%2Fappyinxiangcom%2F19277208%2FENResource%2Fp2257)%0A%0A**%E5%A6%82%E6%9E%9C%E5%AF%B9%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E6%83%B3%E8%A6%81%E6%B7%B1%E5%85%A5%E4%BA%86%E8%A7%A3%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83B%E7%AB%99%E5%9C%B0%E5%9D%80**%0A%0Ahttps%3A%2F%2Fwww.bilibili.com%2Fvideo%2Fav46025261%3Ffrom%3Dsearch%26seid%3D16747276005068206363%0A%0A%E5%AD%A6%E4%B9%A0%E4%BA%86%E6%9C%AC%E5%B0%8F%E7%BB%93%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%86%8D%E4%B9%9F%E4%B8%8D%E7%94%A8%E6%8B%85%E5%BF%83url%E7%9A%84%E5%8E%BB%E9%87%8D%E4%BA%86%EF%BC%8C%E6%84%9F%E8%B0%A2%E9%98%85%E8%AF%BB%E3%80%82</center></body></html>

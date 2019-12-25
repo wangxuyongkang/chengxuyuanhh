@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>注册</title>
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/fonts/iconfont.css">
+  <link rel="stylesheet" type="text/css" href="css/loginHead.css">
+  <link rel="stylesheet" type="text/css" href="css/register.css">
+  <link rel="stylesheet" type="text/css" href="css/footer.css">
+</head>
+<body>
+  <!-- 头部 -->
+  <div>
+    <div id="header">
+      <div class="hd_bar" id="userinfo-bar">
+        <div class="bd">
+          <div class="logo">
+            <a href="href="cart.html".html">生鲜商城</a>
+          </div>
+          <div class="hd_lbar" style="display: block;" id="ECS_MEMBERZONE">
+            <a href="href="cart.html".html"> 网站首页</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  <!-- 主体 -->
+  <div>
+    <div class="c-box bg-box" >
+      <div class="login-box clearfix" style="margin-top:10px">
+        <div class="fr form-box">
+          <div class="tab">
+            <h2 class="active">手机注册</h2>
+          </div>
+          <div class="tab-form">
+            <form id="mobile_register_form" autocomplete="off">
+              <input type="hidden" name="csrfmiddlewaretoken" value="ywSlOHdiGsK6VFB6iyhnB1B30khmz8SU">
+
+              <div class="form-group marb8">
+                <label>手&nbsp;机&nbsp;号</label>
+                <input id="jsRegMobile" name="account" placeholder="请输入您的手机号码">
+              </div>
+              <p class="error-text marb8">手机号有误</p>
+
+              <div class="clearfix">
+                <div class="form-group marb8 verify-code">
+                  <label>短信验证码</label>
+                  <input id="jsPhoneRegCaptcha" type="text" placeholder="输入手机验证码">
+                </div>
+                <input class="verify-code-btn sendcode" type="button" id="jsSendCode" value="免费获取验证码">
+              </div>
+              <p class="error-text marb8">验证码错误</p>
+
+              <div class="form-group marb8">
+                <label>密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                <input id="jsPhoneRegPwd" name="password_m" type="password" placeholder="请输入6-20位非中文字符密码">
+              </div>
+              <p class="error-text marb8">密码有误</p>
+              <div class="error btns" id="jsMobileTips"></div>
+              <div class="auto-box marb8"></div>
+              <input class="btn btn-green" id="jsMobileRegBtn" type="button" value="注册并登录">
+            </form>
+          </div>
+          <p class="form-p">已有账号？ <a href="login.html">[立即登录]</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+  <!-- 页脚 -->
+  <div id="footer">
+    <div class="ft-bg">
+      <div class="w-ensure mb20">
+        <div class="w-main">
+          <ul>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr1.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr2.gif">
+            </a></li>
+            <li><a >
+              <img width="300" height="90" src="images/footer/ft-svr3.gif">
+            </a></li>
+            <li><a>
+              <img width="300" height="90" src="images/footer/ft-svr4.gif">
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="ft_main"></div>
+        <div class="ft_txt">
+          <p class="ft_contact"> <span>服务时间：09:00-23:00</span>
+            <span class="ft_phone">客服热线: <em>010-88888888</em></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

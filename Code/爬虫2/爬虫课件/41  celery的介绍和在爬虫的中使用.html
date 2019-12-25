@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 9.0.5 (458014)"/><meta name="author" content="李居豪"/><meta name="created" content="2019-05-29 15:04:09 +0000"/><meta name="source" content="desktop.mac"/><meta name="updated" content="2019-05-29 15:06:12 +0000"/><meta name="content-class" content="yinxiang.markdown"/><title>41  celery的介绍和在爬虫的中使用</title></head><body><div style="font-size: 14px; margin: 0; padding: 0; width: 100%;"><h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">一、Celery介绍和基本使用</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Celery官方文档：http://docs.celeryproject.org/en/latest/index.html<br/>
+Celery是什么？<br/>
+Celery 是一个 基于python开发的分布式异步消息任务队列，通过它可以轻松的实现任务的异步处理， 如果你的业务场景中需要用到异步任务，就可以考虑使用celery， 举几个实例场景中可用的例子:</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">异步任务：将耗时的操作任务提交给Celery去异步执行，比如发送短信/邮件、消息推送、音频处理等等</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">做一个定时任务，比如每天定时执行爬虫爬取指定内容</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">还可以使用celery实现简单的分布式爬虫系统等等</li>
+</ul>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">Celery 在执行任务时需要通过一个消息中间件（Broker）来接收和发送任务消息，以及存储任务结果， 一般使用rabbitMQ or Redis,后面会讲</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">1.1 Celery有以下优点：</p>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">简单：Celery 易于使用和维护，并且它 不需要配置文件 ，并且配置和使用还是比较简单的（后面会讲到配置文件可以有）</li>
+<li style="line-height: 160%; box-sizing: content-box;">高可用：当任务执行失败或执行过程中发生连接中断，celery 会自动尝试重新执行任务</li>
+<li style="line-height: 160%; box-sizing: content-box;">快速：单个 Celery 进程每分钟可处理数以百万计的任务，而保持往返延迟在亚毫秒级</li>
+<li style="line-height: 160%; box-sizing: content-box;">灵活： Celery 几乎所有部分都可以扩展或单独使用，各个部分可以自定义。</li>
+</ol>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">1.2 Celery执行流程图如下</p>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><img src="41%20%20celery%E7%9A%84%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%9C%A8%E7%88%AC%E8%99%AB%E7%9A%84%E4%B8%AD%E4%BD%BF%E7%94%A8.resources/Snip20190402_2.png" height="537" width="534"/></p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">二、Celery安装使用</h3>
+<ol style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">安装celery模块</li>
+</ol>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip install celery</p>
+</blockquote>
+<ol start="2" style="line-height: 160%; box-sizing: content-box; display: block; padding-left: 30px; margin: 6px 0 10px; color: #333; list-style-type: decimal;">
+<li style="line-height: 160%; box-sizing: content-box;">Celery的默认broker(消息中间件)是RabbitMQ, 仅需配置一行就可以</li>
+</ol>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">BROKER_URL = 'amqp://guest:guest@localhost:5672//'<br/>
+rabbitMQ 没装的话请装一下，安装看这里  http://docs.celeryproject.org/en/latest/getting-started/brokers/rabbitmq.html#id3</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">3.使用Redis做broker(消息中间件)也可以<br/>
+本地安装redis数据库（redis安装流程不再重复）</p>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">pip install redis<br/>
+配置（Configuration is easy, just configure the location of your Redis database:）<br/>
+app.conf.broker_url = 'redis://localhost:6379/0'</p>
+</blockquote>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">三、Celery异步任务使用代码示例</h3>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">对比说明</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">（1）不使用Celery的情况下我们执行一个耗时的任务，创建一个app.py 文件</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import time
+def add(x,y):
+     time.sleep(5)
+     return x+y
+if __name__ == '__main__':
+    print('task start....')
+    result = add.delay(2,3)
+    print('task end....')
+    print(result)
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">运行代码发现出现5秒后打印了结果</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">task start....
+task end....
+5
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">（2）使用Celery执行（异步任务调度的情况），</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step1:新建一个tasks.py文件</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import time
+from celery import Celery
+
+#消息中间件（使用的redis）
+broker = 'redis://localhost:6379/1'
+#结果存储（使用的redis）
+backend = 'redis://localhost:6379/2'
+#实例化Celery对象
+app = Celery(
+    'celeryDemo',
+    broker=broker,
+    backend=backend
+)
+
+添加@app.task()装饰器，说明执行的任务是一个异步任务
+@app.task()
+def add(x,y):
+    print('task enter ....')
+    time.sleep(5)
+    return x+y
+
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step2:修改app.py文件，代码如下</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from tasks import add
+
+if __name__ == '__main__':
+    print('task start....')
+    result = add.delay(2,3)
+    print('task end....')
+    print(result)
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">上述代码修改完毕后：<br/>
+打开终端，进入项目下，运行 app.py文件</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">python3 app.py</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">注意：立即执行结果如下，此时我们可以看到反回了一个任务id（9889f126-16f3-4a75-ab6a-34f0a7516936），并没有打印结果，因为没有执行worker端</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">task start....
+task end....
+9889f126-16f3-4a75-ab6a-34f0a7516936
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">运行worker端<br/>
+打开终端，进入项目下，输入如下命令</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery  worker -A tasks -l INFO</p>
+</blockquote>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">结果如下：</p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"> -------------- celery@ljhdeMacBook-Air.local v4.3.0 (rhubarb)
+---- **** ----- 
+--- * ***  * -- Darwin-17.7.0-x86_64-i386-64bit 2019-04-02 20:39:13
+-- * - **** --- 
+- ** ---------- [config]
+- ** ---------- .&gt; app:         celeryDemo:0x1112ce080
+- ** ---------- .&gt; transport:   redis://localhost:6379/1
+- ** ---------- .&gt; results:     redis://localhost:6379/2
+- *** --- * --- .&gt; concurrency: 4 (prefork)
+-- ******* ---- .&gt; task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .&gt; celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . tasks.add
+
+[2019-04-02 20:39:13,269: INFO/MainProcess] Connected to redis://localhost:6379/1
+[2019-04-02 20:39:13,284: INFO/MainProcess] mingle: searching for neighbors
+[2019-04-02 20:39:14,313: INFO/MainProcess] mingle: all alone
+[2019-04-02 20:39:14,329: INFO/MainProcess] celery@ljhdeMacBook-Air.local ready.
+[2019-04-02 20:39:14,464: INFO/MainProcess] Received task: tasks.add[2faa77dd-c1b3-4f74-8f58-e41694d00650]  
+[2019-04-02 20:39:14,469: WARNING/ForkPoolWorker-2] task enter ....
+[2019-04-02 20:39:19,497: INFO/ForkPoolWorker-2] Task tasks.add[2faa77dd-c1b3-4f74-8f58-e41694d00650] succeeded in 5.029217619000519s: 5
+[2019-04-02 20:51:56,988: INFO/MainProcess] Received task: tasks.add[9889f126-16f3-4a75-ab6a-34f0a7516936]  
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">此时如果不断的向broker中发送消息，那么worker中就会接收到消息并执行<br/>
+打开终端操作如下：</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">ljhdeMacBook-Air:~ ljh$ cd Desktop/celery简单实用/ （本地项目路径）
+ljhdeMacBook-Air:celery简单实用 ljh$ python3  
+Python 3.6.5 (v3.6.5:f59c0932b4, Mar 28 2018, 05:52:31) 
+[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.57)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; from tasks import add  （导入执行的方法）
+&gt;&gt;&gt; add.delay(2,5)  （发送异步任务消息）
+&lt;AsyncResult: a68753a8-5809-45e8-b451-453a0fae5cbe&gt;
+&gt;&gt;&gt; result = add.delay(3,5)
+&gt;&gt;&gt; result.ready()  查看异步任务是否执行完毕
+True
+&gt;&gt;&gt; result.get()   获取任务执行完毕后的结果
+8
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">将Redis中存储的数据backend如何取出，可以定义一个脚本文件？？</h4>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">
+import redis，json
+rediscli = redis.StrictRedis(host='192.168.4.53', db=3, port=6380)
+
+while True:
+    result = rediscli.keys() # 持续从redis里拿keys
+    for i in result:
+        key = i.decode('utf-8')
+        data = rediscli.get(key)
+        try:
+            print(json.loads(data))
+            rediscli.delete(key)
+        except Exception as e:
+            print(e)
+</code></pre>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">Celery的配置文件(优化版)</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">由于Celery的配置信息比较多，通常情况下，我们会创建一个Celery的配置文件，<br/>
+这里命名为 celeryconfig.py</p>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step1:在之前的项目中创建一个celery_demo的python Package文件夹在__init__.py中添加如下代码</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from celery import Celery
+
+#include:导入指定的任务模块
+#这一次创建 app，并没有直接指定 broker(消息中间件来接收和发送任务消息) 和 backend(存储结果)。而是在配置文件中。
+app = Celery(
+    'demo',
+    include=[
+        'celery_demo.task1',
+        'celery_demo.task2',
+    ]
+)
+#通过Celery 实例加载配置模块
+app.config_from_object(
+    'celery_demo.celeryconfig',
+)
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step2:在celery_demo文件夹下新建一个celeryconfig.py文件（Celery的配置文件）</strong><br/>
+添加如下代码</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;"># 官方配置文档：查询每个配置项的含义。
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html
+
+#broker(消息中间件来接收和发送任务消息)
+BROKER_URL = 'redis://localhost:6379/1'
+#backend(存储worker执行的结果)
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/2'
+
+#设置时间参照，不设置默认使用的UTC时间
+CELERY_TIMEZONE = 'Asia/Shanghai'
+#指定任务的序列化
+CELERY_TASK_SERIALIZER='json'
+#指定执行结果的序列化
+CELERY_RESULT_SERIALIZER='json'
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step3:在celery_demo文件夹下新建task1.py和task2.py文件</strong></li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">task1.py文件中执行如下代码</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import time
+from celery_demo import app
+
+@app.task
+def add(x,y):
+    time.sleep(5)
+    return x+y
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">task2.py文件中执行如下代码</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">import time
+from celery_demo import app
+
+@app.task
+def mut(x,y):
+    time.sleep(5)
+    return x*y
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step4:修改app.py文件，代码如下，分别发送执行任务消息到broker</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from celery_demo import task1,task2
+
+#apply_async和delay都表示调用异步任务
+task1.add.delay(2,4)
+# task1.add.apply_async(2,4)
+task2.mut.delay(3,4)
+
+print('end...')
+</code></pre>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">查看运行结果，打开终端启动worker，如下则表示启动成功：</h6>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">ljhdeMacBook-Air:celery简单实用 ljh$ celery worker -A celery_demo -l INFO
+ 
+ -------------- celery@ljhdeMacBook-Air.local v4.3.0 (rhubarb)
+---- **** ----- 
+--- * ***  * -- Darwin-17.7.0-x86_64-i386-64bit 2019-04-02 21:57:22
+-- * - **** --- 
+- ** ---------- [config]
+- ** ---------- .&gt; app:         demo:0x10be02208
+- ** ---------- .&gt; transport:   redis://localhost:6379/1
+- ** ---------- .&gt; results:     redis://localhost:6379/2
+- *** --- * --- .&gt; concurrency: 4 (prefork)
+-- ******* ---- .&gt; task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .&gt; celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . celery_demo.task1.add
+  . celery_demo.task2.mut
+
+[2019-04-02 21:57:22,354: INFO/MainProcess] Connected to redis://localhost:6379/1
+[2019-04-02 21:57:22,375: INFO/MainProcess] mingle: searching for neighbors
+[2019-04-02 21:57:23,405: INFO/MainProcess] mingle: all alone
+[2019-04-02 21:57:23,425: INFO/MainProcess] celery@ljhdeMacBook-Air.local ready.
+</code></pre>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">发送执行任务消息，打开终端，进行如下操作：</h6>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">ljhdeMacBook-Air:celery简单实用 ljh$ python3 app.py 
+end...
+</code></pre>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">此时会看到worker端接受到了两个任务并开始执行，如下所示：</h6>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">[2019-04-02 22:00:21,549: INFO/MainProcess] Received task: celery_demo.task1.add[575444a3-4fff-418c-b301-64b6cb378920]  
+[2019-04-02 22:00:21,559: INFO/MainProcess] Received task: celery_demo.task2.mut[0c0403b9-b28c-4f45-932f-65607619acd1]  
+#等待一会后出现如下结果
+[2019-04-02 22:00:26,578: INFO/ForkPoolWorker-2] Task celery_demo.task1.add[575444a3-4fff-418c-b301-64b6cb378920] succeeded in 5.016938224000114s: 6
+[2019-04-02 22:00:26,584: INFO/ForkPoolWorker-1] Task celery_demo.task2.mut[0c0403b9-b28c-4f45-932f-65607619acd1] succeeded in 5.016304531998685s: 12
+</code></pre>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">四、定时任务</h3>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step1:在之前代码的celery_demo文件夹下的celeryconfig.py文件中，添加如下代码</strong></li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from datetime import timedelta
+from celery.schedules import crontab
+#设置定时任务
+CELERYBEAT_SCHEDULE = {
+    'task1':{
+        'task':'celery_demo.task1.add',
+        'schedule':timedelta(seconds=10), 表示每10秒发送一次任务消息
+        'args':(10,20)
+    },
+    'task2':{
+        'task':'celery_demo.task2.mut',
+        'schedule':crontab(hour=22,minute=24), #表示在每天的晚上10点24分发送一次任务消息
+        'args':(10,10)
+    }
+}
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step2:启动定时消息任务，打开终端，执行如下命令</strong></li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery beat -A celery_demo -l INFO</p>
+</blockquote>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">ljhdeMacBook-Air:celery简单实用 ljh$ celery beat -A celery_demo -l INFO
+celery beat v4.3.0 (rhubarb) is starting.
+Stale pidfile exists - Removing it.
+__    -    ... __   -        _
+LocalTime -&gt; 2019-04-02 22:20:52
+Configuration -&gt;
+    . broker -&gt; redis://localhost:6379/1
+    . loader -&gt; celery.loaders.app.AppLoader
+    . scheduler -&gt; celery.beat.PersistentScheduler
+    . db -&gt; celerybeat-schedule
+    . logfile -&gt; [stderr]@%INFO
+    . maxinterval -&gt; 5.00 minutes (300s)
+[2019-04-02 22:20:52,364: INFO/MainProcess] beat: Starting...
+
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">step3:启动worker执行定时消息任务，打开终端，执行如下命令</strong></li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery worker -A celery_demo -l INFO</p>
+</blockquote>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">[ljhdeMacBook-Air:celery简单实用 ljh$ celery worker -A celery_demo -l INFO
+ 
+ -------------- celery@ljhdeMacBook-Air.local v4.3.0 (rhubarb)
+---- **** ----- 
+--- * ***  * -- Darwin-17.7.0-x86_64-i386-64bit 2019-04-02 22:23:11
+-- * - **** --- 
+- ** ---------- [config]
+- ** ---------- .&gt; app:         demo:0x102a5afd0
+- ** ---------- .&gt; transport:   redis://localhost:6379/1
+- ** ---------- .&gt; results:     redis://localhost:6379/2
+- *** --- * --- .&gt; concurrency: 4 (prefork)
+-- ******* ---- .&gt; task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .&gt; celery           exchange=celery(direct) key=celery
+                
+
+[tasks]
+  . celery_demo.task1.add
+  . celery_demo.task2.mut
+
+[2019-04-02 22:23:11,785: INFO/MainProcess] Connected to redis://localhost:6379/1
+[2019-04-02 22:23:11,800: INFO/MainProcess] mingle: searching for neighbors
+[2019-04-02 22:23:12,834: INFO/MainProcess] mingle: all alone
+[2019-04-02 22:23:12,853: INFO/MainProcess] celery@ljhdeMacBook-Air.local ready.
+[2019-04-02 22:23:12,953: INFO/MainProcess] Received task: celery_demo.task1.add[a35d4cfe-5562-4446-a93b-6b11be28c31a]  
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">如果要执行的是爬虫任务，只需要将上面的方法中的代码替换为爬虫代码即可</p>
+<h3 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 27px; color: #333;">使用celery搭建分布式爬虫系统</h3>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">参照流程图如文章开头所示思路展开：<br/>
+具体代码，未完待续......</p>
+<h5 style="line-height: 160%; box-sizing: content-box; font-weight: 700; font-size: 16px; color: #333;">简单的使用celery完成下厨房的分布式爬虫代码地址如下，可自行下载：</h5>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">https://github.com/ljhyigehaoren/celery_best.git</p>
+<h4 style="line-height: 160%; box-sizing: content-box; font-size: 20px; color: #333;">代码优化部分：</h4>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;">如果我们的celery里面有多个任务，那么所有的任务消息默认都会在同一个queue（队列中）里面，这样写虽然简单。但如果考虑到每个任务的执行时间耗费资源或者重要程度不同，把多个任务消息放到同一个queue中，可能造成执行时间长但重要程度却低的任务先执行，极大的影响程序的功能。在使用同一个queue时，就算增加worker（任务执行单元）也无法解决该问题。<br/>
+为了解决该问题，我们需要把不通任务放到不通的queue中。同时指定worker去处理特定queue中的任务，使用这种方式时，各个任务就能获得足够的worker去处理，同时一些优先级worker也能很好的处理重要的任务而不需要等待了。</p>
+<h6 style="line-height: 160%; box-sizing: content-box; font-size: 13px; color: #333;">就上面的分布式代码来说,定义queue和routes</h6>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">step1:定义queue<br/>
+我们需要在celeryconf.py文件中，添加如下代码</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">from kombu import Exchange,Queue
+"""
+crawl_category_list
+parse_category_data
+crawl_caipu_list
+crawl_caipu_detail
+"""
+
+#定义queue
+CELERY_QUEUES = (
+    Queue(
+        'default',
+        exchange=Exchange('default'),
+        routing_key='default'
+    ),
+    Queue(
+        'crawl_caipu_list',
+        exchange='crawl_caipu_list',
+        routing_key='crawl_caipu_list',
+    ),
+    Queue(
+        'crawl_caipu_detail',
+        exchange='crawl_caipu_detail',
+        routing_key='crawl_caipu_detail'
+    )
+)
+
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">step2:定义routes用来决定不同的任务去存放在哪一个queue</li>
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">CELERY_ROUTES的作用是，给任务分配queue和routing_key，然后根据给worker分配的queue值执行相应的任务。</li>
+</ul>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">CELERY_ROUTES = {
+    'celery_app.teskone.crawl_caipu_list':{
+        'queue':'crawl_caipu_list',
+        'routing_key':'crawl_caipu_list',
+    },
+    'celery_app.teskone.crawl_caipu_detail':{
+        'queue':'crawl_caipu_detail',
+        'routing_key':'crawl_caipu_detail',
+    }
+}
+</code></pre>
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333;"><strong style="line-height: 160%; box-sizing: content-box; font-weight: 700;">注意：如果没有ip的同学，觉得异步的请求太快，我们可以降低访问频率</strong></p>
+<pre style="line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; margin: 2px 0 8px; background-color: #f5f7f8;"><code style="display: block; overflow-x: auto; background: #1e1e1e; line-height: 160%; box-sizing: content-box; border: 0; border-radius: 0; letter-spacing: -.3px; padding: 18px; color: #f4f4f4; white-space: pre-wrap;">#限制所有任务每秒钟的请求频率
+#CELERY_ANNOTATIONS = { 'tasks.add': {'rate_limit': '10/m'} }
+
+CELERY_ANNOTATIONS = {'*':{'rate_limit':'1/s'}}
+</code></pre>
+<ul style="line-height: 160%; box-sizing: content-box; display: block; list-style-type: disc; padding-left: 30px; margin: 6px 0 10px; color: #333;">
+<li style="line-height: 160%; box-sizing: content-box; position: relative;">最后我们可以在运行时指定不同的worker执行不通的queue中的任务<br/>
+命令如下：</li>
+</ul>
+<blockquote style="line-height: 160%; box-sizing: content-box; margin: 15px 0; border-left: 4px solid #ddd; padding: 0 15px; color: #777;">
+<p style="line-height: 160%; box-sizing: content-box; margin: 10px 0; color: #333; margin-top: 0; margin-bottom: 0;">celery worker -A celery项目 -l INFO -Q queuename(执行任务的队列名称)</p>
+</blockquote>
+</div><center style="display:none !important;visibility:collapse !important;height:0 !important;white-space:nowrap;width:100%;overflow:hidden">%23%23%23%23%20%E4%B8%80%E3%80%81Celery%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%0ACelery%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3%EF%BC%9Ahttp%3A%2F%2Fdocs.celeryproject.org%2Fen%2Flatest%2Findex.html%0ACelery%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%0ACelery%20%E6%98%AF%E4%B8%80%E4%B8%AA%20%E5%9F%BA%E4%BA%8Epython%E5%BC%80%E5%8F%91%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E5%BC%82%E6%AD%A5%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%EF%BC%8C%E9%80%9A%E8%BF%87%E5%AE%83%E5%8F%AF%E4%BB%A5%E8%BD%BB%E6%9D%BE%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%EF%BC%8C%20%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%9A%84%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E4%B8%AD%E9%9C%80%E8%A6%81%E7%94%A8%E5%88%B0%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%EF%BC%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%E8%80%83%E8%99%91%E4%BD%BF%E7%94%A8celery%EF%BC%8C%20%E4%B8%BE%E5%87%A0%E4%B8%AA%E5%AE%9E%E4%BE%8B%E5%9C%BA%E6%99%AF%E4%B8%AD%E5%8F%AF%E7%94%A8%E7%9A%84%E4%BE%8B%E5%AD%90%3A%0A%0A%20-%20%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%EF%BC%9A%E5%B0%86%E8%80%97%E6%97%B6%E7%9A%84%E6%93%8D%E4%BD%9C%E4%BB%BB%E5%8A%A1%E6%8F%90%E4%BA%A4%E7%BB%99Celery%E5%8E%BB%E5%BC%82%E6%AD%A5%E6%89%A7%E8%A1%8C%EF%BC%8C%E6%AF%94%E5%A6%82%E5%8F%91%E9%80%81%E7%9F%AD%E4%BF%A1%2F%E9%82%AE%E4%BB%B6%E3%80%81%E6%B6%88%E6%81%AF%E6%8E%A8%E9%80%81%E3%80%81%E9%9F%B3%E9%A2%91%E5%A4%84%E7%90%86%E7%AD%89%E7%AD%89%20%0A%20-%20%E5%81%9A%E4%B8%80%E4%B8%AA%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%8C%E6%AF%94%E5%A6%82%E6%AF%8F%E5%A4%A9%E5%AE%9A%E6%97%B6%E6%89%A7%E8%A1%8C%E7%88%AC%E8%99%AB%E7%88%AC%E5%8F%96%E6%8C%87%E5%AE%9A%E5%86%85%E5%AE%B9%0A%20-%20%E8%BF%98%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8celery%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E7%88%AC%E8%99%AB%E7%B3%BB%E7%BB%9F%E7%AD%89%E7%AD%89%0A%20%0ACelery%20%E5%9C%A8%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E6%97%B6%E9%9C%80%E8%A6%81%E9%80%9A%E8%BF%87%E4%B8%80%E4%B8%AA%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88Broker%EF%BC%89%E6%9D%A5%E6%8E%A5%E6%94%B6%E5%92%8C%E5%8F%91%E9%80%81%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%AD%98%E5%82%A8%E4%BB%BB%E5%8A%A1%E7%BB%93%E6%9E%9C%EF%BC%8C%20%E4%B8%80%E8%88%AC%E4%BD%BF%E7%94%A8rabbitMQ%20or%20Redis%2C%E5%90%8E%E9%9D%A2%E4%BC%9A%E8%AE%B2%0A%0A1.1%20Celery%E6%9C%89%E4%BB%A5%E4%B8%8B%E4%BC%98%E7%82%B9%EF%BC%9A%0A%0A%201.%20%E7%AE%80%E5%8D%95%EF%BC%9ACelery%20%E6%98%93%E4%BA%8E%E4%BD%BF%E7%94%A8%E5%92%8C%E7%BB%B4%E6%8A%A4%EF%BC%8C%E5%B9%B6%E4%B8%94%E5%AE%83%20%E4%B8%8D%E9%9C%80%E8%A6%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%20%EF%BC%8C%E5%B9%B6%E4%B8%94%E9%85%8D%E7%BD%AE%E5%92%8C%E4%BD%BF%E7%94%A8%E8%BF%98%E6%98%AF%E6%AF%94%E8%BE%83%E7%AE%80%E5%8D%95%E7%9A%84%EF%BC%88%E5%90%8E%E9%9D%A2%E4%BC%9A%E8%AE%B2%E5%88%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%8F%AF%E4%BB%A5%E6%9C%89%EF%BC%89%0A%202.%20%E9%AB%98%E5%8F%AF%E7%94%A8%EF%BC%9A%E5%BD%93%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E5%A4%B1%E8%B4%A5%E6%88%96%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B%E4%B8%AD%E5%8F%91%E7%94%9F%E8%BF%9E%E6%8E%A5%E4%B8%AD%E6%96%AD%EF%BC%8Ccelery%20%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%B0%9D%E8%AF%95%E9%87%8D%E6%96%B0%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%0A%203.%20%E5%BF%AB%E9%80%9F%EF%BC%9A%E5%8D%95%E4%B8%AA%20Celery%20%E8%BF%9B%E7%A8%8B%E6%AF%8F%E5%88%86%E9%92%9F%E5%8F%AF%E5%A4%84%E7%90%86%E6%95%B0%E4%BB%A5%E7%99%BE%E4%B8%87%E8%AE%A1%E7%9A%84%E4%BB%BB%E5%8A%A1%EF%BC%8C%E8%80%8C%E4%BF%9D%E6%8C%81%E5%BE%80%E8%BF%94%E5%BB%B6%E8%BF%9F%E5%9C%A8%E4%BA%9A%E6%AF%AB%E7%A7%92%E7%BA%A7%0A%204.%20%E7%81%B5%E6%B4%BB%EF%BC%9A%20Celery%20%E5%87%A0%E4%B9%8E%E6%89%80%E6%9C%89%E9%83%A8%E5%88%86%E9%83%BD%E5%8F%AF%E4%BB%A5%E6%89%A9%E5%B1%95%E6%88%96%E5%8D%95%E7%8B%AC%E4%BD%BF%E7%94%A8%EF%BC%8C%E5%90%84%E4%B8%AA%E9%83%A8%E5%88%86%E5%8F%AF%E4%BB%A5%E8%87%AA%E5%AE%9A%E4%B9%89%E3%80%82%0A%20%0A%201.2%20Celery%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%E5%9B%BE%E5%A6%82%E4%B8%8B%0A%0A!%5B2f6734d65a00ad40b685d266b947387f.png%5D(en-resource%3A%2F%2Fdatabase%2F4193%3A1)%0A%0A%0A%23%23%23%20%E4%BA%8C%E3%80%81Celery%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%0A1.%20%E5%AE%89%E8%A3%85celery%E6%A8%A1%E5%9D%97%0A%3E%20pip%20install%20celery%0A%0A%202.%20Celery%E7%9A%84%E9%BB%98%E8%AE%A4broker(%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6)%E6%98%AFRabbitMQ%2C%20%E4%BB%85%E9%9C%80%E9%85%8D%E7%BD%AE%E4%B8%80%E8%A1%8C%E5%B0%B1%E5%8F%AF%E4%BB%A5%0A%20%3EBROKER_URL%20%3D%20'amqp%3A%2F%2Fguest%3Aguest%40localhost%3A5672%2F%2F'%0A%20rabbitMQ%20%E6%B2%A1%E8%A3%85%E7%9A%84%E8%AF%9D%E8%AF%B7%E8%A3%85%E4%B8%80%E4%B8%8B%EF%BC%8C%E5%AE%89%E8%A3%85%E7%9C%8B%E8%BF%99%E9%87%8C%20%20http%3A%2F%2Fdocs.celeryproject.org%2Fen%2Flatest%2Fgetting-started%2Fbrokers%2Frabbitmq.html%23id3%0A%0A3.%E4%BD%BF%E7%94%A8Redis%E5%81%9Abroker(%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6)%E4%B9%9F%E5%8F%AF%E4%BB%A5%0A%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85redis%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88redis%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B%E4%B8%8D%E5%86%8D%E9%87%8D%E5%A4%8D%EF%BC%89%0A%20%3Epip%20install%20redis%0A%20%E9%85%8D%E7%BD%AE%EF%BC%88Configuration%20is%20easy%2C%20just%20configure%20the%20location%20of%20your%20Redis%20database%3A%EF%BC%89%0A%20app.conf.broker_url%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F0'%0A%0A%23%23%23%20%E4%B8%89%E3%80%81Celery%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%0A%23%23%23%20%E5%AF%B9%E6%AF%94%E8%AF%B4%E6%98%8E%0A%EF%BC%881%EF%BC%89%E4%B8%8D%E4%BD%BF%E7%94%A8Celery%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E6%88%91%E4%BB%AC%E6%89%A7%E8%A1%8C%E4%B8%80%E4%B8%AA%E8%80%97%E6%97%B6%E7%9A%84%E4%BB%BB%E5%8A%A1%EF%BC%8C%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAapp.py%20%E6%96%87%E4%BB%B6%0A%60%60%60%0Aimport%20time%0Adef%20add(x%2Cy)%3A%0A%20%20%20%20%20time.sleep(5)%0A%20%20%20%20%20return%20x%2By%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%20%20%20%20print('task%20start....')%0A%20%20%20%20result%20%3D%20add.delay(2%2C3)%0A%20%20%20%20print('task%20end....')%0A%20%20%20%20print(result)%0A%60%60%60%0A%E8%BF%90%E8%A1%8C%E4%BB%A3%E7%A0%81%E5%8F%91%E7%8E%B0%E5%87%BA%E7%8E%B05%E7%A7%92%E5%90%8E%E6%89%93%E5%8D%B0%E4%BA%86%E7%BB%93%E6%9E%9C%0A%0A%60%60%60%0Atask%20start....%0Atask%20end....%0A5%0A%60%60%60%0A%0A%EF%BC%882%EF%BC%89%E4%BD%BF%E7%94%A8Celery%E6%89%A7%E8%A1%8C%EF%BC%88%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E7%9A%84%E6%83%85%E5%86%B5%EF%BC%89%EF%BC%8C%0A%09%09%0A-%20**step1%3A%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAtasks.py%E6%96%87%E4%BB%B6**%0A%0A%60%60%60%0Aimport%20time%0Afrom%20celery%20import%20Celery%0A%0A%23%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E4%BD%BF%E7%94%A8%E7%9A%84redis%EF%BC%89%0Abroker%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F1'%0A%23%E7%BB%93%E6%9E%9C%E5%AD%98%E5%82%A8%EF%BC%88%E4%BD%BF%E7%94%A8%E7%9A%84redis%EF%BC%89%0Abackend%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F2'%0A%23%E5%AE%9E%E4%BE%8B%E5%8C%96Celery%E5%AF%B9%E8%B1%A1%0Aapp%20%3D%20Celery(%0A%20%20%20%20'celeryDemo'%2C%0A%20%20%20%20broker%3Dbroker%2C%0A%20%20%20%20backend%3Dbackend%0A)%0A%0A%E6%B7%BB%E5%8A%A0%40app.task()%E8%A3%85%E9%A5%B0%E5%99%A8%EF%BC%8C%E8%AF%B4%E6%98%8E%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%BB%E5%8A%A1%E6%98%AF%E4%B8%80%E4%B8%AA%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%0A%40app.task()%0Adef%20add(x%2Cy)%3A%0A%20%20%20%20print('task%20enter%20....')%0A%20%20%20%20time.sleep(5)%0A%20%20%20%20return%20x%2By%0A%0A%60%60%60%0A%0A-%20**step2%3A%E4%BF%AE%E6%94%B9app.py%E6%96%87%E4%BB%B6%EF%BC%8C%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B**%0A%0A%60%60%60%0Afrom%20tasks%20import%20add%0A%0Aif%20__name__%20%3D%3D%20'__main__'%3A%0A%20%20%20%20print('task%20start....')%0A%20%20%20%20result%20%3D%20add.delay(2%2C3)%0A%20%20%20%20print('task%20end....')%0A%20%20%20%20print(result)%0A%60%60%60%0A%0A-%20%E4%B8%8A%E8%BF%B0%E4%BB%A3%E7%A0%81%E4%BF%AE%E6%94%B9%E5%AE%8C%E6%AF%95%E5%90%8E%EF%BC%9A%0A%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%EF%BC%8C%E8%BF%9B%E5%85%A5%E9%A1%B9%E7%9B%AE%E4%B8%8B%EF%BC%8C%E8%BF%90%E8%A1%8C%20app.py%E6%96%87%E4%BB%B6%0A%20%3Epython3%20app.py%0A%20%0A%20%E6%B3%A8%E6%84%8F%EF%BC%9A%E7%AB%8B%E5%8D%B3%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C%E5%A6%82%E4%B8%8B%EF%BC%8C%E6%AD%A4%E6%97%B6%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E7%9C%8B%E5%88%B0%E5%8F%8D%E5%9B%9E%E4%BA%86%E4%B8%80%E4%B8%AA%E4%BB%BB%E5%8A%A1id%EF%BC%889889f126-16f3-4a75-ab6a-34f0a7516936%EF%BC%89%EF%BC%8C%E5%B9%B6%E6%B2%A1%E6%9C%89%E6%89%93%E5%8D%B0%E7%BB%93%E6%9E%9C%EF%BC%8C%E5%9B%A0%E4%B8%BA%E6%B2%A1%E6%9C%89%E6%89%A7%E8%A1%8Cworker%E7%AB%AF%0A%60%60%60%0Atask%20start....%0Atask%20end....%0A9889f126-16f3-4a75-ab6a-34f0a7516936%0A%60%60%60%0A-%20%E8%BF%90%E8%A1%8Cworker%E7%AB%AF%0A%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%EF%BC%8C%E8%BF%9B%E5%85%A5%E9%A1%B9%E7%9B%AE%E4%B8%8B%EF%BC%8C%E8%BE%93%E5%85%A5%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%0A%20%3E%20celery%20%20worker%20-A%20tasks%20-l%20INFO%0A%0A%E7%BB%93%E6%9E%9C%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%60%60%60%0A%20--------------%20celery%40ljhdeMacBook-Air.local%20v4.3.0%20(rhubarb)%0A----%20****%20-----%20%0A---%20*%20***%20%20*%20--%20Darwin-17.7.0-x86_64-i386-64bit%202019-04-02%2020%3A39%3A13%0A--%20*%20-%20****%20---%20%0A-%20**%20----------%20%5Bconfig%5D%0A-%20**%20----------%20.%3E%20app%3A%20%20%20%20%20%20%20%20%20celeryDemo%3A0x1112ce080%0A-%20**%20----------%20.%3E%20transport%3A%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A-%20**%20----------%20.%3E%20results%3A%20%20%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F2%0A-%20***%20---%20*%20---%20.%3E%20concurrency%3A%204%20(prefork)%0A--%20*******%20----%20.%3E%20task%20events%3A%20OFF%20(enable%20-E%20to%20monitor%20tasks%20in%20this%20worker)%0A---%20*****%20-----%20%0A%20--------------%20%5Bqueues%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.%3E%20celery%20%20%20%20%20%20%20%20%20%20%20exchange%3Dcelery(direct)%20key%3Dcelery%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%0A%5Btasks%5D%0A%20%20.%20tasks.add%0A%0A%5B2019-04-02%2020%3A39%3A13%2C269%3A%20INFO%2FMainProcess%5D%20Connected%20to%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A%5B2019-04-02%2020%3A39%3A13%2C284%3A%20INFO%2FMainProcess%5D%20mingle%3A%20searching%20for%20neighbors%0A%5B2019-04-02%2020%3A39%3A14%2C313%3A%20INFO%2FMainProcess%5D%20mingle%3A%20all%20alone%0A%5B2019-04-02%2020%3A39%3A14%2C329%3A%20INFO%2FMainProcess%5D%20celery%40ljhdeMacBook-Air.local%20ready.%0A%5B2019-04-02%2020%3A39%3A14%2C464%3A%20INFO%2FMainProcess%5D%20Received%20task%3A%20tasks.add%5B2faa77dd-c1b3-4f74-8f58-e41694d00650%5D%20%20%0A%5B2019-04-02%2020%3A39%3A14%2C469%3A%20WARNING%2FForkPoolWorker-2%5D%20task%20enter%20....%0A%5B2019-04-02%2020%3A39%3A19%2C497%3A%20INFO%2FForkPoolWorker-2%5D%20Task%20tasks.add%5B2faa77dd-c1b3-4f74-8f58-e41694d00650%5D%20succeeded%20in%205.029217619000519s%3A%205%0A%5B2019-04-02%2020%3A51%3A56%2C988%3A%20INFO%2FMainProcess%5D%20Received%20task%3A%20tasks.add%5B9889f126-16f3-4a75-ab6a-34f0a7516936%5D%20%20%0A%60%60%60%0A-%20%E6%AD%A4%E6%97%B6%E5%A6%82%E6%9E%9C%E4%B8%8D%E6%96%AD%E7%9A%84%E5%90%91broker%E4%B8%AD%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%EF%BC%8C%E9%82%A3%E4%B9%88worker%E4%B8%AD%E5%B0%B1%E4%BC%9A%E6%8E%A5%E6%94%B6%E5%88%B0%E6%B6%88%E6%81%AF%E5%B9%B6%E6%89%A7%E8%A1%8C%0A%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%E6%93%8D%E4%BD%9C%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%60%60%60%0AljhdeMacBook-Air%3A~%20ljh%24%20cd%20Desktop%2Fcelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%2F%20%EF%BC%88%E6%9C%AC%E5%9C%B0%E9%A1%B9%E7%9B%AE%E8%B7%AF%E5%BE%84%EF%BC%89%0AljhdeMacBook-Air%3Acelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%20ljh%24%20python3%20%20%0APython%203.6.5%20(v3.6.5%3Af59c0932b4%2C%20Mar%2028%202018%2C%2005%3A52%3A31)%20%0A%5BGCC%204.2.1%20Compatible%20Apple%20LLVM%206.0%20(clang-600.0.57)%5D%20on%20darwin%0AType%20%22help%22%2C%20%22copyright%22%2C%20%22credits%22%20or%20%22license%22%20for%20more%20information.%0A%3E%3E%3E%20from%20tasks%20import%20add%20%20%EF%BC%88%E5%AF%BC%E5%85%A5%E6%89%A7%E8%A1%8C%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%89%0A%3E%3E%3E%20add.delay(2%2C5)%20%20%EF%BC%88%E5%8F%91%E9%80%81%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%EF%BC%89%0A%3CAsyncResult%3A%20a68753a8-5809-45e8-b451-453a0fae5cbe%3E%0A%3E%3E%3E%20result%20%3D%20add.delay(3%2C5)%0A%3E%3E%3E%20result.ready()%20%20%E6%9F%A5%E7%9C%8B%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E6%98%AF%E5%90%A6%E6%89%A7%E8%A1%8C%E5%AE%8C%E6%AF%95%0ATrue%0A%3E%3E%3E%20result.get()%20%20%20%E8%8E%B7%E5%8F%96%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E5%AE%8C%E6%AF%95%E5%90%8E%E7%9A%84%E7%BB%93%E6%9E%9C%0A8%0A%60%60%60%0A%0A%23%23%23%23%20%E5%B0%86Redis%E4%B8%AD%E5%AD%98%E5%82%A8%E7%9A%84%E6%95%B0%E6%8D%AEbackend%E5%A6%82%E4%BD%95%E5%8F%96%E5%87%BA%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E8%84%9A%E6%9C%AC%E6%96%87%E4%BB%B6%EF%BC%9F%EF%BC%9F%0A%60%60%60%0A%0Aimport%20redis%EF%BC%8Cjson%0Arediscli%20%3D%20redis.StrictRedis(host%3D'192.168.4.53'%2C%20db%3D3%2C%20port%3D6380)%0A%0Awhile%20True%3A%0A%20%20%20%20result%20%3D%20rediscli.keys()%20%23%20%E6%8C%81%E7%BB%AD%E4%BB%8Eredis%E9%87%8C%E6%8B%BFkeys%0A%20%20%20%20for%20i%20in%20result%3A%0A%20%20%20%20%20%20%20%20key%20%3D%20i.decode('utf-8')%0A%20%20%20%20%20%20%20%20data%20%3D%20rediscli.get(key)%0A%20%20%20%20%20%20%20%20try%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print(json.loads(data))%0A%20%20%20%20%20%20%20%20%20%20%20%20rediscli.delete(key)%0A%20%20%20%20%20%20%20%20except%20Exception%20as%20e%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20print(e)%0A%60%60%60%0A%0A%23%23%23%23%20Celery%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6(%E4%BC%98%E5%8C%96%E7%89%88)%0A%E7%94%B1%E4%BA%8ECelery%E7%9A%84%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E6%AF%94%E8%BE%83%E5%A4%9A%EF%BC%8C%E9%80%9A%E5%B8%B8%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E6%88%91%E4%BB%AC%E4%BC%9A%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AACelery%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%8C%0A%E8%BF%99%E9%87%8C%E5%91%BD%E5%90%8D%E4%B8%BA%20celeryconfig.py%0A%0A-%20**step1%3A%E5%9C%A8%E4%B9%8B%E5%89%8D%E7%9A%84%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAcelery_demo%E7%9A%84python%20Package%E6%96%87%E4%BB%B6%E5%A4%B9%E5%9C%A8__init__.py%E4%B8%AD%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81**%0A%0A%60%60%60%0Afrom%20celery%20import%20Celery%0A%0A%23include%3A%E5%AF%BC%E5%85%A5%E6%8C%87%E5%AE%9A%E7%9A%84%E4%BB%BB%E5%8A%A1%E6%A8%A1%E5%9D%97%0A%23%E8%BF%99%E4%B8%80%E6%AC%A1%E5%88%9B%E5%BB%BA%20app%EF%BC%8C%E5%B9%B6%E6%B2%A1%E6%9C%89%E7%9B%B4%E6%8E%A5%E6%8C%87%E5%AE%9A%20broker(%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%9D%A5%E6%8E%A5%E6%94%B6%E5%92%8C%E5%8F%91%E9%80%81%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF)%20%E5%92%8C%20backend(%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%9C)%E3%80%82%E8%80%8C%E6%98%AF%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E3%80%82%0Aapp%20%3D%20Celery(%0A%20%20%20%20'demo'%2C%0A%20%20%20%20include%3D%5B%0A%20%20%20%20%20%20%20%20'celery_demo.task1'%2C%0A%20%20%20%20%20%20%20%20'celery_demo.task2'%2C%0A%20%20%20%20%5D%0A)%0A%23%E9%80%9A%E8%BF%87Celery%20%E5%AE%9E%E4%BE%8B%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE%E6%A8%A1%E5%9D%97%0Aapp.config_from_object(%0A%20%20%20%20'celery_demo.celeryconfig'%2C%0A)%0A%60%60%60%0A-%20**step2%3A%E5%9C%A8celery_demo%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E6%96%B0%E5%BB%BA%E4%B8%80%E4%B8%AAceleryconfig.py%E6%96%87%E4%BB%B6%EF%BC%88Celery%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%89**%0A%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A%0A%60%60%60%0A%23%20%E5%AE%98%E6%96%B9%E9%85%8D%E7%BD%AE%E6%96%87%E6%A1%A3%EF%BC%9A%E6%9F%A5%E8%AF%A2%E6%AF%8F%E4%B8%AA%E9%85%8D%E7%BD%AE%E9%A1%B9%E7%9A%84%E5%90%AB%E4%B9%89%E3%80%82%0A%23%20http%3A%2F%2Fdocs.celeryproject.org%2Fen%2Flatest%2Fuserguide%2Fconfiguration.html%0A%0A%23broker(%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%9D%A5%E6%8E%A5%E6%94%B6%E5%92%8C%E5%8F%91%E9%80%81%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF)%0ABROKER_URL%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F1'%0A%23backend(%E5%AD%98%E5%82%A8worker%E6%89%A7%E8%A1%8C%E7%9A%84%E7%BB%93%E6%9E%9C)%0ACELERY_RESULT_BACKEND%20%3D%20'redis%3A%2F%2Flocalhost%3A6379%2F2'%0A%0A%23%E8%AE%BE%E7%BD%AE%E6%97%B6%E9%97%B4%E5%8F%82%E7%85%A7%EF%BC%8C%E4%B8%8D%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E4%BD%BF%E7%94%A8%E7%9A%84UTC%E6%97%B6%E9%97%B4%0ACELERY_TIMEZONE%20%3D%20'Asia%2FShanghai'%0A%23%E6%8C%87%E5%AE%9A%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%0ACELERY_TASK_SERIALIZER%3D'json'%0A%23%E6%8C%87%E5%AE%9A%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%0ACELERY_RESULT_SERIALIZER%3D'json'%0A%60%60%60%0A%0A-%20**step3%3A%E5%9C%A8celery_demo%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E6%96%B0%E5%BB%BAtask1.py%E5%92%8Ctask2.py%E6%96%87%E4%BB%B6**%0A-%20task1.py%E6%96%87%E4%BB%B6%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A%0A%60%60%60%0Aimport%20time%0Afrom%20celery_demo%20import%20app%0A%0A%40app.task%0Adef%20add(x%2Cy)%3A%0A%20%20%20%20time.sleep(5)%0A%20%20%20%20return%20x%2By%0A%60%60%60%0A-%20task2.py%E6%96%87%E4%BB%B6%E4%B8%AD%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A%0A%60%60%60%0Aimport%20time%0Afrom%20celery_demo%20import%20app%0A%0A%40app.task%0Adef%20mut(x%2Cy)%3A%0A%20%20%20%20time.sleep(5)%0A%20%20%20%20return%20x*y%0A%60%60%60%0A%0A-%20**step4%3A%E4%BF%AE%E6%94%B9app.py%E6%96%87%E4%BB%B6%EF%BC%8C%E4%BB%A3%E7%A0%81%E5%A6%82%E4%B8%8B%EF%BC%8C%E5%88%86%E5%88%AB%E5%8F%91%E9%80%81%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%E5%88%B0broker**%0A%0A%60%60%60%0Afrom%20celery_demo%20import%20task1%2Ctask2%0A%0A%23apply_async%E5%92%8Cdelay%E9%83%BD%E8%A1%A8%E7%A4%BA%E8%B0%83%E7%94%A8%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%0Atask1.add.delay(2%2C4)%0A%23%20task1.add.apply_async(2%2C4)%0Atask2.mut.delay(3%2C4)%0A%0Aprint('end...')%0A%60%60%60%0A%23%23%23%23%23%23%20%E6%9F%A5%E7%9C%8B%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C%EF%BC%8C%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%E5%90%AF%E5%8A%A8worker%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%88%99%E8%A1%A8%E7%A4%BA%E5%90%AF%E5%8A%A8%E6%88%90%E5%8A%9F%EF%BC%9A%0A%0A%60%60%60%0AljhdeMacBook-Air%3Acelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%20ljh%24%20celery%20worker%20-A%20celery_demo%20-l%20INFO%0A%20%0A%20--------------%20celery%40ljhdeMacBook-Air.local%20v4.3.0%20(rhubarb)%0A----%20****%20-----%20%0A---%20*%20***%20%20*%20--%20Darwin-17.7.0-x86_64-i386-64bit%202019-04-02%2021%3A57%3A22%0A--%20*%20-%20****%20---%20%0A-%20**%20----------%20%5Bconfig%5D%0A-%20**%20----------%20.%3E%20app%3A%20%20%20%20%20%20%20%20%20demo%3A0x10be02208%0A-%20**%20----------%20.%3E%20transport%3A%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A-%20**%20----------%20.%3E%20results%3A%20%20%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F2%0A-%20***%20---%20*%20---%20.%3E%20concurrency%3A%204%20(prefork)%0A--%20*******%20----%20.%3E%20task%20events%3A%20OFF%20(enable%20-E%20to%20monitor%20tasks%20in%20this%20worker)%0A---%20*****%20-----%20%0A%20--------------%20%5Bqueues%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.%3E%20celery%20%20%20%20%20%20%20%20%20%20%20exchange%3Dcelery(direct)%20key%3Dcelery%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%0A%5Btasks%5D%0A%20%20.%20celery_demo.task1.add%0A%20%20.%20celery_demo.task2.mut%0A%0A%5B2019-04-02%2021%3A57%3A22%2C354%3A%20INFO%2FMainProcess%5D%20Connected%20to%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A%5B2019-04-02%2021%3A57%3A22%2C375%3A%20INFO%2FMainProcess%5D%20mingle%3A%20searching%20for%20neighbors%0A%5B2019-04-02%2021%3A57%3A23%2C405%3A%20INFO%2FMainProcess%5D%20mingle%3A%20all%20alone%0A%5B2019-04-02%2021%3A57%3A23%2C425%3A%20INFO%2FMainProcess%5D%20celery%40ljhdeMacBook-Air.local%20ready.%0A%60%60%60%0A%0A%23%23%23%23%23%23%20%E5%8F%91%E9%80%81%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%EF%BC%8C%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%EF%BC%8C%E8%BF%9B%E8%A1%8C%E5%A6%82%E4%B8%8B%E6%93%8D%E4%BD%9C%EF%BC%9A%0A%60%60%60%0AljhdeMacBook-Air%3Acelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%20ljh%24%20python3%20app.py%20%0Aend...%0A%60%60%60%0A%0A%23%23%23%23%23%23%20%E6%AD%A4%E6%97%B6%E4%BC%9A%E7%9C%8B%E5%88%B0worker%E7%AB%AF%E6%8E%A5%E5%8F%97%E5%88%B0%E4%BA%86%E4%B8%A4%E4%B8%AA%E4%BB%BB%E5%8A%A1%E5%B9%B6%E5%BC%80%E5%A7%8B%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA%EF%BC%9A%0A%0A%60%60%60%0A%5B2019-04-02%2022%3A00%3A21%2C549%3A%20INFO%2FMainProcess%5D%20Received%20task%3A%20celery_demo.task1.add%5B575444a3-4fff-418c-b301-64b6cb378920%5D%20%20%0A%5B2019-04-02%2022%3A00%3A21%2C559%3A%20INFO%2FMainProcess%5D%20Received%20task%3A%20celery_demo.task2.mut%5B0c0403b9-b28c-4f45-932f-65607619acd1%5D%20%20%0A%23%E7%AD%89%E5%BE%85%E4%B8%80%E4%BC%9A%E5%90%8E%E5%87%BA%E7%8E%B0%E5%A6%82%E4%B8%8B%E7%BB%93%E6%9E%9C%0A%5B2019-04-02%2022%3A00%3A26%2C578%3A%20INFO%2FForkPoolWorker-2%5D%20Task%20celery_demo.task1.add%5B575444a3-4fff-418c-b301-64b6cb378920%5D%20succeeded%20in%205.016938224000114s%3A%206%0A%5B2019-04-02%2022%3A00%3A26%2C584%3A%20INFO%2FForkPoolWorker-1%5D%20Task%20celery_demo.task2.mut%5B0c0403b9-b28c-4f45-932f-65607619acd1%5D%20succeeded%20in%205.016304531998685s%3A%2012%0A%60%60%60%0A%23%23%23%20%E5%9B%9B%E3%80%81%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%0A-%20**step1%3A%E5%9C%A8%E4%B9%8B%E5%89%8D%E4%BB%A3%E7%A0%81%E7%9A%84celery_demo%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E7%9A%84celeryconfig.py%E6%96%87%E4%BB%B6%E4%B8%AD%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81**%0A%0A%60%60%60%0Afrom%20datetime%20import%20timedelta%0Afrom%20celery.schedules%20import%20crontab%0A%23%E8%AE%BE%E7%BD%AE%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%0ACELERYBEAT_SCHEDULE%20%3D%20%7B%0A%20%20%20%20'task1'%3A%7B%0A%20%20%20%20%20%20%20%20'task'%3A'celery_demo.task1.add'%2C%0A%20%20%20%20%20%20%20%20'schedule'%3Atimedelta(seconds%3D10)%2C%20%E8%A1%A8%E7%A4%BA%E6%AF%8F10%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%0A%20%20%20%20%20%20%20%20'args'%3A(10%2C20)%0A%20%20%20%20%7D%2C%0A%20%20%20%20'task2'%3A%7B%0A%20%20%20%20%20%20%20%20'task'%3A'celery_demo.task2.mut'%2C%0A%20%20%20%20%20%20%20%20'schedule'%3Acrontab(hour%3D22%2Cminute%3D24)%2C%20%23%E8%A1%A8%E7%A4%BA%E5%9C%A8%E6%AF%8F%E5%A4%A9%E7%9A%84%E6%99%9A%E4%B8%8A10%E7%82%B924%E5%88%86%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%0A%20%20%20%20%20%20%20%20'args'%3A(10%2C10)%0A%20%20%20%20%7D%0A%7D%0A%60%60%60%0A-%20**step2%3A%E5%90%AF%E5%8A%A8%E5%AE%9A%E6%97%B6%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1%EF%BC%8C%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%EF%BC%8C%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4**%0A%3E%20celery%20beat%20-A%20celery_demo%20-l%20INFO%0A%60%60%60%0AljhdeMacBook-Air%3Acelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%20ljh%24%20celery%20beat%20-A%20celery_demo%20-l%20INFO%0Acelery%20beat%20v4.3.0%20(rhubarb)%20is%20starting.%0AStale%20pidfile%20exists%20-%20Removing%20it.%0A__%20%20%20%20-%20%20%20%20...%20__%20%20%20-%20%20%20%20%20%20%20%20_%0ALocalTime%20-%3E%202019-04-02%2022%3A20%3A52%0AConfiguration%20-%3E%0A%20%20%20%20.%20broker%20-%3E%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A%20%20%20%20.%20loader%20-%3E%20celery.loaders.app.AppLoader%0A%20%20%20%20.%20scheduler%20-%3E%20celery.beat.PersistentScheduler%0A%20%20%20%20.%20db%20-%3E%20celerybeat-schedule%0A%20%20%20%20.%20logfile%20-%3E%20%5Bstderr%5D%40%25INFO%0A%20%20%20%20.%20maxinterval%20-%3E%205.00%20minutes%20(300s)%0A%5B2019-04-02%2022%3A20%3A52%2C364%3A%20INFO%2FMainProcess%5D%20beat%3A%20Starting...%0A%0A%60%60%60%0A%0A-%20**step3%3A%E5%90%AF%E5%8A%A8worker%E6%89%A7%E8%A1%8C%E5%AE%9A%E6%97%B6%E6%B6%88%E6%81%AF%E4%BB%BB%E5%8A%A1%EF%BC%8C%E6%89%93%E5%BC%80%E7%BB%88%E7%AB%AF%EF%BC%8C%E6%89%A7%E8%A1%8C%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4**%0A%3E%20celery%20worker%20-A%20celery_demo%20-l%20INFO%0A%60%60%60%0A%5BljhdeMacBook-Air%3Acelery%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%20ljh%24%20celery%20worker%20-A%20celery_demo%20-l%20INFO%0A%20%0A%20--------------%20celery%40ljhdeMacBook-Air.local%20v4.3.0%20(rhubarb)%0A----%20****%20-----%20%0A---%20*%20***%20%20*%20--%20Darwin-17.7.0-x86_64-i386-64bit%202019-04-02%2022%3A23%3A11%0A--%20*%20-%20****%20---%20%0A-%20**%20----------%20%5Bconfig%5D%0A-%20**%20----------%20.%3E%20app%3A%20%20%20%20%20%20%20%20%20demo%3A0x102a5afd0%0A-%20**%20----------%20.%3E%20transport%3A%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A-%20**%20----------%20.%3E%20results%3A%20%20%20%20%20redis%3A%2F%2Flocalhost%3A6379%2F2%0A-%20***%20---%20*%20---%20.%3E%20concurrency%3A%204%20(prefork)%0A--%20*******%20----%20.%3E%20task%20events%3A%20OFF%20(enable%20-E%20to%20monitor%20tasks%20in%20this%20worker)%0A---%20*****%20-----%20%0A%20--------------%20%5Bqueues%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.%3E%20celery%20%20%20%20%20%20%20%20%20%20%20exchange%3Dcelery(direct)%20key%3Dcelery%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%0A%5Btasks%5D%0A%20%20.%20celery_demo.task1.add%0A%20%20.%20celery_demo.task2.mut%0A%0A%5B2019-04-02%2022%3A23%3A11%2C785%3A%20INFO%2FMainProcess%5D%20Connected%20to%20redis%3A%2F%2Flocalhost%3A6379%2F1%0A%5B2019-04-02%2022%3A23%3A11%2C800%3A%20INFO%2FMainProcess%5D%20mingle%3A%20searching%20for%20neighbors%0A%5B2019-04-02%2022%3A23%3A12%2C834%3A%20INFO%2FMainProcess%5D%20mingle%3A%20all%20alone%0A%5B2019-04-02%2022%3A23%3A12%2C853%3A%20INFO%2FMainProcess%5D%20celery%40ljhdeMacBook-Air.local%20ready.%0A%5B2019-04-02%2022%3A23%3A12%2C953%3A%20INFO%2FMainProcess%5D%20Received%20task%3A%20celery_demo.task1.add%5Ba35d4cfe-5562-4446-a93b-6b11be28c31a%5D%20%20%0A%60%60%60%0A%E5%A6%82%E6%9E%9C%E8%A6%81%E6%89%A7%E8%A1%8C%E7%9A%84%E6%98%AF%E7%88%AC%E8%99%AB%E4%BB%BB%E5%8A%A1%EF%BC%8C%E5%8F%AA%E9%9C%80%E8%A6%81%E5%B0%86%E4%B8%8A%E9%9D%A2%E7%9A%84%E6%96%B9%E6%B3%95%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%A0%81%E6%9B%BF%E6%8D%A2%E4%B8%BA%E7%88%AC%E8%99%AB%E4%BB%A3%E7%A0%81%E5%8D%B3%E5%8F%AF%0A%0A%23%23%23%20%E4%BD%BF%E7%94%A8celery%E6%90%AD%E5%BB%BA%E5%88%86%E5%B8%83%E5%BC%8F%E7%88%AC%E8%99%AB%E7%B3%BB%E7%BB%9F%0A%E5%8F%82%E7%85%A7%E6%B5%81%E7%A8%8B%E5%9B%BE%E5%A6%82%E6%96%87%E7%AB%A0%E5%BC%80%E5%A4%B4%E6%89%80%E7%A4%BA%E6%80%9D%E8%B7%AF%E5%B1%95%E5%BC%80%EF%BC%9A%0A%E5%85%B7%E4%BD%93%E4%BB%A3%E7%A0%81%EF%BC%8C%E6%9C%AA%E5%AE%8C%E5%BE%85%E7%BB%AD......%0A%0A%23%23%23%23%23%20%E7%AE%80%E5%8D%95%E7%9A%84%E4%BD%BF%E7%94%A8celery%E5%AE%8C%E6%88%90%E4%B8%8B%E5%8E%A8%E6%88%BF%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E7%88%AC%E8%99%AB%E4%BB%A3%E7%A0%81%E5%9C%B0%E5%9D%80%E5%A6%82%E4%B8%8B%EF%BC%8C%E5%8F%AF%E8%87%AA%E8%A1%8C%E4%B8%8B%E8%BD%BD%EF%BC%9A%0A%0Ahttps%3A%2F%2Fgithub.com%2Fljhyigehaoren%2Fcelery_best.git%0A%0A%0A%23%23%23%23%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E9%83%A8%E5%88%86%EF%BC%9A%0A%E5%A6%82%E6%9E%9C%E6%88%91%E4%BB%AC%E7%9A%84celery%E9%87%8C%E9%9D%A2%E6%9C%89%E5%A4%9A%E4%B8%AA%E4%BB%BB%E5%8A%A1%EF%BC%8C%E9%82%A3%E4%B9%88%E6%89%80%E6%9C%89%E7%9A%84%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%E9%BB%98%E8%AE%A4%E9%83%BD%E4%BC%9A%E5%9C%A8%E5%90%8C%E4%B8%80%E4%B8%AAqueue%EF%BC%88%E9%98%9F%E5%88%97%E4%B8%AD%EF%BC%89%E9%87%8C%E9%9D%A2%EF%BC%8C%E8%BF%99%E6%A0%B7%E5%86%99%E8%99%BD%E7%84%B6%E7%AE%80%E5%8D%95%E3%80%82%E4%BD%86%E5%A6%82%E6%9E%9C%E8%80%83%E8%99%91%E5%88%B0%E6%AF%8F%E4%B8%AA%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E8%80%97%E8%B4%B9%E8%B5%84%E6%BA%90%E6%88%96%E8%80%85%E9%87%8D%E8%A6%81%E7%A8%8B%E5%BA%A6%E4%B8%8D%E5%90%8C%EF%BC%8C%E6%8A%8A%E5%A4%9A%E4%B8%AA%E4%BB%BB%E5%8A%A1%E6%B6%88%E6%81%AF%E6%94%BE%E5%88%B0%E5%90%8C%E4%B8%80%E4%B8%AAqueue%E4%B8%AD%EF%BC%8C%E5%8F%AF%E8%83%BD%E9%80%A0%E6%88%90%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E9%95%BF%E4%BD%86%E9%87%8D%E8%A6%81%E7%A8%8B%E5%BA%A6%E5%8D%B4%E4%BD%8E%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%85%88%E6%89%A7%E8%A1%8C%EF%BC%8C%E6%9E%81%E5%A4%A7%E7%9A%84%E5%BD%B1%E5%93%8D%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%8A%9F%E8%83%BD%E3%80%82%E5%9C%A8%E4%BD%BF%E7%94%A8%E5%90%8C%E4%B8%80%E4%B8%AAqueue%E6%97%B6%EF%BC%8C%E5%B0%B1%E7%AE%97%E5%A2%9E%E5%8A%A0worker%EF%BC%88%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E5%8D%95%E5%85%83%EF%BC%89%E4%B9%9F%E6%97%A0%E6%B3%95%E8%A7%A3%E5%86%B3%E8%AF%A5%E9%97%AE%E9%A2%98%E3%80%82%0A%E4%B8%BA%E4%BA%86%E8%A7%A3%E5%86%B3%E8%AF%A5%E9%97%AE%E9%A2%98%EF%BC%8C%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E6%8A%8A%E4%B8%8D%E9%80%9A%E4%BB%BB%E5%8A%A1%E6%94%BE%E5%88%B0%E4%B8%8D%E9%80%9A%E7%9A%84queue%E4%B8%AD%E3%80%82%E5%90%8C%E6%97%B6%E6%8C%87%E5%AE%9Aworker%E5%8E%BB%E5%A4%84%E7%90%86%E7%89%B9%E5%AE%9Aqueue%E4%B8%AD%E7%9A%84%E4%BB%BB%E5%8A%A1%EF%BC%8C%E4%BD%BF%E7%94%A8%E8%BF%99%E7%A7%8D%E6%96%B9%E5%BC%8F%E6%97%B6%EF%BC%8C%E5%90%84%E4%B8%AA%E4%BB%BB%E5%8A%A1%E5%B0%B1%E8%83%BD%E8%8E%B7%E5%BE%97%E8%B6%B3%E5%A4%9F%E7%9A%84worker%E5%8E%BB%E5%A4%84%E7%90%86%EF%BC%8C%E5%90%8C%E6%97%B6%E4%B8%80%E4%BA%9B%E4%BC%98%E5%85%88%E7%BA%A7worker%E4%B9%9F%E8%83%BD%E5%BE%88%E5%A5%BD%E7%9A%84%E5%A4%84%E7%90%86%E9%87%8D%E8%A6%81%E7%9A%84%E4%BB%BB%E5%8A%A1%E8%80%8C%E4%B8%8D%E9%9C%80%E8%A6%81%E7%AD%89%E5%BE%85%E4%BA%86%E3%80%82%0A%0A%23%23%23%23%23%23%20%E5%B0%B1%E4%B8%8A%E9%9D%A2%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BB%A3%E7%A0%81%E6%9D%A5%E8%AF%B4%2C%E5%AE%9A%E4%B9%89queue%E5%92%8Croutes%0A-%20step1%3A%E5%AE%9A%E4%B9%89queue%0A%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81%E5%9C%A8celeryconf.py%E6%96%87%E4%BB%B6%E4%B8%AD%EF%BC%8C%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%0A%60%60%60%0Afrom%20kombu%20import%20Exchange%2CQueue%0A%22%22%22%0Acrawl_category_list%0Aparse_category_data%0Acrawl_caipu_list%0Acrawl_caipu_detail%0A%22%22%22%0A%0A%23%E5%AE%9A%E4%B9%89queue%0ACELERY_QUEUES%20%3D%20(%0A%20%20%20%20Queue(%0A%20%20%20%20%20%20%20%20'default'%2C%0A%20%20%20%20%20%20%20%20exchange%3DExchange('default')%2C%0A%20%20%20%20%20%20%20%20routing_key%3D'default'%0A%20%20%20%20)%2C%0A%20%20%20%20Queue(%0A%20%20%20%20%20%20%20%20'crawl_caipu_list'%2C%0A%20%20%20%20%20%20%20%20exchange%3D'crawl_caipu_list'%2C%0A%20%20%20%20%20%20%20%20routing_key%3D'crawl_caipu_list'%2C%0A%20%20%20%20)%2C%0A%20%20%20%20Queue(%0A%20%20%20%20%20%20%20%20'crawl_caipu_detail'%2C%0A%20%20%20%20%20%20%20%20exchange%3D'crawl_caipu_detail'%2C%0A%20%20%20%20%20%20%20%20routing_key%3D'crawl_caipu_detail'%0A%20%20%20%20)%0A)%0A%0A%60%60%60%0A%0A-%20step2%3A%E5%AE%9A%E4%B9%89routes%E7%94%A8%E6%9D%A5%E5%86%B3%E5%AE%9A%E4%B8%8D%E5%90%8C%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%8E%BB%E5%AD%98%E6%94%BE%E5%9C%A8%E5%93%AA%E4%B8%80%E4%B8%AAqueue%0A-%20CELERY_ROUTES%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%EF%BC%8C%E7%BB%99%E4%BB%BB%E5%8A%A1%E5%88%86%E9%85%8Dqueue%E5%92%8Crouting_key%EF%BC%8C%E7%84%B6%E5%90%8E%E6%A0%B9%E6%8D%AE%E7%BB%99worker%E5%88%86%E9%85%8D%E7%9A%84queue%E5%80%BC%E6%89%A7%E8%A1%8C%E7%9B%B8%E5%BA%94%E7%9A%84%E4%BB%BB%E5%8A%A1%E3%80%82%0A%0A%60%60%60%0ACELERY_ROUTES%20%3D%20%7B%0A%20%20%20%20'celery_app.teskone.crawl_caipu_list'%3A%7B%0A%20%20%20%20%20%20%20%20'queue'%3A'crawl_caipu_list'%2C%0A%20%20%20%20%20%20%20%20'routing_key'%3A'crawl_caipu_list'%2C%0A%20%20%20%20%7D%2C%0A%20%20%20%20'celery_app.teskone.crawl_caipu_detail'%3A%7B%0A%20%20%20%20%20%20%20%20'queue'%3A'crawl_caipu_detail'%2C%0A%20%20%20%20%20%20%20%20'routing_key'%3A'crawl_caipu_detail'%2C%0A%20%20%20%20%7D%0A%7D%0A%60%60%60%0A%0A**%E6%B3%A8%E6%84%8F%EF%BC%9A%E5%A6%82%E6%9E%9C%E6%B2%A1%E6%9C%89ip%E7%9A%84%E5%90%8C%E5%AD%A6%EF%BC%8C%E8%A7%89%E5%BE%97%E5%BC%82%E6%AD%A5%E7%9A%84%E8%AF%B7%E6%B1%82%E5%A4%AA%E5%BF%AB%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E9%99%8D%E4%BD%8E%E8%AE%BF%E9%97%AE%E9%A2%91%E7%8E%87**%0A%0A%60%60%60%0A%23%E9%99%90%E5%88%B6%E6%89%80%E6%9C%89%E4%BB%BB%E5%8A%A1%E6%AF%8F%E7%A7%92%E9%92%9F%E7%9A%84%E8%AF%B7%E6%B1%82%E9%A2%91%E7%8E%87%0A%23CELERY_ANNOTATIONS%20%3D%20%7B%20'tasks.add'%3A%20%7B'rate_limit'%3A%20'10%2Fm'%7D%20%7D%0A%0ACELERY_ANNOTATIONS%20%3D%20%7B'*'%3A%7B'rate_limit'%3A'1%2Fs'%7D%7D%0A%60%60%60%0A%0A-%20%E6%9C%80%E5%90%8E%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%9C%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E6%8C%87%E5%AE%9A%E4%B8%8D%E5%90%8C%E7%9A%84worker%E6%89%A7%E8%A1%8C%E4%B8%8D%E9%80%9A%E7%9A%84queue%E4%B8%AD%E7%9A%84%E4%BB%BB%E5%8A%A1%0A%E5%91%BD%E4%BB%A4%E5%A6%82%E4%B8%8B%EF%BC%9A%0A%3E%20celery%20worker%20-A%20celery%E9%A1%B9%E7%9B%AE%20-l%20INFO%20-Q%20queuename(%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E7%9A%84%E9%98%9F%E5%88%97%E5%90%8D%E7%A7%B0)%0A%0A</center></body></html>

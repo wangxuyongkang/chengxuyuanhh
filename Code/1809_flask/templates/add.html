@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="" method="post">
+    名字:<input type="text" name="new_name" value=""><br>
+    性别:<input type="text" name="new_gender" value=""><br>
+    类型:
+    {% for type in types %}
+        <input type="radio" name="type_id" value="{{ type.id }}">{{ type.name }}
+    {% endfor %}
+    <br>
+    <input type="submit" value="添加">
+</form>
+</body>
+</html>
